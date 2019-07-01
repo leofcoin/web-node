@@ -1,0 +1,31 @@
+{
+  "name": "@leofcoin/webnode",
+  "version": "1.0.0",
+  "description": "",
+  "main": "webnode.js",
+  "module": "src/webnode.js",
+  "scripts": {
+    "postversion": "npm publish",
+    "prepublish": "npm run c && npm run b",
+    "b": "browserify webnode.js --standalone webnode -o dist/webnode.js",
+    "c": "rollup -c",
+    "wc": "webpack -c",
+    "w": "rollup -c -w",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@leofcoin/dapnets": "^1.1.4",
+    "@leofcoin/disco-room": "^1.0.0",
+    "libp2p-pnet": "^0.1.0"
+  },
+  "devDependencies": {
+    "browserify": "^16.3.0",
+    "rollup": "^1.16.6",
+    "rollup-plugin-commonjs": "^10.0.1",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup-plugin-terser": "^5.1.0"
+  }
+}
