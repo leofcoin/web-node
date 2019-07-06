@@ -18,7 +18,7 @@
   "license": "MIT",
   "dependencies": {
     "@leofcoin/dapnets": "^1.1.4",
-    "@leofcoin/disco-room": "^1.1.4",
+    "@leofcoin/disco-room": "^1.1.5",
     "libp2p-pnet": "^0.1.0"
   },
   "devDependencies": {
