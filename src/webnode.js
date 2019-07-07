@@ -49,7 +49,7 @@ export default async () => {
     const ready = () => new Promise((resolve, reject) => {  
       node.once('ready', async () => {
         const {id} = await node.id()
-        routing = new DelegatedContentRouing(id, {
+        routing = new DelegatedContentRouting(id, {
           // use default api settings
           protocol: 'https',
           port: 443,
