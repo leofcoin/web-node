@@ -1,6 +1,6 @@
 {
   "name": "@leofcoin/webnode",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "description": "",
   "main": "webnode.js",
   "module": "src/webnode.js",
