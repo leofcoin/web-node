@@ -2,7 +2,7 @@ import * as Protector from 'libp2p-pnet';
 import DelegatedContentRouting from 'libp2p-delegated-content-routing'
 
 // default is to use ipfs.io
-let routing ;
+let routing ={} ;
 import dapnets from '@leofcoin/dapnets';
 import discoRoom from '@leofcoin/disco-room';
 
