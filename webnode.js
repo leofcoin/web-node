@@ -32,7 +32,8 @@ var webnode = async () => {
       EXPERIMENTAL: {
         pubsub: true, // enable pubsub
         ipnsPubsub: true,
-        sharding: true
+        sharding: true,
+        dht: true
       },
       config: {
         Bootstrap: ['/ip4/162.208.10.171/tcp/4005/ws/ipfs/QmVDtTRCoYyYu5JFdtrtBMS4ekPn8f9NndymoHdWuuJ7N2']
