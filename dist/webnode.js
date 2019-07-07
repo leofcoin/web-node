@@ -111825,22 +111825,22 @@ let routing = new DelegatedContentRouting('QmVDtTRCoYyYu5JFdtrtBMS4ekPn8f9Nndymo
   host: 'star.leofcoin.org'
 });
 
-
-routing.findProviders(key, (err, peerInfos) => {
-  if (err) {
-    return console.error(err)
-  }
-
-  console.log('found peers', peerInfos);
-});
-
-routing.provide(key, (err) => {
-  if (err) {
-    return console.error(err)
-  }
-
-  console.log('providing %s', key);
-});
+// 
+// routing.findProviders(key, (err, peerInfos) => {
+//   if (err) {
+//     return console.error(err)
+//   }
+// 
+//   console.log('found peers', peerInfos)
+// })
+// 
+// routing.provide(key, (err) => {
+//   if (err) {
+//     return console.error(err)
+//   }
+// 
+//   console.log('providing %s', key)
+// })
 
 const importScript = src => new Promise((resolve, reject) => {
   const script = document.createElement('script');
