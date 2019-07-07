@@ -111818,7 +111818,29 @@ var dapnets = _interopDefault(require('@leofcoin/dapnets'));
 var discoRoom = _interopDefault(require('@leofcoin/disco-room'));
 
 // default is to use ipfs.io
-let routing ={} ;
+let routing = new DelegatedContentRouting('QmVDtTRCoYyYu5JFdtrtBMS4ekPn8f9NndymoHdWuuJ7N2', {
+  // use default api settings
+  protocol: 'https',
+  port: 443,
+  host: 'star.leofcoin.org'
+});
+
+
+routing.findProviders(key, (err, peerInfos) => {
+  if (err) {
+    return console.error(err)
+  }
+
+  console.log('found peers', peerInfos);
+});
+
+routing.provide(key, (err) => {
+  if (err) {
+    return console.error(err)
+  }
+
+  console.log('providing %s', key);
+});
 
 const importScript = src => new Promise((resolve, reject) => {
   const script = document.createElement('script');
@@ -111863,28 +111885,6 @@ var webnode = async () => {
     const ready = () => new Promise((resolve, reject) => {  
       node.once('ready', async () => {
         const {id} = await node.id();
-        routing = new DelegatedContentRouting(id, {
-          // use default api settings
-          protocol: 'https',
-          port: 443,
-          host: 'star.leofcoin.org'
-        });
-
-        routing.findProviders(key, (err, peerInfos) => {
-          if (err) {
-            return console.error(err)
-          }
-
-          console.log('found peers', peerInfos);
-        });
-
-        routing.provide(key, (err) => {
-          if (err) {
-            return console.error(err)
-          }
-
-          console.log('providing %s', key);
-        });
         const room = new discoRoom(node, `${net.netPrefix}-signal`);
         resolve(room);
       });
