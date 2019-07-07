@@ -111818,7 +111818,7 @@ var dapnets = _interopDefault(require('@leofcoin/dapnets'));
 var discoRoom = _interopDefault(require('@leofcoin/disco-room'));
 
 // default is to use ipfs.io
-let routing ;
+let routing ={} ;
 
 const importScript = src => new Promise((resolve, reject) => {
   const script = document.createElement('script');

@@ -40,7 +40,7 @@ export default async () => {
       },
       libp2p: {
         modules: {
-          routing,
+          contentRouting: routing,
           connProtector: new Protector(net.swarmKey)
         }
       }
