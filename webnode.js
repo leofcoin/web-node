@@ -11,9 +11,9 @@ var discoRoom = _interopDefault(require('@leofcoin/disco-room'));
 let routing = [];
 routing.push(new DelegatedContentRouting('QmVDtTRCoYyYu5JFdtrtBMS4ekPn8f9NndymoHdWuuJ7N2', {
   // use default api settings
-  protocol: 'http',
+  protocol: 'https',
   port: 443,
-  host: 'star.leofcoin.org'
+  host: 'leofcoin.org'
 }));
 
 // 
@@ -63,7 +63,7 @@ var webnode = async () => {
         dht: true
       },
       config: {
-        Bootstrap: ['/ip4/162.208.10.171/tcp/4005/ws/ipfs/QmVDtTRCoYyYu5JFdtrtBMS4ekPn8f9NndymoHdWuuJ7N2']
+        Bootstrap: ['/ip4/162.208.10.171/tcp/4005/wss/ipfs/QmVDtTRCoYyYu5JFdtrtBMS4ekPn8f9NndymoHdWuuJ7N2']
       },
       libp2p: {
         modules: {
@@ -78,9 +78,9 @@ var webnode = async () => {
         const {id} = await node.id();
         routing.push(new DelegatedContentRouting(id, {
           // use default api settings
-          protocol: 'http',
+          protocol: 'https',
           port: 443,
-          host: 'star.leofcoin.org'
+          host: 'leofcoin.org'
         }));
         const room = new discoRoom(node, `${net.netPrefix}-signal`);
         resolve(room);

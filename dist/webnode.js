@@ -111823,7 +111823,7 @@ routing.push(new DelegatedContentRouting('QmVDtTRCoYyYu5JFdtrtBMS4ekPn8f9NndymoH
   // use default api settings
   protocol: 'http',
   port: 443,
-  host: 'star.leofcoin.org'
+  host: 'leofcoin.org'
 }));
 
 // 
@@ -111890,7 +111890,7 @@ var webnode = async () => {
           // use default api settings
           protocol: 'http',
           port: 443,
-          host: 'star.leofcoin.org'
+          host: 'leofcoin.org'
         }));
         const room = new discoRoom(node, `${net.netPrefix}-signal`);
         resolve(room);

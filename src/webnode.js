@@ -7,7 +7,7 @@ import discoRoom from '@leofcoin/disco-room';
 let routing = [];
 routing.push(new DelegatedContentRouting('QmVDtTRCoYyYu5JFdtrtBMS4ekPn8f9NndymoHdWuuJ7N2', {
   // use default api settings
-  protocol: 'http',
+  protocol: 'https',
   port: 443,
   host: 'leofcoin.org'
 }))
@@ -59,7 +59,7 @@ export default async () => {
         dht: true
       },
       config: {
-        Bootstrap: ['/ip4/162.208.10.171/tcp/4005/ws/ipfs/QmVDtTRCoYyYu5JFdtrtBMS4ekPn8f9NndymoHdWuuJ7N2']
+        Bootstrap: ['/ip4/162.208.10.171/tcp/4005/wss/ipfs/QmVDtTRCoYyYu5JFdtrtBMS4ekPn8f9NndymoHdWuuJ7N2']
       },
       libp2p: {
         modules: {
@@ -74,7 +74,7 @@ export default async () => {
         const {id} = await node.id();
         routing.push(new DelegatedContentRouting(id, {
           // use default api settings
-          protocol: 'http',
+          protocol: 'https',
           port: 443,
           host: 'leofcoin.org'
         }));
