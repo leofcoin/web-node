@@ -1,4 +1,8 @@
 import * as Protector from 'libp2p-pnet';
+import DelegatedContentRouting from 'libp2p-delegated-content-routing'
+
+// default is to use ipfs.io
+let routing ;
 import dapnets from '@leofcoin/dapnets';
 import discoRoom from '@leofcoin/disco-room';
 
@@ -36,13 +40,37 @@ export default async () => {
       },
       libp2p: {
         modules: {
+          routing,
           connProtector: new Protector(net.swarmKey)
         }
       }
     });   
 
     const ready = () => new Promise((resolve, reject) => {  
-      node.once('ready', () => {
+      node.once('ready', async () => {
+        const {id} = await node.id()
+        routing = new DelegatedContentRouing(id, {
+          // use default api settings
+          protocol: 'https',
+          port: 443,
+          host: 'star.leofcoin.org'
+        })
+
+        routing.findProviders(key, (err, peerInfos) => {
+          if (err) {
+            return console.error(err)
+          }
+
+          console.log('found peers', peerInfos)
+        })
+
+        routing.provide(key, (err) => {
+          if (err) {
+            return console.error(err)
+          }
+
+          console.log('providing %s', key)
+        })
         const room = new discoRoom(node, `${net.netPrefix}-signal`);
         resolve(room);
       })

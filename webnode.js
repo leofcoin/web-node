@@ -3,8 +3,12 @@
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
 var Protector = require('libp2p-pnet');
+require('libp2p-delegated-content-routing');
 var dapnets = _interopDefault(require('@leofcoin/dapnets'));
 var discoRoom = _interopDefault(require('@leofcoin/disco-room'));
+
+// default is to use ipfs.io
+let routing ;
 
 const importScript = src => new Promise((resolve, reject) => {
   const script = document.createElement('script');
@@ -40,13 +44,37 @@ var webnode = async () => {
       },
       libp2p: {
         modules: {
+          routing,
           connProtector: new Protector(net.swarmKey)
         }
       }
     });   
 
     const ready = () => new Promise((resolve, reject) => {  
-      node.once('ready', () => {
+      node.once('ready', async () => {
+        const {id} = await node.id();
+        routing = new DelegatedContentRouing(id, {
+          // use default api settings
+          protocol: 'https',
+          port: 443,
+          host: 'star.leofcoin.org'
+        });
+
+        routing.findProviders(key, (err, peerInfos) => {
+          if (err) {
+            return console.error(err)
+          }
+
+          console.log('found peers', peerInfos);
+        });
+
+        routing.provide(key, (err) => {
+          if (err) {
+            return console.error(err)
+          }
+
+          console.log('providing %s', key);
+        });
         const room = new discoRoom(node, `${net.netPrefix}-signal`);
         resolve(room);
       });
