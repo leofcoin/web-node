@@ -111813,7 +111813,7 @@ function extend() {
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
 var Protector = require('libp2p-pnet');
-require('libp2p-delegated-content-routing');
+var DelegatedContentRouting = _interopDefault(require('libp2p-delegated-content-routing'));
 var dapnets = _interopDefault(require('@leofcoin/dapnets'));
 var discoRoom = _interopDefault(require('@leofcoin/disco-room'));
 
@@ -111863,7 +111863,7 @@ var webnode = async () => {
     const ready = () => new Promise((resolve, reject) => {  
       node.once('ready', async () => {
         const {id} = await node.id();
-        routing = new DelegatedContentRouing(id, {
+        routing = new DelegatedContentRouting(id, {
           // use default api settings
           protocol: 'https',
           port: 443,
