@@ -11,7 +11,7 @@ var discoRoom = _interopDefault(require('@leofcoin/disco-room'));
 let routing = [];
 routing.push(new DelegatedContentRouting('QmVDtTRCoYyYu5JFdtrtBMS4ekPn8f9NndymoHdWuuJ7N2', {
   // use default api settings
-  protocol: 'https',
+  protocol: 'http',
   port: 443,
   host: 'star.leofcoin.org'
 }));
@@ -78,7 +78,7 @@ var webnode = async () => {
         const {id} = await node.id();
         routing.push(new DelegatedContentRouting(id, {
           // use default api settings
-          protocol: 'https',
+          protocol: 'http',
           port: 443,
           host: 'star.leofcoin.org'
         }));
