@@ -133,7 +133,7 @@ class DiscoRoom extends PeerMonitor {
       } else if (this.thisPeer(message.data.for) && peers && peers.length > 1) {
         peers.forEach(async peer => {
           if (!this.thisPeer(peer)) {
-            await _pushAndConnect(peer);
+            await this._pushAndConnect(peer);
           }   
         });
       }
@@ -161,7 +161,7 @@ class DiscoRoom extends PeerMonitor {
   async _peerJoined(peer) {    
     if (!this.hasPeer(peer)) {
       console.log(`${peer} joined`);
-      await _pushAndConnect(peer);
+      await this._pushAndConnect(peer);
       this._rebroadcast(peer);
     }
   }
