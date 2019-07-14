@@ -72,51 +72,14 @@ class DiscoRoom extends PeerMonitor {
     this.ipfs = ipfs;
 
     this.topic = topic;
-    this.peers = [];    
-    
-    ipfs.pubsub.subscribe(topic, async (message) => {
-      console.log(message.data);
-      try {
-        message.data = ab2str(message.data);
-        message.data = JSON.parse(message.data);
-        
-        const { peer, peers } = message.data;
-        if (peer && peer !== this.id && this.peers.indexOf(peer) === -1) {        
-          this.broadcast({ type: 'peerlist', for: peer, peers: this.peers });
-          try {              
-            await this.ipfs.swarm.connect('/ipfs/' + peer);
-            this.peers.push(peer);
-          } catch (e) {
-            console.error(e);  
-          }
-        }
-        else if (message.data.for === this.id && peers && peers.length > 1) {
-          peers.forEach(async peer => {
-            try {              
-              if (this.peers.indexOf(peer) === -1 && peer !== this.id) {
-                await this.ipfs.swarm.connect('/ipfs/' + peer);
-                this.peers.push(peer);
-              }              
-            } catch (e) {
-              console.error(e);  
-            }
-          });
-        }
-      } catch (e) {
-        console.error(e);
-      }      
-      // super.emit('message', message);
-    }, (err, res) => {});
+    this.peers = [];
     
     this._peerJoined = this._peerJoined.bind(this);
     this._peerLeft = this._peerLeft.bind(this);
-    this._subscribed = this._subscribed.bind(this);
+    this._subscribed = this._subscribed.bind(this);    
+    this._onTopicMessage = this._onTopicMessage.bind(this);
     
-    this.init();
-    // this.ipfs.id().then(({ id }) => {
-    // this.broadcast(JSON.stringify({type: 'joining', from: id}))  
-    // })
-    
+    this.init();    
   }
   
   async init() {
@@ -128,52 +91,77 @@ class DiscoRoom extends PeerMonitor {
     this.on('error', error => console.error(error));
     this.on('subscribed', this._subscribed);
     
+    await ipfs.pubsub.subscribe(this.topic, this._onTopicMessage);
     this.broadcast({ type: 'peer-joined', peer: this.id });   
   }
 
 
   async broadcast(data) {
-    await this.ipfs.pubsub.publish(this.topic, Buffer.from(str2ab(JSON.stringify(data))));
+    const arrayBuffer = str2ab(JSON.stringify(data));
+    await this.ipfs.pubsub.publish(this.topic, Buffer.from(arrayBuffer), 'ArrayBuffer');
+  }
+  
+  async _onTopicMessage(message) {
+    try {
+      let data = ab2str(message.data);
+      data = JSON.parse(data);      
+      const { peer, peers, from } = data;
+      
+      if (peer && peer !== this.id && this.peers.indexOf(peer) === -1) {        
+        this.broadcast({ type: 'peerlist', for: peer, peers: this.peers });
+        this.peers.push(peer);
+        try {
+          await this.ipfs.swarm.connect('/p2p-circuit/ipfs/' + peer);
+        } catch (e) {
+          console.error(e);  
+        }
+      }
+      else if (message.data.for === this.id && peers && peers.length > 1) {
+        peers.forEach(async peer => {
+          try {              
+            if (this.peers.indexOf(peer) === -1 && peer !== this.id) {
+              this.peers.push(peer);
+              await this.ipfs.swarm.connect('/p2p-circuit/ipfs/' + peer);
+            }              
+          } catch (e) {
+            console.error(e);  
+          }
+        });
+      }
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   _subscribed() {
     this.subscribed = true;
   }
+  
+  /**
+   * rebroadcast 'peer-joined' message to client connected peers
+   * typically new connected nodes will only have one connection at first.
+   * 
+   * @param {string} peer - base58 string of the peer id
+   * @param {string} type 'peer-joined' - event name
+   * @param {string} from [this.id]
+   */
+  _rebroadcast(peer, type = 'peer-joined') {
+    this.broadcast({ type, peer, from: this.id });
+  }
 
   _peerJoined(peer) {
-    console.log(peer); 
-    if (this.peers.indexOf(peer) === -1) this.peers.push(peer);
-    
-    // this.whisper(peer)
+    console.log(`${peer} joined`);
+    if (this.peers.indexOf(peer) === -1) {
+      this._rebroadcast(peer);
+      this.peers.push(peer);      
+    }
   }
 
   _peerLeft(peer) {
-    this.peers.splice(this.peers.indexOf(peer), 1);
+    console.log(`${peer} left`);
+    const index = this.peers.indexOf(peer);
+    if (index !== -1) this.peers.splice(index, 1);
   }
-
-  // async whisper(peerID, event) {  
-  //   console.log(peerID, 'whisper');  
-  //   event.from = this.id;
-  //   peerID = `/ipfs/${peerID}`;
-  //   const channel = await Channel.open(this.ipfs, peerID);
-  //   // await channel.connect();
-  //   console.log('conne');
-  //   channel.on('message', async (message) => {
-  //     console.log(message);
-  //     if (message.from !== this.id) {
-  //       if (message.type === 'join') {
-  //         const index = message.data.indexOf(this.id);
-  //         if (index !== -1) message.data.splice(index, 1);
-  //         this.ipfs.swarm.connect(message.data);
-  //         channel.close();
-  //       } else {
-  //         await this.whisper(message.from, { type: 'join', from: this.id, data: this.peers});
-  //         channel.close();
-  //       }
-  //     }
-  //   });
-  //   return channel.emit('message', event)
-  // }
 }
 
 module.exports = DiscoRoom;
@@ -19492,8 +19480,7 @@ module.exports={
   "_requiredBy": [
     "/browserify-sign",
     "/create-ecdh",
-    "/secp256k1",
-    "/tiny-secp256k1"
+    "/secp256k1"
   ],
   "_resolved": "https://registry.npmjs.org/elliptic/-/elliptic-6.4.1.tgz",
   "_spec": "6.4.1",
@@ -40311,7 +40298,7 @@ module.exports = keys;
 /**
  * @license
  * Lodash <https://lodash.com/>
- * Copyright JS Foundation and other contributors <https://js.foundation/>
+ * Copyright OpenJS Foundation and other contributors <https://openjsf.org/>
  * Released under MIT license <https://lodash.com/license>
  * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
  * Copyright Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
@@ -40322,7 +40309,7 @@ module.exports = keys;
   var undefined;
 
   /** Used as the semantic version number. */
-  var VERSION = '4.17.11';
+  var VERSION = '4.17.14';
 
   /** Used as the size to enable large array optimizations. */
   var LARGE_ARRAY_SIZE = 200;
@@ -42981,16 +42968,10 @@ module.exports = keys;
         value.forEach(function(subValue) {
           result.add(baseClone(subValue, bitmask, customizer, subValue, value, stack));
         });
-
-        return result;
-      }
-
-      if (isMap(value)) {
+      } else if (isMap(value)) {
         value.forEach(function(subValue, key) {
           result.set(key, baseClone(subValue, bitmask, customizer, key, value, stack));
         });
-
-        return result;
       }
 
       var keysFunc = isFull
@@ -43914,8 +43895,8 @@ module.exports = keys;
         return;
       }
       baseFor(source, function(srcValue, key) {
+        stack || (stack = new Stack);
         if (isObject(srcValue)) {
-          stack || (stack = new Stack);
           baseMergeDeep(object, source, key, srcIndex, baseMerge, customizer, stack);
         }
         else {
@@ -45732,7 +45713,7 @@ module.exports = keys;
       return function(number, precision) {
         number = toNumber(number);
         precision = precision == null ? 0 : nativeMin(toInteger(precision), 292);
-        if (precision) {
+        if (precision && nativeIsFinite(number)) {
           // Shift with exponential notation to avoid floating-point issues.
           // See [MDN](https://mdn.io/round#Examples) for more details.
           var pair = (toString(number) + 'e').split('e'),
@@ -46915,7 +46896,7 @@ module.exports = keys;
     }
 
     /**
-     * Gets the value at `key`, unless `key` is "__proto__".
+     * Gets the value at `key`, unless `key` is "__proto__" or "constructor".
      *
      * @private
      * @param {Object} object The object to query.
@@ -46923,6 +46904,10 @@ module.exports = keys;
      * @returns {*} Returns the property value.
      */
     function safeGet(object, key) {
+      if (key === 'constructor' && typeof object[key] === 'function') {
+        return;
+      }
+
       if (key == '__proto__') {
         return;
       }
@@ -50723,6 +50708,7 @@ module.exports = keys;
           }
           if (maxing) {
             // Handle invocations in a tight loop.
+            clearTimeout(timerId);
             timerId = setTimeout(timerExpired, wait);
             return invokeFunc(lastCallTime);
           }
@@ -55109,9 +55095,12 @@ module.exports = keys;
       , 'g');
 
       // Use a sourceURL for easier debugging.
+      // The sourceURL gets injected into the source that's eval-ed, so be careful
+      // with lookup (in case of e.g. prototype pollution), and strip newlines if any.
+      // A newline wouldn't be a valid sourceURL anyway, and it'd enable code injection.
       var sourceURL = '//# sourceURL=' +
-        ('sourceURL' in options
-          ? options.sourceURL
+        (hasOwnProperty.call(options, 'sourceURL')
+          ? (options.sourceURL + '').replace(/[\r\n]/g, ' ')
           : ('lodash.templateSources[' + (++templateCounter) + ']')
         ) + '\n';
 
@@ -55144,7 +55133,9 @@ module.exports = keys;
 
       // If `variable` is not specified wrap a with-statement around the generated
       // code to add the data object to the top of the scope chain.
-      var variable = options.variable;
+      // Like with sourceURL, we take care to not check the option's prototype,
+      // as this configuration is a code injection vector.
+      var variable = hasOwnProperty.call(options, 'variable') && options.variable;
       if (!variable) {
         source = 'with (obj) {\n' + source + '\n}\n';
       }
@@ -57349,10 +57340,11 @@ module.exports = keys;
     baseForOwn(LazyWrapper.prototype, function(func, methodName) {
       var lodashFunc = lodash[methodName];
       if (lodashFunc) {
-        var key = (lodashFunc.name + ''),
-            names = realNames[key] || (realNames[key] = []);
-
-        names.push({ 'name': methodName, 'func': lodashFunc });
+        var key = lodashFunc.name + '';
+        if (!hasOwnProperty.call(realNames, key)) {
+          realNames[key] = [];
+        }
+        realNames[key].push({ 'name': methodName, 'func': lodashFunc });
       }
     });
 
@@ -111873,9 +111865,10 @@ var webnode = async () => {
         dht: true
       },
       config: {
-        Bootstrap: ['/dns4/ipfs.leofcoin.org/tcp/4006/wss/ipfs/QmVDtTRCoYyYu5JFdtrtBMS4ekPn8f9NndymoHdWuuJ7N2',
-        '/dns4/ipfs.leofcoin.org/tcp/4005/ws/ipfs/QmVDtTRCoYyYu5JFdtrtBMS4ekPn8f9NndymoHdWuuJ7N2'
-      ]
+        Bootstrap: [
+          '/dns4/ipfs.leofcoin.org/tcp/4006/wss/ipfs/QmVDtTRCoYyYu5JFdtrtBMS4ekPn8f9NndymoHdWuuJ7N2',
+          '/dns4/ipfs.leofcoin.org/tcp/4005/ws/ipfs/QmVDtTRCoYyYu5JFdtrtBMS4ekPn8f9NndymoHdWuuJ7N2'
+        ]
       },
       libp2p: {
         modules: {

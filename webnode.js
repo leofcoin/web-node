@@ -63,9 +63,10 @@ var webnode = async () => {
         dht: true
       },
       config: {
-        Bootstrap: ['/dns4/ipfs.leofcoin.org/tcp/4006/wss/ipfs/QmVDtTRCoYyYu5JFdtrtBMS4ekPn8f9NndymoHdWuuJ7N2',
-        '/dns4/ipfs.leofcoin.org/tcp/4005/ws/ipfs/QmVDtTRCoYyYu5JFdtrtBMS4ekPn8f9NndymoHdWuuJ7N2'
-      ]
+        Bootstrap: [
+          '/dns4/ipfs.leofcoin.org/tcp/4006/wss/ipfs/QmVDtTRCoYyYu5JFdtrtBMS4ekPn8f9NndymoHdWuuJ7N2',
+          '/dns4/ipfs.leofcoin.org/tcp/4005/ws/ipfs/QmVDtTRCoYyYu5JFdtrtBMS4ekPn8f9NndymoHdWuuJ7N2'
+        ]
       },
       libp2p: {
         modules: {
