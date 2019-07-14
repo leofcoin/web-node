@@ -97,7 +97,7 @@ class DiscoRoom extends PeerMonitor {
 
   async broadcast(data) {
     const arrayBuffer = str2ab(JSON.stringify(data));
-    await this.ipfs.pubsub.publish(this.topic, Buffer.from(arrayBuffer), 'ArrayBuffer');
+    await this.ipfs.pubsub.publish(this.topic, Buffer.from(arrayBuffer, 'ArrayBuffer'));
   }
   
   async _onTopicMessage(message) {
