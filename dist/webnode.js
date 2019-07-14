@@ -97,7 +97,27 @@ class DiscoRoom extends PeerMonitor {
 
   async broadcast(data) {
     const arrayBuffer = str2ab(JSON.stringify(data));
-    await this.ipfs.pubsub.publish(this.topic, Buffer.from(arrayBuffer, 'ArrayBuffer'));
+    const buffer = Buffer.from(arrayBuffer, 'ArrayBuffer');
+    await this.ipfs.pubsub.publish(this.topic, buffer);
+  }
+  
+  thisPeer(peer) {
+    if (!peer) return true;
+    return Boolean(peer === this.id)
+  }
+  
+  hasPeer(peer) {
+    const index = this.peers.indexOf(peer);
+    return Boolean(index !== -1);
+  }
+  
+  async _pushAndConnect(peer) {
+    if (!this.hasPeer(peer)) this.peers.push(peer);
+    try {
+      await this.ipfs.swarm.connect('/p2p-circuit/ipfs/' + peer);
+    } catch (e) {
+      console.error(e);  
+    }
   }
   
   async _onTopicMessage(message) {
@@ -106,25 +126,15 @@ class DiscoRoom extends PeerMonitor {
       data = JSON.parse(data);      
       const { peer, peers, from } = data;
       
-      if (peer && peer !== this.id && this.peers.indexOf(peer) === -1) {        
+      if (!this.thisPeer(peer)) {        
         this.broadcast({ type: 'peerlist', for: peer, peers: this.peers });
-        this.peers.push(peer);
-        try {
-          await this.ipfs.swarm.connect('/p2p-circuit/ipfs/' + peer);
-        } catch (e) {
-          console.error(e);  
-        }
-      }
-      else if (message.data.for === this.id && peers && peers.length > 1) {
+        
+        await this._pushAndConnect(peer);
+      } else if (this.thisPeer(message.data.for) && peers && peers.length > 1) {
         peers.forEach(async peer => {
-          try {              
-            if (this.peers.indexOf(peer) === -1 && peer !== this.id) {
-              this.peers.push(peer);
-              await this.ipfs.swarm.connect('/p2p-circuit/ipfs/' + peer);
-            }              
-          } catch (e) {
-            console.error(e);  
-          }
+          if (!this.thisPeer(peer)) {
+            await _pushAndConnect(peer);
+          }   
         });
       }
     } catch (e) {
@@ -148,11 +158,11 @@ class DiscoRoom extends PeerMonitor {
     this.broadcast({ type, peer, from: this.id });
   }
 
-  _peerJoined(peer) {
-    console.log(`${peer} joined`);
-    if (this.peers.indexOf(peer) === -1) {
+  async _peerJoined(peer) {    
+    if (!this.hasPeer(peer)) {
+      console.log(`${peer} joined`);
+      await _pushAndConnect(peer);
       this._rebroadcast(peer);
-      this.peers.push(peer);      
     }
   }
 
