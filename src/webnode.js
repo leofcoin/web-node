@@ -5,12 +5,12 @@ import discoRoom from '@leofcoin/disco-room';
 
 // default is to use ipfs.io
 let routing = [];
-routing.push(new DelegatedContentRouting('QmVDtTRCoYyYu5JFdtrtBMS4ekPn8f9NndymoHdWuuJ7N2', {
-  // use default api settings
-  protocol: 'https',
-  port: 5001,
-  host: 'ipfs.leofcoin.org'
-}))
+// routing.push(new DelegatedContentRouting('QmVDtTRCoYyYu5JFdtrtBMS4ekPn8f9NndymoHdWuuJ7N2', {
+//   // use default api settings
+//   protocol: 'https',
+//   port: 5001,
+//   host: 'ipfs.leofcoin.org'
+// }))
 
 // 
 // routing.findProviders(key, (err, peerInfos) => {
