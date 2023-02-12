@@ -93,18 +93,22 @@ export default customElements.define('login-screen', class LoginScreen extends L
     identityView.accounts = wallet.accounts
     identityView.selectedAccount = wallet.accounts[0][1]
 
-    this.hasWallet = await this._hasWallet()
+    // this.hasWallet = await this._hasWallet()
     if (!this.hasWallet) {
       document.querySelector('app-shell').select('identity')
     }
   }
 
   async #handleCreate(password) {
-    globalThis.identityController = new IdentityController('leofcoin:peach', wallet)
-    await globalThis.identityController.unlock(password)
-    
-
-    
+    const wallet = await this.#handleBeforeLogin(password)
+    try {
+      await globalThis.identityController.unlock(password)
+      await this.#handleAfterLogin(wallet)
+      this.removeAttribute('shown')
+    } catch (e) {
+      console.error(e);
+      throw e
+    }
   }
 
   #handleImport() {
