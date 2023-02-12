@@ -16,8 +16,9 @@ export default customElements.define('login-screen', class LoginScreen extends L
     }
   }
 
-  get hasWallet() {
-    return globalThis.walletStorage?.has('identity')
+  async _hasWallet() {
+    const has = await globalThis.walletStorage?.has('identity')
+    return has
   }
 
   constructor() {
@@ -32,6 +33,7 @@ export default customElements.define('login-screen', class LoginScreen extends L
   async requestLogin(hasWallet) {
     return new Promise(async (resolve, reject) => {
       this.shown = true
+      this.hasWallet = await this._hasWallet()
       this.renderRoot.querySelector('input').focus()
       this.addEventListener('click', async (event) => {
         const target = event.composedPath()[0]
@@ -69,12 +71,12 @@ export default customElements.define('login-screen', class LoginScreen extends L
   async #handleBeforeLogin(password) {
     this.renderRoot.querySelector('input').value = null
     let wallet
-    const hasWallet = await this.hasWallet
-    if (!hasWallet && !this.importing) {
+    this.hasWallet = await this._hasWallet()
+    if (!this.hasWallet && !this.importing) {
       wallet = await generateAccount(password, 'leofcoin:peach')
       globalThis.walletStorage.put('identity', JSON.stringify(wallet.identity))
       globalThis.walletStorage.put('accounts', JSON.stringify(wallet.accounts))
-    } else if (hasWallet) {
+    } else if (this.hasWallet) {
       const identity = JSON.parse(await new TextDecoder().decode(await globalThis.walletStorage.get('identity')))
       const accounts = JSON.parse(await new TextDecoder().decode(await globalThis.walletStorage.get('accounts')))
       wallet = {identity, accounts}
@@ -90,6 +92,8 @@ export default customElements.define('login-screen', class LoginScreen extends L
     identityView.identity = wallet.identity
     identityView.accounts = wallet.accounts
     identityView.selectedAccount = wallet.accounts[0][1]
+
+    this.hasWallet = await this._hasWallet()
     if (!this.hasWallet) {
       document.querySelector('app-shell').select('identity')
     }
@@ -105,7 +109,7 @@ export default customElements.define('login-screen', class LoginScreen extends L
 
   #handleImport() {
     this.importing = true
-    if (!this.hasWallet) {
+    if (!this.hasWallet()) {
 
     }
   }
