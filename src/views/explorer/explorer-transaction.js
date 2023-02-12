@@ -73,7 +73,7 @@ export default customElements.define('explorer-transaction', class ExplorerTrans
   }
   `
   static properties = {
-    block: {
+    transaction: {
       type: Object
     },
     size: {
@@ -89,10 +89,10 @@ export default customElements.define('explorer-transaction', class ExplorerTrans
   }
 
   async updateInfo(hash, index) {
-    this.block = await client.getBlock(index)
+    this.transaction = await client.getBlock(index)
     this.transactionHashes = []
-    this.size = new TextEncoder().encode(JSON.stringify(this.block)).byteLength
-    for (const transaction of this.block.transactions) {
+    this.size = new TextEncoder().encode(JSON.stringify(this.transaction)).byteLength
+    for (const transaction of this.transaction.transactions) {
       const hash = await (await new TransactionMessage(transaction)).hash()
       this.transactionHashes.push(hash)
     }
@@ -100,7 +100,7 @@ export default customElements.define('explorer-transaction', class ExplorerTrans
   }
 
   render() {
-    if (!this.block) return html`
+    if (!this.transaction) return html`
     <busy-animation></busy-animation>
     `
     return html`
@@ -110,39 +110,39 @@ export default customElements.define('explorer-transaction', class ExplorerTrans
   <flex-row class="info-item">
     <h4>hash</h4>
     <flex-one></flex-one>
-    <span>${this.block.hash}</span>
+    <span>${this.transaction.hash}</span>
   </flex-row>
 
   <flex-row class="info-item">
     <h4>index</h4>
     <flex-one></flex-one>
-    <span>${this.block.index}</span>
+    <span>${this.transaction.index}</span>
   </flex-row>
 
   <!-- <flex-row class="info-item">
     <h4>height</h4>
     <flex-one></flex-one>
-    <span>${this.block.index + 1}</span>
+    <span>${this.transaction.index + 1}</span>
   </flex-row> -->
 
   <flex-row class="info-item">
     <h4>timestamp</h4>
     <flex-one></flex-one>
-    <time-ago value=${this.block.timestamp}></time-ago>
-    <span>${new Date(this.block.timestamp).toLocaleString()}</span>
+    <time-ago value=${this.transaction.timestamp}></time-ago>
+    <span>${new Date(this.transaction.timestamp).toLocaleString()}</span>
   </flex-row>
 
   <flex-row class="info-item">
     <h4>fees</h4>
     <flex-one></flex-one>
     
-    <span>${this.block.fees}</span>
+    <span>${this.transaction.fees}</span>
   </flex-row>
   <flex-row class="info-item">
     <h4>reward</h4>
     <flex-one></flex-one>
     
-    <span>${this.block.reward}</span>
+    <span>${this.transaction.reward}</span>
   </flex-row>
 
   <flex-row class="info-item">
@@ -169,7 +169,7 @@ export default customElements.define('explorer-transaction', class ExplorerTrans
   <flex-row class="info-item">
     <h4>transactions</h4>
     <flex-one></flex-one>
-    <span>${this.block.transactions.length}</span>
+    <span>${this.transaction.transactions.length}</span>
   </flex-row>
 
   <flex-column style="padding-left: 24px; box-sizing: border-box;">
@@ -182,11 +182,11 @@ export default customElements.define('explorer-transaction', class ExplorerTrans
     <h4>validators</h4>
     <flex-one></flex-one>
     
-    <span>${this.block.validators.length}</span>
+    <span>${this.transaction.validators.length}</span>
   </flex-row>
 
   <flex-column style="padding-left: 24px; box-sizing: border-box;">
-    ${map(this.block.validators, validator => html`<a href="#!/explorer/address=${validator.address}">${validator.address}</a>`)}
+    ${map(this.transaction.validators, validator => html`<a href="#!/explorer/address=${validator.address}">${validator.address}</a>`)}
   </flex-column>
     
 </flex-column>

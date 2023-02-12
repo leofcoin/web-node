@@ -33,8 +33,9 @@ export default [{
             const targetFontPath = join(distFontsPath, asset.pathname);
             fs.copySync(asset.absolutePath, targetFontPath);
             const relativePath = relative(process.cwd(), targetFontPath);
-            const publicPath = '/';
-            return `${publicPath}${relativePath}`;
+            const publicPath = './';
+            console.log(relativePath);
+            return `${publicPath}${relativePath.replace('www/', '')}`;
           }
         })
       ]}),
@@ -50,4 +51,20 @@ export default [{
     }),
     commonjs()
   ]
+}, {
+  input: [
+    './node_modules/monaco-editor/esm/vs/language/typescript/ts.worker'
+  ],
+  output: [{
+    format: 'iife',
+    dir: 'www/monaco'
+  }]
+}, {
+  input: [
+    './node_modules/monaco-editor/esm/vs/editor/editor.worker.js'
+  ],
+  output: [{
+    format: 'iife',
+    dir: 'www/monaco'
+  }]
 }]

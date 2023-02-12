@@ -11,6 +11,8 @@ let views = (await readdir('./src/views')).map(path => join('./src/views', path)
 views = [...views, ...(await readdir('./src/views/explorer')).map(path => join('./src/views/explorer', path))]
 console.log(views);
 
+
+// const templates = (await readdir('./src/templates')).map(path => join('./src/templates', path))
 const clean = () => {
   execSync('rm -rf www/*.js')
   return

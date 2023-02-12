@@ -1,6 +1,6 @@
 import { version } from '../../package.json'
 
-
+import Storage from '@leofcoin/storage'
 // import 'monaco-editor/esm/vs/basic-languages/javascript/javascript.contribution'
 // import 'monaco-editor/esm/vs/basic-languages/typescript/typescript.contribution'
 
@@ -12,40 +12,62 @@ export default customElements.define('editor-view', class editorView extends HTM
 
     this.attachShadow({mode: 'open'})
     this.shadowRoot.innerHTML = this.template
+    
   }
 
 
   async connectedCallback() {
+    this.editorStore = new Storage('editor')
+    await this.editorStore.init()
     const importee = await import('@monaco-import');
     
-globalThis.monaco = importee.default
-let span = document.createElement('span')
-span.classList.add('container')
-document.body.querySelector('app-shell').appendChild(span)
+    globalThis.monaco = importee.default
 
-const token = await api.readFile('./templates/wizard/my-token.js')
-const standard = await api.readFile('./templates/standards/token.js')
-const roles = await api.readFile('./templates/standards/roles.js')
+    let span = document.createElement('span')
+    span.classList.add('container')
+    document.body.querySelector('app-shell').appendChild(span)
 
-monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
-  ...monaco.languages.typescript.javascriptDefaults.getCompilerOptions(),
-    target: monaco.languages.typescript.ScriptTarget.Latest,
-    allowNonTsExtensions: true,
-    moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
-    module: monaco.languages.typescript.ModuleKind.ES2015,
-    noEmit: true,
-    esModuleInterop: true,
-    strict: true,
-    jsx: monaco.languages.typescript.JsxEmit.React,
-    reactNamespace: 'React',
-    allowJs: true,
-    isolatedModules: true
-});
+    if (!await this.editorStore.has('templates/wizard/my-token.js')) {
+      await this.editorStore.put('templates/wizard/my-token.js', `
+      import Token from './../standards/token.js'
 
-monaco.languages.typescript.javascriptDefaults.addExtraLib(`
-  declare module Roles
-  ${new TextDecoder().decode(roles)}
-}`, 'roles.d.ts')
+      export default class MyToken extends Token {
+        constructor(state) {
+          super('MyToken', 'MTK', 18, state)
+        }
+      }
+      `)
+
+      let fetcher = await fetch('https://raw.githubusercontent.com/leofcoin/standards/main/exports/token.js')
+      await this.editorStore.put('templates/standards/token.js', await fetcher.text())
+      
+      fetcher = await fetch('https://raw.githubusercontent.com/leofcoin/standards/main/exports/roles.js')
+      await this.editorStore.put('templates/standards/roles.js', await fetcher.text())
+    }
+
+    const token = await this.editorStore.get('templates/wizard/my-token.js')
+    const standard = await this.editorStore.get('templates/standards/token.js')
+    const roles = await this.editorStore.get('templates/standards/roles.js')
+console.log(new TextDecoder().decode(roles));
+    monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
+      ...monaco.languages.typescript.javascriptDefaults.getCompilerOptions(),
+        target: monaco.languages.typescript.ScriptTarget.Latest,
+        allowNonTsExtensions: true,
+        moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
+        module: monaco.languages.typescript.ModuleKind.ES2015,
+        noEmit: true,
+        esModuleInterop: true,
+        strict: true,
+        jsx: monaco.languages.typescript.JsxEmit.React,
+        reactNamespace: 'React',
+        allowJs: true,
+        isolatedModules: true
+    });
+
+    monaco.languages.typescript.javascriptDefaults.addExtraLib(`
+      declare module Roles
+      ${new TextDecoder().decode(roles)}
+    }`, 'roles.d.ts')
 
 // monaco.languages.typescript.javascriptDefaults.addExtraLib(`
 // declare class Token {
@@ -54,10 +76,10 @@ monaco.languages.typescript.javascriptDefaults.addExtraLib(`
 // }
 // `, 'token.d.ts')
 
-const tokenModel = monaco.editor.createModel(new TextDecoder().decode(token), 'javascript', monaco.Uri.parse('file://app/templates/wizard/my-token.js'));
+  const tokenModel = monaco.editor.createModel(new TextDecoder().decode(token), 'javascript', monaco.Uri.parse('file://templates/wizard/my-token.js'));
 
-const standardModel = monaco.editor.createModel(new TextDecoder().decode(standard), 'javascript',  monaco.Uri.parse('file://app/templates/standards/token.js'));
-const standarRolesdModel = monaco.editor.createModel(new TextDecoder().decode(roles), 'javascript',  monaco.Uri.parse('file://app/templates/standards/roles.js'));
+  const standardModel = monaco.editor.createModel(new TextDecoder().decode(standard), 'javascript',  monaco.Uri.parse('file://templates/standards/token.js'));
+  const standarRolesdModel = monaco.editor.createModel(new TextDecoder().decode(roles), 'javascript',  monaco.Uri.parse('file://templates/standards/roles.js'));
 
   this.#editor = monaco.editor.create(document.querySelector('.container'));
   
