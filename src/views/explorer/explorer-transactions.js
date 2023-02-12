@@ -75,17 +75,6 @@ export default customElements.define('explorer-transactions', class ExplorerTran
     width: 100%;
     height: 100%;
     overflow-y: auto;
-  }
-
-  flex-wrap-evenly {
-    
-    padding: 48px;
-    box-sizing: border-box;
-    overflow-y: auto;
-  }
-
-  flex-row {
-    width: 100%;
     align-items: center;
     justify-content: center;
   }
@@ -138,16 +127,16 @@ export default customElements.define('explorer-transactions', class ExplorerTran
   }
 </style>
 
-<flex-wrap-evenly data-route="home">
-<flex-column class="container">
-  <h4>latest transactions</h4>
-  <flex-column class="latest-transactions">
-    ${map(this.#transactions, item => html`
-      <latest-element value=${JSON.stringify(item)} type="transaction"></latest-element>
-    `)}
+<!-- <flex-wrap-evenly data-route="home"> -->
+  <flex-column class="container">
+    <h4>latest transactions</h4>
+    <flex-column class="latest-transactions">
+      ${map(this.#transactions, item => html`
+        <latest-element value=${JSON.stringify(item)} type="transaction"></latest-element>
+      `)}
+    </flex-column>
   </flex-column>
-</flex-column>
-</flex-wrap-evenly>
+<!-- </flex-wrap-evenly> -->
 `
   }
 })

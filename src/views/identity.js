@@ -1,9 +1,8 @@
 // import { nativeToken } from './../../../node_modules/@leofcoin/addresses/src/addresses'
 import { parseUnits } from '@leofcoin/utils'
 import { LitElement, html } from 'lit'
-import { map } from 'lit/directives/map.js'
-import qrcode from 'qrcode'
 import './../elements/button.js'
+import './../elements/navigation-bar.js'
 
 export default customElements.define('identity-view', class IdentityView extends LitElement {
 
@@ -22,15 +21,19 @@ export default customElements.define('identity-view', class IdentityView extends
 
   constructor() {
     super()
-    this.attachShadow({mode: 'open'})
   }
 
-  async #export() {
-    const password = await document.querySelector('app-shell').renderRoot.querySelector('login-screen').requestPassword()
-    const exported = await globalThis.identityController.export(password)
-    const qr = await qrcode.toDataURL(exported)
-    document.querySelector('app-shell').renderRoot.querySelector('export-screen').show(qr, exported)
-    console.log(qr);
+
+  async select(selected) {
+    console.log(selected);
+    if (!customElements.get(`identity-${selected}`)) await import(`./identity-${selected}.js`)
+    if (selected !== 'actions') this.renderRoot.querySelector(`identity-${selected}`).accounts = this.accounts
+    this.shadowRoot.querySelector('custom-pages').select(selected)
+    this.renderRoot.querySelector('navigation-bar').select(selected)
+  }
+
+  #customSelect({detail}) {
+    location.hash = `#!/identity?selected=${detail}`
   }
 
   render() {
@@ -46,6 +49,8 @@ export default customElements.define('identity-view', class IdentityView extends
     width: 100%;
     height: 100%;
     padding: 24px;
+    align-items: center;
+    justify-content: center;
     box-sizing: border-box;
   }
 
@@ -58,38 +63,53 @@ export default customElements.define('identity-view', class IdentityView extends
     padding: 12px;
     box-sizing: border-box;
   }
+
+  .container {
+    max-width: 480px;
+    max-height: 480px;
+    width: 100%;
+    height: 100%;
+    padding: 12px;
+    box-sizing: border-box;
+    background: #ffffff52;
+    border-radius: 24px;
+    box-shadow: 1px 1px 14px 0px #0000002e;
+  }
+
+  h2, h4 {
+    margin: 0;
+  }
+
+  h2 {
+    padding-bottom: 12px;
+  }
+
+  navigation-bar {
+    padding-bottom: 24px;
+    pointer-events: auto;
+  }
+
+  custom-pages {
+    width: 100%;
+    height: 100%;
+    display: flex;
+  }
+
+  custom-svg-icon {
+    --svg-icon-size: 160px;
+  }
 </style>
-<h4>accounts</h4>
-<flex-column class="accounts-container">
+<custom-svg-icon icon="account-circle"></custom-svg-icon>
+<h2>Identity</h2>
 
-${map(this.accounts, ([name, external, internal]) => html`
-    <strong>${name}</strong>
-  <flex-column class="account-container">
-    
-    <flex-row>
-      <strong>external</strong>
-      <flex-one></flex-one>
-      <span>${external}</span>
-    </flex-row>
+<navigation-bar items='["dashboard", "accounts", "actions"]' @selected="${this.#customSelect}"></navigation-bar>
 
-    <flex-row>
-      <strong>internal</strong>
-      <flex-one></flex-one>
-      <span>${internal}</span>
-    </flex-row>
-  </flex-column>
-`)}
-</flex-column>
-
-<flex-row>
-  <flex-one></flex-one>
-  <button-element>view mnemonic</button-element>
-  <flex-two></flex-two>
-  <button-element @click=${this.#export}>export</button-element>
-  <flex-one></flex-one>
-</flex-row>
-
-
+<custom-pages attr-for-selected="data-route">
+  <identity-dashboard data-route="dashboard"></identity-dashboard>
+  <identity-accounts data-route="accounts"></identity-accounts>
+  <identity-account data-route="account"></identity-account>
+  <identity-actions data-route="actions"></identity-actions>
+</custom-pages>
     `
   }
 })

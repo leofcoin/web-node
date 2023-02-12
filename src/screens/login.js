@@ -1,6 +1,6 @@
 import { html, LitElement } from "lit";
 import generateAccount from '@leofcoin/generate-account'
-import IdentityController from './../controllers/identity.js'
+import IdentityController from '../controllers/identity.js'
 
 export default customElements.define('login-screen', class LoginScreen extends LitElement {
   static properties = {
@@ -197,6 +197,10 @@ export default customElements.define('login-screen', class LoginScreen extends L
         padding: 10px;
         border-radius: 12px;
         box-sizing: border-box;
+      }
+
+      input {
+        font-size: 16px;
       }
 
       button {

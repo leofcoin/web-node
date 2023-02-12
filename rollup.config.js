@@ -7,8 +7,12 @@ import commonjs from '@rollup/plugin-commonjs'
 import modify from 'rollup-plugin-modify'
 import json from '@rollup/plugin-json'
 import { execSync } from 'child_process'
-let views = (await readdir('./src/views')).map(path => join('./src/views', path))
-views = [...views, ...(await readdir('./src/views/explorer')).map(path => join('./src/views/explorer', path))]
+
+const views = [
+  ...(await readdir('./src/views')).map(path => join('./src/views', path)),
+  ...(await readdir('./src/views/explorer')).map(path => join('./src/views/explorer', path)),
+  ...(await readdir('./src/views/identity')).map(path => join('./src/views/identity', path))
+]
 console.log(views);
 
 

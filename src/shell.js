@@ -63,7 +63,9 @@ export default customElements.define('app-shell', class AppShell extends LitElem
     
     console.log(selected, object);
     selected && await this.#select(selected)
+
     const explorerView = this.shadowRoot.querySelector('explorer-view')
+
     if (selected === 'explorer' && object.block !== undefined) {
       await this.shadowRoot.querySelector('explorer-view').select('block')
       explorerView.renderRoot.querySelector('explorer-block').updateInfo(object.block, object.index)
@@ -77,6 +79,19 @@ export default customElements.define('app-shell', class AppShell extends LitElem
     }
     if (selected === 'explorer' && Object.keys(object).length === 0) {
       location.hash = '#!/explorer?selected=dashboard'
+    }
+
+    const identityView = this.shadowRoot.querySelector('identity-view')
+
+    if (selected === 'identity' && object.account !== undefined) {
+      await this.shadowRoot.querySelector('identity-view').select('account')
+      identityView.renderRoot.querySelector('identity-account').updateInfo(object.account)
+    }
+    if (selected === 'identity' && object.selected) {
+      await this.shadowRoot.querySelector('identity-view').select(object.selected)
+    }
+    if (selected === 'identity' && Object.keys(object).length === 0) {
+      location.hash = '#!/identity?selected=dashboard'
     }
   }
 
@@ -121,7 +136,8 @@ export default customElements.define('app-shell', class AppShell extends LitElem
         right: 0;
         display: flex;
         flex-direction: column;
-        font-family: 'Noto Sans', sans-serif;
+        font-family: system-ui, "Noto Sans", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+
         background: linear-gradient(45deg, #6495ed78, transparent);
         font-size: .875rem;
         font-weight: 400;
