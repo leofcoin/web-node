@@ -16,31 +16,7 @@ export default customElements.define('explorer-view', class ExplorerView extends
       overflow-y: auto;
     }
     .navigation-bar {
-      padding-bottom: 24px;
-    }
-    custom-tabs {
-      border: 1px solid #eee;
-      border-radius: 24px;
-      background: #2c314a00;
-      box-sizing: border-box;
-      box-shadow: 0px 0px 16px 6px #8890b75c;
-      align-items: center;
-    }
-
-    custom-tab {
-      color:#17418d;
-      width: 100%;
-      user-select: none;
-    }
-
-    custom-tab.custom-selected {
-      border: none;
-      background: #628ed2;
-      font-weight: 600;
-      border-radius: 24px;
-      color: #eee;
-      box-sizing: border-box;
-      height: calc(100% - 1px);
+      padding: 24px 0;
     }
     `
   }

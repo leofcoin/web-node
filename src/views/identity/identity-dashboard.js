@@ -59,6 +59,7 @@ export default customElements.define('identity-dashboard', class IdentityDashboa
     max-height: 54px;
     width: 100%;
     height: 100%;
+    margin-bottom: 12px;
   }
 </style>
 <flex-wrap-evenly>

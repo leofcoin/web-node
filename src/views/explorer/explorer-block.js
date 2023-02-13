@@ -14,7 +14,6 @@ export default customElements.define('explorer-block', class ExplorerBlock exten
     width: 100%;
     height: 100%;
     overflow-y: auto;
-    padding: 48px;
     align-items: center;
     box-sizing: border-box;
   }
@@ -71,6 +70,21 @@ export default customElements.define('explorer-block', class ExplorerBlock exten
     padding: 6px;
     box-sizing: border-box;
   }
+
+  @media(min-width: 640px) {
+    :host {
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+    }
+    
+    .container {
+      max-width: 600px;
+      max-height: 600px;
+      border-radius: 24px;
+      box-shadow: 1px 1px 14px 0px #0000002e;
+      padding: 12px 0;
+    }
   `
   static properties = {
     block: {

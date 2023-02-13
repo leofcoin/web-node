@@ -7,7 +7,7 @@ import { formatBytes } from '@leofcoin/utils'
 
 export default customElements.define('explorer-transactions', class ExplorerTransactions extends LitElement {
   #blocks;
-  
+
   static properties = {
     items: {
       type: Array
@@ -76,36 +76,23 @@ export default customElements.define('explorer-transactions', class ExplorerTran
     width: 100%;
     height: 100%;
     overflow-y: auto;
-    align-items: center;
-    justify-content: center;
-  }
-
-  flex-column {
-    max-width: 600px;
-    max-height: 600px;
-    width: 100%;
-    height: 100%;
   }
 
   .latest-transactions {
     width: 100%;
     height: 100%;
-    padding: 12px;
     box-sizing: border-box;
     
     overflow-y: auto;
   }
 
   .container {
-    padding: 12px;
     box-sizing: border-box;
     background: #ffffff52;
     border-radius: 24px;
     box-shadow: 1px 1px 14px 0px #0000002e;
-  }
-  
-  .container h4 {
-    padding-left: 12px;
+    width: 100%;
+    height: 100%;
   }
 
   ::-webkit-scrollbar {
@@ -121,23 +108,30 @@ export default customElements.define('explorer-transactions', class ExplorerTran
     border-radius: 10px;
     -webkit-box-shadow: inset 0 0 6px rgba(225,255,255,0.5);
   }
-  
-  h4 {
-    margin: 0;
-    padding: 6px 0;
+  @media(min-width: 640px) {
+    :host {
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+    }
+
+
+    .container {
+      max-width: 600px;
+      max-height: 600px;
+      border-radius: 24px;
+      box-shadow: 1px 1px 14px 0px #0000002e;
+      padding: 12px 0;
+    }
   }
 </style>
-
-<!-- <flex-wrap-evenly data-route="home"> -->
   <flex-column class="container">
-    <h4>latest transactions</h4>
     <flex-column class="latest-transactions">
       ${map(this.#transactions, item => html`
         <latest-element value=${JSON.stringify(item)} type="transaction"></latest-element>
       `)}
     </flex-column>
   </flex-column>
-<!-- </flex-wrap-evenly> -->
 `
   }
 })
