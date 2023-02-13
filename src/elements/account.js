@@ -15,8 +15,24 @@ export default customElements.define('account-element', class AccountElement ext
     this.shadowRoot.innerHTML = this.template
   }
 
+  /**
+   * internal function to support Safari Notification.requestPermissionCallback
+   * @returns Promise<resolve>
+   */
+  async #ensureNotification() {
+    try {
+      await Notification.requestPermission()
+    } catch {
+      return Promise((resolve, reject => {
+        Notification.requestPermission(() => resolve())
+      }))
+    }
+  }
+
   async connectedCallback() {
-    if (Notification.permission !== 'granted') await Notification.requestPermission()
+    if (Notification.permission !== 'granted') {
+      await this.#ensureNotification()
+    }
 
     client.pubsub.subscribe('add-block', block => {
       const transactions = block.transactions.filter(({to, method, params}) => {
