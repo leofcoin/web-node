@@ -5,8 +5,8 @@ import Storage from '@leofcoin/storage'
 // import 'monaco-editor/esm/vs/basic-languages/typescript/typescript.contribution'
 
 export default customElements.define('editor-view', class editorView extends HTMLElement {
-  #validators = []
-  #editor
+  #validators = [];
+  #editor;
   constructor() {
     super()
 

@@ -6,7 +6,8 @@ import { formatBytes } from '@leofcoin/utils'
 
 
 export default customElements.define('explorer-transactions', class ExplorerTransactions extends LitElement {
-  #blocks
+  #blocks;
+  
   static properties = {
     items: {
       type: Array

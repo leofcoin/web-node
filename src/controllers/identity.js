@@ -5,8 +5,8 @@ import qrcode from 'qrcode'
 import QrScanner from "qr-scanner";
 
 export default class IdentityController {
-  #walletInput
-  #wallet
+  #walletInput;
+  #wallet;
 
   constructor(network, walletInput) {
     this.network = network

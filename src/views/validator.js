@@ -1,5 +1,5 @@
 export default customElements.define('validator-view', class ValidatorView extends HTMLElement {
-  #validators = []
+  #validators = [];
 
   constructor() {
     super()

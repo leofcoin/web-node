@@ -1,7 +1,7 @@
 import { html, LitElement } from "lit";
 
 export default customElements.define('clipboard-copy', class ClipboardCopy extends LitElement {
-  #value
+  #value;
 
   static get properties() {
     return {
