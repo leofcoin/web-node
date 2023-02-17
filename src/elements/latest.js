@@ -37,7 +37,8 @@ export default customElements.define('latest-element', class LatestElement exten
   }
 
   #click() {
-    location.hash = `#!/explorer?${this.type}=${this.value.hash}&index=${this.value.index}`
+    if (this.type === 'block') location.hash = `#!/explorer?${this.type}=${this.value.hash}&index=${this.value.index}`
+    if (this.type === 'transaction') location.hash = `#!/explorer?${this.type}=${this.value.hash}&index=${this.value.index}&blockIndex=${this.value.blockIndex}`
   }
 
   get #blockTemplate() {
@@ -124,20 +125,27 @@ export default customElements.define('latest-element', class LatestElement exten
   :host {
     display: flex;
     flex-direction: row;
-    padding:  6px 12px;
+    padding:  12px;
     box-sizing: border-box;
     cursor: pointer;
     pointer-events: auto !important;
     width: 100%;
     height: 56px;
     margin-bottom: 6px;
-    border-bottom: 1px solid #eee;
+    align-items: center;
+    border: 1px solid var(--border-color);
+
+    color: var(--font-color);
+    background: var(--secondary-background);
+
+    border-radius: 24px;
   }
 
   .last-row {
     height: 100%;
     max-width: 88%;
     width: 100%;
+    align-items: center;
   }
 
   .first-column {
@@ -147,6 +155,7 @@ export default customElements.define('latest-element', class LatestElement exten
   }
 
   a {
+    color: var(--link-color);
     text-decoration: none;
   }
 
@@ -159,6 +168,7 @@ export default customElements.define('latest-element', class LatestElement exten
     box-sizing: border-box;
     border-radius: 24px;
   }
+  
 </style>
 ${this.type==='block' ? this.#blockTemplate : this.#transactionTemplate}
     `

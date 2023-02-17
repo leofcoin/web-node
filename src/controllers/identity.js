@@ -65,4 +65,8 @@ export default class IdentityController {
     await this.#wallet.fromMultiWif(decrypted)
   }
 
+  async accounts() {
+    return JSON.parse(await new TextDecoder().decode(await globalThis.walletStorage.get('accounts')))
+  }
+
 }

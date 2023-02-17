@@ -48,6 +48,10 @@ export default customElements.define('explorer-transactions', class ExplorerTran
     
   }
 
+  #goBack() {
+    location.hash = `#!/explorer?selected=transactions`
+  }
+
   async connectedCallback() {
     super.connectedCallback()
     this.#blocks = (await client.blocks(-25)).reverse()
@@ -88,9 +92,7 @@ export default customElements.define('explorer-transactions', class ExplorerTran
 
   .container {
     box-sizing: border-box;
-    background: #ffffff52;
     border-radius: 24px;
-    box-shadow: 1px 1px 14px 0px #0000002e;
     width: 100%;
     height: 100%;
   }
@@ -120,7 +122,6 @@ export default customElements.define('explorer-transactions', class ExplorerTran
       max-width: 600px;
       max-height: 600px;
       border-radius: 24px;
-      box-shadow: 1px 1px 14px 0px #0000002e;
       padding: 12px 0;
     }
   }

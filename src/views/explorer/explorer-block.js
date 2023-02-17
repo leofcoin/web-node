@@ -6,7 +6,135 @@ import { formatBytes } from '@leofcoin/utils'
 import '../../elements/time/ago.js'
 import {TransactionMessage} from '@leofcoin/messages'
 import './../../animations/busy.js'
+import './../../elements/shorten-string.js'
+import './../../elements/explorer/property-info.js'
 export default customElements.define('explorer-block', class ExplorerBlock extends LitElement {
+  static properties = {
+    block: {
+      type: Object
+    },
+    size: {
+      type: Number
+    },
+    transactionHashes: {
+      type: Array
+    }
+  }
+
+  #goBack() {
+    location.hash = `#!/explorer?selected=blocks`
+  }
+
+  #goTransactions() {
+    location.hash = `#!/explorer?blockTransactions=${this.block.hash}&index=${this.block.index}`
+  }
+
+  constructor() {
+    super()
+  }
+
+  async updateInfo(hash, index) {
+    this.block = await client.getBlock(index)
+    this.size = new TextEncoder().encode(JSON.stringify(this.block)).byteLength
+  }
+
+  render() {
+    if (!this.block) {
+      return html`
+        <busy-animation></busy-animation>
+      `
+    }
+
+    return html`
+
+<flex-row class="back-container">
+  <custom-svg-icon icon="chevron-left" @click="${this.#goBack}"></custom-svg-icon>
+  <strong>back</strong>
+  <flex-one></flex-one>
+</flex-row>
+
+<flex-column class="container">
+  <property-info>
+    <h4>hash</h4>
+    <flex-one></flex-one>
+    <shorten-string value=${this.block.hash}></shorten-string>
+  </property-info>
+
+  <property-info>
+    <h4>index</h4>
+    <flex-one></flex-one>
+    <span>${this.block.index}</span>
+  </property-info>
+
+  <!-- <property-info>
+    <h4>height</h4>
+    <flex-one></flex-one>
+    <span>${this.block.index + 1}</span>
+  </property-info> -->
+
+  <property-info>
+    <h4>timestamp</h4>
+    <flex-one></flex-one>
+    <time-ago value=${this.block.timestamp}></time-ago>
+    <span>${new Date(this.block.timestamp).toLocaleString()}</span>
+  </property-info>
+
+  <property-info>
+    <h4>fees</h4>
+    <flex-one></flex-one>
+    
+    <span>${this.block.fees}</span>
+  </property-info>
+  <property-info>
+    <h4>reward</h4>
+    <flex-one></flex-one>
+    
+    <span>${this.block.reward}</span>
+  </property-info>
+
+  <property-info>
+    <h4>size</h4>
+    <flex-one></flex-one>
+    
+    <span>${formatBytes(Number(this.size))}</span>
+  </property-info>
+
+  <property-info>
+    <h4>fees burnt</h4>
+    <flex-one></flex-one>
+    
+    <span>${new Date(this.timestamp).toLocaleString()}</span>
+  </property-info>
+
+  <property-info>
+    <h4>rewards minted</h4>
+    <flex-one></flex-one>
+    
+    <span>${new Date(this.timestamp).toLocaleString()}</span>
+  </property-info>
+
+  <property-info class="selector" @click="${this.#goTransactions}">
+    <h4>transactions</h4>
+    <flex-one></flex-one>
+    <span>${this.block.transactions.length}</span>
+    <custom-svg-icon icon="chevron-right"></custom-svg-icon>
+  </property-info>
+
+  <property-info>
+    <h4>validators</h4>
+    <flex-one></flex-one>
+    
+    <span>${this.block.validators.length}</span>
+  </property-info>
+
+  <flex-column style="padding-left: 24px; box-sizing: border-box;">
+    ${map(this.block.validators, validator => html`<a href="#!/explorer/address=${validator.address}"><shorten-string value=${validator.address}></shorten-string></a>`)}
+  </flex-column>
+    
+</flex-column>
+`
+  }
+
   static styles = css`
   :host {
     display: flex;
@@ -16,6 +144,7 @@ export default customElements.define('explorer-block', class ExplorerBlock exten
     overflow-y: auto;
     align-items: center;
     box-sizing: border-box;
+    color: var(--font-color);
   }
 
   flex-row {
@@ -34,14 +163,8 @@ export default customElements.define('explorer-block', class ExplorerBlock exten
   .container {
     padding: 12px;
     box-sizing: border-box;
-    background: #ffffff52;
     border-radius: 24px;
-    box-shadow: 1px 1px 14px 0px #0000002e;
     overflow-y: auto;
-  }
-  
-  .container h4 {
-    padding-left: 12px;
   }
 
   ::-webkit-scrollbar {
@@ -69,6 +192,14 @@ export default customElements.define('explorer-block', class ExplorerBlock exten
   .info-item {
     padding: 6px;
     box-sizing: border-box;
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    margin-bottom: 6px;
+    background: var(--secondary-background);
+  }
+
+  property-info.selector {
+    cursor: pointer;
   }
 
   @media(min-width: 640px) {
@@ -82,128 +213,15 @@ export default customElements.define('explorer-block', class ExplorerBlock exten
       max-width: 600px;
       max-height: 600px;
       border-radius: 24px;
-      box-shadow: 1px 1px 14px 0px #0000002e;
       padding: 12px 0;
     }
-  `
-  static properties = {
-    block: {
-      type: Object
-    },
-    size: {
-      type: Number
-    },
-    transactionHashes: {
-      type: Array
+
+    .back-container {
+      max-width: 600px;
+      max-height: 600px;
+      border-radius: 24px;
+      padding: 12px 24px;
+      box-sizing: border-box;
     }
-  }
-
-  constructor() {
-    super()
-  }
-
-  async updateInfo(hash, index) {
-    this.block = await client.getBlock(index)
-    this.transactionHashes = []
-    this.size = new TextEncoder().encode(JSON.stringify(this.block)).byteLength
-    for (const transaction of this.block.transactions) {
-      const hash = await (await new TransactionMessage(transaction)).hash()
-      this.transactionHashes.push(hash)
-    }
-    this.requestUpdate()
-  }
-
-  render() {
-    if (!this.block) return html`
-    <busy-animation></busy-animation>
-    `
-    return html`
-
-<flex-column class="container">
-  
-  <flex-row class="info-item">
-    <h4>hash</h4>
-    <flex-one></flex-one>
-    <span>${this.block.hash}</span>
-  </flex-row>
-
-  <flex-row class="info-item">
-    <h4>index</h4>
-    <flex-one></flex-one>
-    <span>${this.block.index}</span>
-  </flex-row>
-
-  <!-- <flex-row class="info-item">
-    <h4>height</h4>
-    <flex-one></flex-one>
-    <span>${this.block.index + 1}</span>
-  </flex-row> -->
-
-  <flex-row class="info-item">
-    <h4>timestamp</h4>
-    <flex-one></flex-one>
-    <time-ago value=${this.block.timestamp}></time-ago>
-    <span>${new Date(this.block.timestamp).toLocaleString()}</span>
-  </flex-row>
-
-  <flex-row class="info-item">
-    <h4>fees</h4>
-    <flex-one></flex-one>
-    
-    <span>${this.block.fees}</span>
-  </flex-row>
-  <flex-row class="info-item">
-    <h4>reward</h4>
-    <flex-one></flex-one>
-    
-    <span>${this.block.reward}</span>
-  </flex-row>
-
-  <flex-row class="info-item">
-    <h4>size</h4>
-    <flex-one></flex-one>
-    
-    <span>${formatBytes(Number(this.size))}</span>
-  </flex-row>
-
-  <flex-row class="info-item">
-    <h4>fees burnt</h4>
-    <flex-one></flex-one>
-    
-    <span>${new Date(this.timestamp).toLocaleString()}</span>
-  </flex-row>
-
-  <flex-row class="info-item">
-    <h4>rewards minted</h4>
-    <flex-one></flex-one>
-    
-    <span>${new Date(this.timestamp).toLocaleString()}</span>
-  </flex-row>
-
-  <flex-row class="info-item">
-    <h4>transactions</h4>
-    <flex-one></flex-one>
-    <span>${this.block.transactions.length}</span>
-  </flex-row>
-
-  <flex-column style="padding-left: 24px; box-sizing: border-box;">
-    ${map(this.transactionHashes, (hash) => {
-      return html`<a href="/#!/explorer/transaction?hash=${hash}">${hash}</a>`
-    })}
-  </flex-column>
-
-  <flex-row class="info-item">
-    <h4>validators</h4>
-    <flex-one></flex-one>
-    
-    <span>${this.block.validators.length}</span>
-  </flex-row>
-
-  <flex-column style="padding-left: 24px; box-sizing: border-box;">
-    ${map(this.block.validators, validator => html`<a href="#!/explorer/address=${validator.address}">${validator.address}</a>`)}
-  </flex-column>
-    
-</flex-column>
-`
-  }
+  `;
 })

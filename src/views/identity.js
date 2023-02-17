@@ -52,6 +52,7 @@ export default customElements.define('identity-view', class IdentityView extends
     align-items: center;
     justify-content: center;
     box-sizing: border-box;
+    color: var(--font-color);
   }
 
   .accounts-container {

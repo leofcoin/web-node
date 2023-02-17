@@ -6,6 +6,7 @@ import { formatBytes } from '@leofcoin/utils'
 import '../../elements/time/ago.js'
 import {TransactionMessage} from '@leofcoin/messages'
 import '../../animations/busy.js'
+import './../../elements/explorer/property-info.js'
 export default customElements.define('explorer-transaction', class ExplorerTransaction extends LitElement {
   static styles = css`
   :host {
@@ -35,9 +36,7 @@ export default customElements.define('explorer-transaction', class ExplorerTrans
   .container {
     padding: 12px;
     box-sizing: border-box;
-    background: #ffffff52;
     border-radius: 24px;
-    box-shadow: 1px 1px 14px 0px #0000002e;
     overflow-y: auto;
   }
   
@@ -88,15 +87,15 @@ export default customElements.define('explorer-transaction', class ExplorerTrans
     super()
   }
 
-  async updateInfo(hash, index) {
-    this.transaction = await client.getBlock(index)
-    this.transactionHashes = []
-    this.size = new TextEncoder().encode(JSON.stringify(this.transaction)).byteLength
-    for (const transaction of this.transaction.transactions) {
-      const hash = await (await new TransactionMessage(transaction)).hash()
-      this.transactionHashes.push(hash)
-    }
-    this.requestUpdate()
+  async updateInfo(index, transactionIndex) {
+    console.log(index);
+    const block = await client.getBlock(index)
+    console.log(block);
+    const transaction = block.transactions[transactionIndex]
+    this.size = new TextEncoder().encode(JSON.stringify(transaction)).byteLength
+
+    const hash = await (await new TransactionMessage(transaction)).hash()
+    this.transaction = {hash, ...transaction}
   }
 
   render() {
@@ -107,88 +106,65 @@ export default customElements.define('explorer-transaction', class ExplorerTrans
 
 <flex-column class="container">
   
-  <flex-row class="info-item">
+  <property-info>
     <h4>hash</h4>
     <flex-one></flex-one>
-    <span>${this.transaction.hash}</span>
-  </flex-row>
+    <very-short-string value=${this.transaction.hash}></very-short-string>
+  </property-info>
 
-  <flex-row class="info-item">
-    <h4>index</h4>
+  <property-info>
+    <h4>from</h4>
     <flex-one></flex-one>
-    <span>${this.transaction.index}</span>
-  </flex-row>
+    
+    <span>${this.transaction.from}</span>
+  </property-info>
 
-  <!-- <flex-row class="info-item">
+  <property-info>
+    <h4>to</h4>
+    <flex-one></flex-one>
+    
+    <span>${this.transaction.to}</span>
+  </property-info>
+
+  <property-info>
+    <h4>method</h4>
+    <flex-one></flex-one>
+    
+    <span>${this.transaction.method}</span>
+  </property-info>
+
+  <property-info>
+    <flex-column>
+      <h4>params</h4>
+      ${map(this.transaction.params, param => html`<param-element address="${param}" style="padding-left: 12px;">${param}</param-element>`)}
+    </flex-column>
+  </property-info>
+  <!-- <property-info>
     <h4>height</h4>
     <flex-one></flex-one>
     <span>${this.transaction.index + 1}</span>
-  </flex-row> -->
+  </property-info> -->
 
-  <flex-row class="info-item">
+  <property-info>
     <h4>timestamp</h4>
     <flex-one></flex-one>
     <time-ago value=${this.transaction.timestamp}></time-ago>
     <span>${new Date(this.transaction.timestamp).toLocaleString()}</span>
-  </flex-row>
+  </property-info>
 
-  <flex-row class="info-item">
+  <property-info>
     <h4>fees</h4>
     <flex-one></flex-one>
     
-    <span>${this.transaction.fees}</span>
-  </flex-row>
-  <flex-row class="info-item">
-    <h4>reward</h4>
-    <flex-one></flex-one>
-    
-    <span>${this.transaction.reward}</span>
-  </flex-row>
+    <span>${this.transaction.fee}</span>
+  </property-info>
 
-  <flex-row class="info-item">
+  <property-info>
     <h4>size</h4>
     <flex-one></flex-one>
     
     <span>${formatBytes(Number(this.size))}</span>
-  </flex-row>
-
-  <flex-row class="info-item">
-    <h4>fees burnt</h4>
-    <flex-one></flex-one>
-    
-    <span>${new Date(this.timestamp).toLocaleString()}</span>
-  </flex-row>
-
-  <flex-row class="info-item">
-    <h4>rewards minted</h4>
-    <flex-one></flex-one>
-    
-    <span>${new Date(this.timestamp).toLocaleString()}</span>
-  </flex-row>
-
-  <flex-row class="info-item">
-    <h4>transactions</h4>
-    <flex-one></flex-one>
-    <span>${this.transaction.transactions.length}</span>
-  </flex-row>
-
-  <flex-column style="padding-left: 24px; box-sizing: border-box;">
-    ${map(this.transactionHashes, (hash) => {
-      return html`<a href="/#!/explorer/transaction?hash=${hash}">${hash}</a>`
-    })}
-  </flex-column>
-
-  <flex-row class="info-item">
-    <h4>validators</h4>
-    <flex-one></flex-one>
-    
-    <span>${this.transaction.validators.length}</span>
-  </flex-row>
-
-  <flex-column style="padding-left: 24px; box-sizing: border-box;">
-    ${map(this.transaction.validators, validator => html`<a href="#!/explorer/address=${validator.address}">${validator.address}</a>`)}
-  </flex-column>
-    
+  </property-info>
 </flex-column>
 `
   }

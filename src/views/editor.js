@@ -1,12 +1,53 @@
 import { version } from '../../package.json'
-
+import palenightItalic from './../vs-themes/palenight-italic.json' assert {type: 'json'}
 import Storage from '@leofcoin/storage'
 // import 'monaco-editor/esm/vs/basic-languages/javascript/javascript.contribution'
 // import 'monaco-editor/esm/vs/basic-languages/typescript/typescript.contribution'
 
+const convertTheme = input => {
+  const output = {
+    inherit: false,
+    base: 'vs-dark',
+    rules: [],
+    colors : {}
+  }
+
+  for (const key of Object.keys(input.colors)) {
+    output.colors[key] = input.colors[key] === null ? "#00000000" : input.colors[key]
+  }
+
+  input.tokenColors.forEach(item => {
+    console.log(item);
+    let array = []
+    if (typeof item.scope === 'string') array = item.scope.split(',')
+    else array = item.scope
+
+    if (array === undefined) {
+      // output.rules.push({
+      //   name: item.name,
+      //   ...item.settings
+      // })
+    } else {
+      for (const token of array) {
+        for (const key of Object.keys(item.settings)) {
+          if (item.settings[key] === null) item.settings[key] = "#00000000"
+        }
+        output.rules.push({
+          name: item.name,
+          token,
+          ...item.settings
+        })
+      }
+    }
+  })
+console.log(output);
+  return output
+}
 export default customElements.define('editor-view', class editorView extends HTMLElement {
   #validators = [];
   #editor;
+  #enterAmount = 0;
+
   constructor() {
     super()
 
@@ -48,7 +89,7 @@ export default customElements.define('editor-view', class editorView extends HTM
     const token = await this.editorStore.get('templates/wizard/my-token.js')
     const standard = await this.editorStore.get('templates/standards/token.js')
     const roles = await this.editorStore.get('templates/standards/roles.js')
-console.log(new TextDecoder().decode(roles));
+    
     monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
       ...monaco.languages.typescript.javascriptDefaults.getCompilerOptions(),
         target: monaco.languages.typescript.ScriptTarget.Latest,
@@ -81,7 +122,11 @@ console.log(new TextDecoder().decode(roles));
   const standardModel = monaco.editor.createModel(new TextDecoder().decode(standard), 'javascript',  monaco.Uri.parse('file://templates/standards/token.js'));
   const standarRolesdModel = monaco.editor.createModel(new TextDecoder().decode(roles), 'javascript',  monaco.Uri.parse('file://templates/standards/roles.js'));
 
-  this.#editor = monaco.editor.create(document.querySelector('.container'));
+  monaco.editor.defineTheme('palenight-italic', convertTheme(palenightItalic))
+
+  this.#editor = monaco.editor.create(document.querySelector('.container'), {
+    theme: 'palenight-italic'
+  });
   
   this.#editor.setModel(standardModel);
   this.#editor.setModel(standarRolesdModel);
@@ -90,8 +135,14 @@ console.log(new TextDecoder().decode(roles));
   this.#editor.onKeyUp((e) => {
     const position = this.#editor.getPosition();
     const text = this.#editor.getModel().getLineContent(position.lineNumber).trim();
+
+    if (e.keyCode !== monaco.keyCode.Enter) this.#enterAmount = 0
     if (e.keyCode === monaco.KeyCode.Enter && !text) {
-      this.#editor.trigger('', 'editor.action.triggerSuggest', '');
+      this.#enterAmount += 1
+      if (this.#enterAmount === 2) {
+        this.#editor.trigger('', 'editor.action.triggerSuggest', '');
+        this.#enterAmount = 0
+      }
     }
   });
 

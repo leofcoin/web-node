@@ -16,16 +16,15 @@ export default customElements.define('navigation-bar', class NavigationBar exten
     display: flex;
   }
   custom-tabs {
-    border: 1px solid #eee;
+    border: 1px solid  var(--border-color);
     border-radius: 24px;
-    background: #2c314a00;
+    background: var(--secondary-background);
     box-sizing: border-box;
-    box-shadow: 0px 0px 16px 6px #8890b75c;
     align-items: center;
+    color: var(--font-color);
   }
 
   custom-tab {
-    color:#17418d;
     width: 100%;
     user-select: none;
   }
@@ -35,7 +34,6 @@ export default customElements.define('navigation-bar', class NavigationBar exten
     background: #628ed2;
     font-weight: 600;
     border-radius: 24px;
-    color: #eee;
     box-sizing: border-box;
     height: calc(100% - 1px);
   }

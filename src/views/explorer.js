@@ -6,6 +6,11 @@ import { formatBytes } from '@leofcoin/utils'
 import './../elements/navigation-bar.js'
 
 export default customElements.define('explorer-view', class ExplorerView extends LitElement {
+  static properties = {
+    selected: {
+      type: String
+    }
+  }
   static get styles() {
     return css`
     :host {
@@ -26,9 +31,11 @@ export default customElements.define('explorer-view', class ExplorerView extends
 
   async select(selected) {
     console.log(selected);
+    this.selected = selected
+    await this.updateComplete
     if (!customElements.get(`explorer-${selected}`)) await import(`./explorer-${selected}.js`)
     this.shadowRoot.querySelector('custom-pages').select(selected)
-    this.renderRoot.querySelector('navigation-bar').select(selected)
+    this.renderRoot.querySelector('navigation-bar')?.select(selected)
   }
 
   #customSelect({detail}) {
@@ -42,16 +49,19 @@ export default customElements.define('explorer-view', class ExplorerView extends
       <explorer-dashboard data-route="dashboard"></explorer-dashboard>
       <explorer-blocks data-route="blocks"></explorer-blocks>
       <explorer-block data-route="block"></explorer-block>
+      <explorer-block-transactions data-route="block-transactions"></explorer-block-transactions>
       <explorer-transactions data-route="transactions"></explorer-transactions>
       <explorer-transaction data-route="transaction"></explorer-transaction>
     </custom-pages>
 
+    ${this.selected === 'transactions' || this.selected === 'blocks' || this.selected === 'dashboard' ? html`
+      <flex-row class="navigation-bar">
+        <flex-one></flex-one>
+        <navigation-bar items='["dashboard", "blocks", "transactions"]' @selected="${this.#customSelect}"></navigation-bar> 
+        <flex-one></flex-one>
+      </flex-row>
+    ` : ''}
     
-    <flex-row class="navigation-bar">
-      <flex-one></flex-one>
-      <navigation-bar items='["dashboard", "blocks", "transactions"]' @selected="${this.#customSelect}"></navigation-bar> 
-      <flex-one></flex-one>
-    </flex-row>
 `
   }
 })

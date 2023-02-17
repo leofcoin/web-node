@@ -30,35 +30,20 @@ export default customElements.define('identity-dashboard', class IdentityDashboa
     padding: 24px;
     box-sizing: border-box;
   }
-  .account-container {
-    padding: 12px;
-    box-sizing: border-box;
-  }
-
-  .container {
-    max-width: 480px;
-    max-height: 480px;
-    width: 100%;
-    height: 100%;
-    padding: 12px;
-    box-sizing: border-box;
-    background: #ffffff52;
-    border-radius: 24px;
-    box-shadow: 1px 1px 14px 0px #0000002e;
-  }
   flex-row {
 
     display: flex;
     flex-direction: column;
-    background: #2c314a00;
-    border-radius: 24px;
     box-sizing: border-box;
-    padding: 6px 12px;
-    box-shadow: 0px 0px 16px 6px #8890b75c;
+    background: var(--secondary-background);
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    padding: 12px 24px;
     max-width: 240px;
     max-height: 54px;
     width: 100%;
     height: 100%;
+    justify-content: center;
     margin-bottom: 12px;
   }
 </style>

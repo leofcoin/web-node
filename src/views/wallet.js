@@ -23,8 +23,6 @@ export default customElements.define('wallet-view', class WalletView extends Lit
     return this.renderRoot.querySelector('custom-pages')
   }
 
-  #accounts
-
   constructor() {
     super()
   }
@@ -38,7 +36,6 @@ export default customElements.define('wallet-view', class WalletView extends Lit
     await this.hasUpdated
     this.#select('send')
     this.#addressSelected({})
-    this.renderRoot.querySelector('custom-selector').addEventListener('selected', this.#addressSelected.bind(this))
   }
 
   async #addressSelected({detail}) {
@@ -99,11 +96,6 @@ export default customElements.define('wallet-view', class WalletView extends Lit
     width: 100%;
     height: 100%;
   }
-
-  custom-selector .custom-selected {
-    background: #5b6f93;
-    color: #eee;
-  }
   custom-pages {
     width: 100%;
     height: 100%;
@@ -118,9 +110,8 @@ export default customElements.define('wallet-view', class WalletView extends Lit
 
   .peer-id {
     border: 1px solid white;
-    background: #ffffffbd;
     border-radius: 12px;
-    color: #66477c;
+    color: var(--font-color);
     position: absolute;
     /* top: 50%; */
     left: 50%;
@@ -136,9 +127,9 @@ export default customElements.define('wallet-view', class WalletView extends Lit
 
   .wallet-nav {
     border: 1px solid white;
-    background: #ffffff9c;
+    background: var(--secondary-background);
     border-radius: 12px 6px;
-    color: aliceblue;
+    color: var(--font-color);
     padding: 12px 6px;
     box-sizing: border-box;
     align-items: center;
@@ -147,65 +138,44 @@ export default customElements.define('wallet-view', class WalletView extends Lit
   a {
     padding: 0 12px;
     cursor: pointer;
-    --svg-icon-color: #5b6f93;
   }
 
   .container {
     border-radius: 24px;
     padding: 24px;
     box-sizing: border-box;
-    background: #ffffff9c;
-    color: #7f6592;
+    background: var(--secondary-background);
+    color: var(--font-color);
+    border: 1px solid var(--border-color);
     font-size: 18px;
+    width: 100%;
+    max-width: 320px;
   }
 
   input {
     margin-top: 12px;
     margin-bottom: 24px;
-    background: transparent;
-    border: 1px solid #eee;
-    font-size: 18px;
-  }
-
-  .custom-selector-overlay custom-selector {
-    height: 100%;
-    width: 256px;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .custom-selector-overlay {
-    background: #ffffff8c;
-    --svg-icon-color: #5b6f93;
-    border-right: 1px solid #eee;
+    box-sizing: border-box;
   }
 
   .main {
     width: 100%;
   }
-  custom-selector flex-row {
-    padding: 12px;
-    box-sizing: border-box;
-    height: 48px;
-    width: 100%;
-  }
 
   select, input, button {
     pointer-events: auto;
+    background: transparent;
+    border: 1px solid var(--border-color);
+    font-size: 14px;
+    color: var(--font-color);
+    border-radius: 24px;
+    padding: 6px 12px;
   }
 
   select, button {
     cursor: pointer;
   }
 </style>
-<span class="custom-selector-overlay">
-  <custom-selector attr-for-selected="data-address">
-    ${map(this.accounts, ([name, external, internal]) => html`
-      <account-element data-address="${external}" name="${name}" external="${external}" internal="${internal}"></account-element>
-    `)}
-    
-  </custom-selector>
-</span>
 
 <flex-column class="main">
   <custom-pages attr-for-selected="data-route">

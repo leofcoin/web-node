@@ -1,4 +1,5 @@
 import { version } from '../../package.json'
+import './../elements/shorten-string.js'
 
 export default customElements.define('stats-view', class StatsView extends HTMLElement {
 
@@ -30,7 +31,7 @@ export default customElements.define('stats-view', class StatsView extends HTMLE
   }
 
   async connectedCallback() {
-    this.shadowRoot.querySelector('.peerId').innerHTML = await client.peerId()
+    this.shadowRoot.querySelector('.peerId').value = await client.peerId()
     const peers = await client.peers()
     peers.forEach(peer => {
       this.#peerConnected(peer)
@@ -50,6 +51,7 @@ export default customElements.define('stats-view', class StatsView extends HTMLE
     height: 100%;
     align-items: center;
     justify-content: center;
+    color: var(--font-color);
   }
 
 
@@ -77,13 +79,23 @@ export default customElements.define('stats-view', class StatsView extends HTMLE
   .version {
     padding: 12px 0;
   }
+
+  .container {
+    max-width: 320px;
+    width: 100%;
+    background: var(--secondary-background);
+    border: 1px solid var(--border-color);
+    padding: 12px 24px;
+    box-sizing: border-box;
+    border-radius: 24px;
+  }
 </style>
 
-<flex-column>
+<flex-column class="container">
   <flex-row class="id">
     <strong>id</strong>
     <flex-one></flex-one>
-    <span class="peerId"></span>
+    <shorten-string class="peerId"></shorten-string>
   </flex-row>
   <flex-row class="version">
     <strong>version</strong>

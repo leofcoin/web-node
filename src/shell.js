@@ -13,8 +13,20 @@ import './clipboard-copy.js'
 import './screens/login.js'
 import './notification/master.js'
 import './notification/child.js'
-
+import './elements/account-select.js'
+import defaultTheme from './themes/default.js'
 globalThis.pubsub = globalThis.pubsub || new Pubsub({verbose: true})
+
+
+
+const setTheme = (theme) => {
+  for (const key of Object.keys(theme)) {
+    document.querySelector('body').style.setProperty(`--${key}`, theme[key])
+  }
+}
+
+setTheme(defaultTheme)
+
 
 export default customElements.define('app-shell', class AppShell extends LitElement {
 
@@ -70,9 +82,13 @@ export default customElements.define('app-shell', class AppShell extends LitElem
       await this.shadowRoot.querySelector('explorer-view').select('block')
       explorerView.renderRoot.querySelector('explorer-block').updateInfo(object.block, object.index)
     }
+    if (selected === 'explorer' && object.blockTransactions !== undefined) {
+      await this.shadowRoot.querySelector('explorer-view').select('block-transactions')
+      explorerView.renderRoot.querySelector('explorer-block-transactions').updateInfo(object.block, object.index)
+    }
     if (selected === 'explorer' && object.transaction !== undefined) {
       await this.shadowRoot.querySelector('explorer-view').select('transaction')
-      explorerView.renderRoot.querySelector('explorer-transaction').updateInfo(object.block, object.index)
+      explorerView.renderRoot.querySelector('explorer-transaction').updateInfo(object.blockIndex, object.index)
     }
     if (selected === 'explorer' && object.selected) {
       await this.shadowRoot.querySelector('explorer-view').select(object.selected)
@@ -139,6 +155,7 @@ export default customElements.define('app-shell', class AppShell extends LitElem
         font-family: system-ui, "Noto Sans", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 
         background: linear-gradient(45deg, #6495ed78, transparent);
+        background: var(--main-background);
         font-size: .875rem;
         font-weight: 400;
         line-height: 1.5;
@@ -152,12 +169,13 @@ export default customElements.define('app-shell', class AppShell extends LitElem
         height: 100%;
         display: flex;
         flex-direction: column;
+        background-color: var(--secondary-background);
       }
 
       .custom-selector-overlay {
-        background: #ffffff8c;
-        --svg-icon-color: #5b6f93;
-        border-right: 1px solid #eee;
+        background: #333750;
+        --svg-icon-color: #ffffffb5;
+        border-right: 1px solid #383941;
       }
 
       a {
@@ -165,6 +183,20 @@ export default customElements.define('app-shell', class AppShell extends LitElem
         box-sizing: border-box;
         height: 48px;
       }
+
+      flex-column {
+        width: 100%;
+      }
+
+      header {
+        height: 64px;
+        display: flex;
+        align-items: center;
+        width: 100%;
+        box-sizing: border-box;
+        padding: 6px 12px;
+      }
+
       ::slotted(.container) {
         display:flex;
         flex-direction:column;
@@ -211,6 +243,12 @@ export default customElements.define('app-shell', class AppShell extends LitElem
         </custom-selector>
       </span>
 
+      <flex-column>
+
+      <header>
+        <flex-one></flex-one>
+        <account-select></account-select>
+      </header>
         <custom-pages attr-for-selected="data-route">
           <identity-view data-route="identity"></identity-view>
           <wallet-view data-route="wallet"></wallet-view>
@@ -221,6 +259,8 @@ export default customElements.define('app-shell', class AppShell extends LitElem
           
         </custom-pages>
 
+      </flex-column>
+      
 
 
     </flex-row>

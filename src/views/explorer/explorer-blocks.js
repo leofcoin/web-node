@@ -131,7 +131,6 @@ export default customElements.define('explorer-blocks', class ExplorerBlocks ext
     width: 100%;
     height: 100%;
     box-sizing: border-box;
-    background: #ffffff52;
   }
 
   .latest-blocks {
@@ -180,7 +179,6 @@ export default customElements.define('explorer-blocks', class ExplorerBlocks ext
       max-width: 600px;
       max-height: 600px;
       border-radius: 24px;
-      box-shadow: 1px 1px 14px 0px #0000002e;
       padding: 12px 0;
     }
   }

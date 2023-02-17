@@ -1,4 +1,4 @@
-import { html, LitElement } from "lit";
+import { html, css, LitElement } from "lit";
 import generateAccount from '@leofcoin/generate-account'
 import IdentityController from '../controllers/identity.js'
 
@@ -30,8 +30,13 @@ export default customElements.define('login-screen', class LoginScreen extends L
     return this.renderRoot.querySelector('custom-pages')
   }
 
+  _keydown({key, code, keyCode, ctrlKey, altKey, shiftKey}) {
+    if (key === 'Enter') this.renderRoot.querySelector('button[data-route-action="login"]').click()
+  }
+
   async requestLogin(hasWallet) {
     return new Promise(async (resolve, reject) => {
+      this.addEventListener('keydown', this._keydown)
       this.shown = true
       this.hasWallet = await this._hasWallet()
       this.renderRoot.querySelector('input').focus()
@@ -53,6 +58,7 @@ export default customElements.define('login-screen', class LoginScreen extends L
 
   async requestPassword(hasWallet) {
     return new Promise(async (resolve, reject) => {
+      this.addEventListener('keydown', this._keydown)
       this.shown = true
       this.renderRoot.querySelector('input').focus()
       this.addEventListener('click', async (event) => {
@@ -69,6 +75,8 @@ export default customElements.define('login-screen', class LoginScreen extends L
   }
 
   async #handleBeforeLogin(password) {
+
+    
     this.renderRoot.querySelector('input').value = null
     let wallet
     this.hasWallet = await this._hasWallet()
@@ -76,10 +84,14 @@ export default customElements.define('login-screen', class LoginScreen extends L
       wallet = await generateAccount(password, 'leofcoin:peach')
       globalThis.walletStorage.put('identity', JSON.stringify(wallet.identity))
       globalThis.walletStorage.put('accounts', JSON.stringify(wallet.accounts))
+      globalThis.walletStorage.put('selectedAccount', wallet.accounts[0][1])
+      globalThis.walletStorage.put('selectedAccountIndex', '0')
     } else if (this.hasWallet) {
       const identity = JSON.parse(await new TextDecoder().decode(await globalThis.walletStorage.get('identity')))
       const accounts = JSON.parse(await new TextDecoder().decode(await globalThis.walletStorage.get('accounts')))
-      wallet = {identity, accounts}
+      const selectedAccount = await new TextDecoder().decode(await globalThis.walletStorage.get('selectedAccount'))
+      const selectedAccountIndex = Number(await new TextDecoder().decode(await globalThis.walletStorage.get('selectedAccountIndex')))
+      wallet = {identity, accounts, selectedAccount, selectedAccountIndex}
     }
 
     globalThis.identityController = new IdentityController('leofcoin:peach', wallet)
@@ -91,12 +103,23 @@ export default customElements.define('login-screen', class LoginScreen extends L
     const identityView = document.querySelector('app-shell').renderRoot.querySelector('identity-view')
     identityView.identity = wallet.identity
     identityView.accounts = wallet.accounts
-    identityView.selectedAccount = wallet.accounts[0][1]
+    identityView.selectedAccount = wallet.selectedAccount
+    identityView.selectedAccountIndex = isNaN(Number(wallet.selectedAccountIndex)) ?
+      wallet.accounts.filter(([name, external, internal]) => external === wallet.selectedAccount)[0] :
+      wallet.selectedAccountIndex
 
     // this.hasWallet = await this._hasWallet()
+    this.removeEventListener('keydown', this._keydown)
+
     if (!this.hasWallet) {
       document.querySelector('app-shell').select('identity')
     }
+
+    pubsub.publish('identity-change', {
+      accounts: wallet.accounts,
+      selectedAccount: wallet.selectedAccount,
+      selectedAccountIndex: wallet.selectedAccountIndex
+    })
   }
 
   async #handleCreate(password) {
@@ -155,86 +178,87 @@ export default customElements.define('login-screen', class LoginScreen extends L
       <button data-route-action="login">login</button>`
   }
 
+  static styles = css`
+  :host {
+    display: flex;
+    flex-direction: column;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    position: absolute;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    opacity: 0;
+    background: #1116;
+  }
+
+  :host([shown]) {
+    opacity: 1;
+    pointer-events: auto;
+    z-index: 1002;
+  }
+
+  .wrapper {
+    background: var(--active-background);
+    border-radius: 12px;
+    box-sizing: border-box;
+    padding: 12px 24px;
+    height: 100%;
+    max-height: 240px;
+    max-width: 320px;
+    width: 100%;
+    color: var(--font-color);
+    border: 1px solid var(--border-color);
+  }
+
+  input, button {
+    border-color: white;
+    padding: 10px;
+    border-radius: 12px;
+    box-sizing: border-box;
+  }
+
+  input {
+    font-size: 16px;
+  }
+
+  button {
+    background: #12b8e4a3;
+    color: white;
+    border-color: white;
+    background: transparent;
+    padding: 10px 20px;
+  }
+  
+  h5 {
+    margin: 0;
+  }
+
+  custom-pages {
+    width: 100%;
+    height: 100%;
+  }
+
+  span[data-route="login"] {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+  }
+  .word {
+    display: inline-flex;
+    padding: 6px;
+    border-radius: 3px;
+    background: #fff;
+    color: #333;
+  }
+  `
+
   render() {
     return html`
-    <style>
-      :host {
-        display: flex;
-        flex-direction: column;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        position: absolute;
-        background: radial-gradient(#351fdc, transparent), radial-gradient(#628ed2, transparent);;
-        align-items: center;
-        justify-content: center;
-        pointer-events: none;
-        opacity: 0;
-      }
-
-      :host([shown]) {
-        opacity: 1;
-        pointer-events: auto;
-        z-index: 1000;
-      }
-
-      .wrapper {
-        background: #3647bd;
-        border-radius: 12px;
-        box-sizing: border-box;
-        padding: 12px 24px;
-        height: 100%;
-        max-height: 240px;
-        max-width: 320px;
-        width: 100%;
-        color: white;
-        box-shadow: 1px 1px 6px 8px #475ad96b, 1px 1px 6px 5px #475ad96b;
-      }
-
-      input, button {
-        border-color: white;
-        padding: 10px;
-        border-radius: 12px;
-        box-sizing: border-box;
-      }
-
-      input {
-        font-size: 16px;
-      }
-
-      button {
-        background: #12b8e4a3;
-        color: white;
-        border-color: white;
-        background: transparent;
-        padding: 10px 20px;
-      }
-      
-      h5 {
-        margin: 0;
-      }
-
-      custom-pages {
-        width: 100%;
-        height: 100%;
-      }
-
-      span[data-route="login"] {
-        display: flex;
-        width: 100%;
-        height: 100%;
-        align-items: center;
-        justify-content: center;
-      }
-      .word {
-        display: inline-flex;
-        padding: 6px;
-        border-radius: 3px;
-        background: #fff;
-        color: #333;
-      }
-    </style>
 
     <flex-column class="wrapper">   
       <custom-pages attr-for-selected="data-route">

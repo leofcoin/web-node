@@ -127,16 +127,9 @@ export default customElements.define('explorer-dashboard', class ExplorerDashboa
   }
 
   flex-wrap-evenly {
-    
     padding: 48px;
     box-sizing: border-box;
     overflow-y: auto;
-  }
-
-  flex-row {
-    width: 100%;
-    align-items: center;
-    justify-content: center;
   }
 
   flex-column {
@@ -144,27 +137,6 @@ export default customElements.define('explorer-dashboard', class ExplorerDashboa
     max-height: 480px;
     width: 100%;
     height: 100%;
-  }
-
-  .latest-blocks, .latest-transactions {
-    width: 100%;
-    height: 100%;
-    padding: 12px;
-    box-sizing: border-box;
-    
-    overflow-y: auto;
-  }
-
-  .container {
-    padding: 12px;
-    box-sizing: border-box;
-    background: #ffffff52;
-    border-radius: 24px;
-    box-shadow: 1px 1px 14px 0px #0000002e;
-  }
-  
-  .container h4 {
-    padding-left: 12px;
   }
 
   ::-webkit-scrollbar {
@@ -187,11 +159,6 @@ export default customElements.define('explorer-dashboard', class ExplorerDashboa
 
   explorer-info-container explorer-info:first-child {
     margin-right: 12px;
-  }
-
-  h4 {
-    margin: 0;
-    padding: 6px 0;
   }
 </style>
 <flex-wrap-evenly>

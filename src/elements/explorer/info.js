@@ -23,15 +23,15 @@ export default customElements.define('explorer-info', class ExplorerInfo extends
   :host {
     display: flex;
     flex-direction: column;
-    background: #2c314a00;
+    background: var(--secondary-background);
     border-radius: 24px;
     box-sizing: border-box;
-    padding: 6px 12px;
-    box-shadow: 0px 0px 16px 6px #8890b75c;
+    border: 1px solid var(--border-color);
     max-width: 600px;
     max-height: 480px;
     width: 100%;
     height: 100%;
+    color: var(--font-color);
   }
 
 
@@ -43,23 +43,41 @@ export default customElements.define('explorer-info', class ExplorerInfo extends
 
   h4 {
     margin: 0;
-    padding: 6px 0;
   }
 
   :host([index="0"]) {
     margin-right: 12px;
   }
+
+  .title-container {
+    border-bottom: 1px solid var(--border-color);
+
+    box-sizing: border-box;
+    padding: 6px 12px;
+  }
+  .content-container {
+
+    box-sizing: border-box;
+    padding: 12px;
+  }
 </style>
+<flex-column class="title-container">
+
 <h4>${this.title}</h4>
+</flex-column>
 <flex-one></flex-one>
 
-${map(this.items, item => html`
-<flex-row>
-  <span>${item.title}</span>
-  <flex-one></flex-one>
-  <strong>${item.value}</strong>  
-</flex-row>
-`)}
+<flex-column class="content-container">
+    ${map(this.items, item => html`
+    <flex-row>
+      <span>${item.title}</span>
+      <flex-one></flex-one>
+      <strong>${item.value}</strong>  
+    </flex-row>
+    `)}
+
+</flex-column>
+
   `
   }
 })
