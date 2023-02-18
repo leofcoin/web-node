@@ -23,7 +23,7 @@ export default customElements.define('export-screen', class ExportScreen extends
   #click(event) {
     const target = event.composedPath()[0]
     console.log(target.tagName);
-    if (target.tagName === 'EXPORT-SCREEN') this.#close()
+    if (target.tagName === 'EXPORT-SCREEN' || target.tagName === 'CUSTOM-SVG-ICON') this.#close()
     
 
   }
@@ -45,11 +45,10 @@ export default customElements.define('export-screen', class ExportScreen extends
         display: flex;
         flex-direction: column;
         top: 0;
-        left: 0;
+        left: 24px;
         right: 0;
         bottom: 0;
         position: absolute;
-        background: radial-gradient(#351fdc, transparent), radial-gradient(#628ed2, transparent);;
         align-items: center;
         justify-content: center;
         pointer-events: none;
@@ -64,16 +63,16 @@ export default customElements.define('export-screen', class ExportScreen extends
       }
 
       .wrapper {
-        background: #3647bd;
+        border: 1px solid var(--border-color);
+        background: var(--secondary-background);
         border-radius: 12px;
         box-sizing: border-box;
         padding: 12px 24px;
         height: 100%;
-        max-height: 440px;
+        max-height: 480px;
         max-width: 320px;
         width: 100%;
         color: white;
-        box-shadow: 1px 1px 6px 8px #475ad96b, 1px 1px 6px 5px #475ad96b;
         pointer-events: none;
         user-select: none;
       }
@@ -107,7 +106,12 @@ export default customElements.define('export-screen', class ExportScreen extends
     <strong class="close-tip">click outside the box to close.</strong>
     
     <flex-column class="wrapper">
-      <strong>scan to login on another device</strong>
+      <flex-row>
+        <strong>scan to login on another device</strong>
+        <flex-one></flex-one>
+        <custom-svg-icon icon="close"></custom-svg-icon>
+      </flex-row>
+      
       <img src=${this.qrcode}></img>
       <strong>click copy to login on the same device</strong>
       <small>NOTE: never share/send to/with/on anyone or app</small>

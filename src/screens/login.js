@@ -183,7 +183,7 @@ export default customElements.define('login-screen', class LoginScreen extends L
     display: flex;
     flex-direction: column;
     top: 0;
-    left: 0;
+    left: 24px;
     right: 0;
     bottom: 0;
     position: absolute;
