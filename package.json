@@ -37,6 +37,7 @@
     "@leofcoin/multi-wallet": "^3.0.3",
     "@leofcoin/storage": "^3.3.2",
     "@vandeurenglenn/flex-elements": "^0.1.0",
+    "@vandeurenglenn/monaco-utils": "^1.0.0",
     "custom-pages": "^0.12.1",
     "custom-selector": "^0.2.1",
     "custom-svg-icon": "^1.0.1",

@@ -1,48 +1,11 @@
 import { version } from '../../package.json'
 import palenightItalic from './../vs-themes/palenight-italic.json' assert {type: 'json'}
 import Storage from '@leofcoin/storage'
+import { convertTheme } from '@vandeurenglenn/monaco-utils'
 // import 'monaco-editor/esm/vs/basic-languages/javascript/javascript.contribution'
 // import 'monaco-editor/esm/vs/basic-languages/typescript/typescript.contribution'
 
-const convertTheme = input => {
-  const output = {
-    inherit: false,
-    base: 'vs-dark',
-    rules: [],
-    colors : {}
-  }
 
-  for (const key of Object.keys(input.colors)) {
-    output.colors[key] = input.colors[key] === null ? "#00000000" : input.colors[key]
-  }
-
-  input.tokenColors.forEach(item => {
-    console.log(item);
-    let array = []
-    if (typeof item.scope === 'string') array = item.scope.split(',')
-    else array = item.scope
-
-    if (array === undefined) {
-      // output.rules.push({
-      //   name: item.name,
-      //   ...item.settings
-      // })
-    } else {
-      for (const token of array) {
-        for (const key of Object.keys(item.settings)) {
-          if (item.settings[key] === null) item.settings[key] = "#00000000"
-        }
-        output.rules.push({
-          name: item.name,
-          token,
-          ...item.settings
-        })
-      }
-    }
-  })
-console.log(output);
-  return output
-}
 export default customElements.define('editor-view', class editorView extends HTMLElement {
   #validators = [];
   #editor;
@@ -70,7 +33,7 @@ export default customElements.define('editor-view', class editorView extends HTM
 
     if (!await this.editorStore.has('templates/wizard/my-token.js')) {
       await this.editorStore.put('templates/wizard/my-token.js', `
-      import Token from './../standards/token.js'
+      import Token from '@leofcoin/standards/token.js'
 
       export default class MyToken extends Token {
         constructor(state) {
@@ -95,21 +58,59 @@ export default customElements.define('editor-view', class editorView extends HTM
         target: monaco.languages.typescript.ScriptTarget.Latest,
         allowNonTsExtensions: true,
         moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
-        module: monaco.languages.typescript.ModuleKind.ES2015,
-        noEmit: true,
+        module: monaco.languages.typescript.ModuleKind.ESNext,
         esModuleInterop: true,
-        strict: true,
-        jsx: monaco.languages.typescript.JsxEmit.React,
-        reactNamespace: 'React',
         allowJs: true,
         isolatedModules: true
     });
 
     monaco.languages.typescript.javascriptDefaults.addExtraLib(`
-      declare module Roles
-      ${new TextDecoder().decode(roles)}
-    }`, 'roles.d.ts')
+    class Roles {
+      #private;
+      constructor(roles: {});
+      /**
+       *
+       */
+      get state(): {};
+      get roles(): {};
+      /**
+       * @param {address} address
+       * @param {string} role
+       * @returns true | false
+       */
+      hasRole(address: address, role: string): boolean;
+      grantRole(address: address, role: string): void;
+      revokeRole(address: address, role: string): void;
+  }
 
+    declare module '@leofcoin/standards/roles.js' {
+      export default Roles
+    };
+
+    declare module '@leofcoin/standards/token.js' {
+      export default class Token extends Roles {
+        #private;
+        constructor(name: string, symbol: string, decimals: number, state: {
+            roles?: {};
+        });
+        /**
+         * @return {Object} {holders, balances, ...}
+         */
+        get state(): {};
+        get totalSupply(): any;
+        get name(): string;
+        get symbol(): string;
+        get holders(): number;
+        get balances(): {};
+        mint(to: any, amount: any): void;
+        burn(from: address, amount: BigNumber): void;
+        balanceOf(address: address): BigNumber;
+        setApproval(operator: address, amount: BigNumber): void;
+        approved(owner: address, operator: address, amount: BigNumber): boolean;
+        transfer(from: address, to: address, amount: BigNumber): void;
+    }
+    };
+  }`, 'index.d.ts')
 // monaco.languages.typescript.javascriptDefaults.addExtraLib(`
 // declare class Token {
 //   private #name: string;
@@ -117,10 +118,12 @@ export default customElements.define('editor-view', class editorView extends HTM
 // }
 // `, 'token.d.ts')
 
-  const tokenModel = monaco.editor.createModel(new TextDecoder().decode(token), 'javascript', monaco.Uri.parse('file://templates/wizard/my-token.js'));
+  const tokenModel = monaco.editor.createModel(new TextDecoder().decode(token), 'javascript', monaco.Uri.parse('file://templates/my-token.js'));
 
-  const standardModel = monaco.editor.createModel(new TextDecoder().decode(standard), 'javascript',  monaco.Uri.parse('file://templates/standards/token.js'));
-  const standarRolesdModel = monaco.editor.createModel(new TextDecoder().decode(roles), 'javascript',  monaco.Uri.parse('file://templates/standards/roles.js'));
+  const standardModel = monaco.editor.createModel(new TextDecoder().decode(standard), 'javascript',  monaco.Uri.parse('file://templates/node_modules/@leofcoin/standards/token.js'));
+  const standarRolesdModel = monaco.editor.createModel(new TextDecoder().decode(roles), 'javascript',  monaco.Uri.parse('file://templates/node_modules/@leofcoin/standards/roles.js'));
+
+ 
 
   monaco.editor.defineTheme('palenight-italic', convertTheme(palenightItalic))
 
@@ -136,7 +139,7 @@ export default customElements.define('editor-view', class editorView extends HTM
     const position = this.#editor.getPosition();
     const text = this.#editor.getModel().getLineContent(position.lineNumber).trim();
 
-    if (e.keyCode !== monaco.keyCode.Enter) this.#enterAmount = 0
+    if (e.keyCode !== monaco.KeyCode.Enter) this.#enterAmount = 0
     if (e.keyCode === monaco.KeyCode.Enter && !text) {
       this.#enterAmount += 1
       if (this.#enterAmount === 2) {
@@ -145,6 +148,10 @@ export default customElements.define('editor-view', class editorView extends HTM
       }
     }
   });
+
+  this.dependencies = [
+    '@leofcoin:standards'
+  ]
 
   pubsub.subscribe('deployment-dependencies', this.ondependencies.bind(this))
 
@@ -163,8 +170,15 @@ export default customElements.define('editor-view', class editorView extends HTM
 
   async deploy() {
     this.show('deploying')
-    const code = monaco.editor.getModels()[0].getLinesContent().join('\n')
-    const result = await api.deploy(code)
+    let code = monaco.editor.getModels()[0].getLinesContent().join('\n')
+    let response = await fetch('https://deployer.leofcoin.org/bundle', {
+      method: 'GET',
+      body: JSON.stringify({code, dependencies: this.dependencies})
+    })
+
+    code = await response.text()
+    console.log(code);
+
     this.show(`
     <flex-row style="width: 100%; max-width: 640px; align-items: center;">
       <h4>${result.name}</h4>
