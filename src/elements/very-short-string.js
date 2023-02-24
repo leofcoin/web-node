@@ -1,19 +1,20 @@
 import { css, html, LitElement } from "lit"
 
 export default customElements.define('very-short-string', class VeryShortString extends LitElement {
+  #value;
+
   static properties = {
     shorted: {
       type: String
     },
     value: {
-      type: 'string',
+      type: String,
       reflect: true
     },
     shortenBy: {
       type: Number
     }
   }
-  #value;
 
   static styles = css`
   :host {
