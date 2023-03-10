@@ -38,8 +38,8 @@ export default class IdentityController {
     
   }
 
-  sign() {
-    this.#wallet.sign()
+  sign(hash) {
+    return this.#wallet.sign(hash)
   }
 
   async exportQR(password) {

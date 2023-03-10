@@ -1,6 +1,7 @@
 import '../elements/account.js'
 // import { nativeToken } from './../../../node_modules/@leofcoin/addresses/src/addresses'
 import { parseUnits } from '@leofcoin/utils'
+import { signTransaction } from '@leofcoin/lib'
 import { LitElement, html } from 'lit'
 import { map } from 'lit/directives/map.js'
 
@@ -62,17 +63,19 @@ export default customElements.define('wallet-view', class WalletView extends Lit
     const to = this.#to.value
     const amount = this.#amount.value
     let from = this.selectedAccount
-    const token = client.nativeToken
+    const token = await client.nativeToken()
 
     const nonce = await client.getNonce(from)
-    const rawTransaction = await chain.createTransaction({
+    const rawTransaction = {
+      timestamp: Date.now(),
       from,
       to: token, 
       method: 'transfer',
-      nonce,
+      nonce: nonce + 1,
       params: [from, to, parseUnits(amount).toString()]
-    })
+    }
     const transaction = await signTransaction(rawTransaction, globalThis.identityController)
+    console.log(transaction);
     const transactionEvent = await client.sendTransaction(transaction)
     console.log(transactionEvent);
   }
