@@ -24,9 +24,9 @@ export default customElements.define('address-amount', class AddressAmount exten
   }
 
   async #updateAmount() {
-    const amount = await globalThis.client.balanceOf(this.#address, true)
-    if (isNaN(amount)) this.amount = 0
-    else this.amount = formatUnits(amount)
+    const amount = await globalThis.client.balanceOf(this.#address, false)
+    if (!amount?._isBigNumber) this.amount = 0
+    else this.amount = (formatUnits(amount)).toLocaleString()
   }
 
   static styles = css`

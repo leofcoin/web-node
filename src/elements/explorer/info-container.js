@@ -25,8 +25,18 @@ export default customElements.define('explorer-info-container', class ExplorerIn
     display: flex;
     flex-direction: row;
     max-width: 600px;
-    height: auto;
+    width: 100%;
     height: 136px;
+  }
+
+  @media (max-width: 601px) {
+    :host {
+      flex-direction: column;
+      height: 272px;
+    }
+    explorer-info[index="0"] {
+      margin-bottom: 12px;
+    }
   }
 
 </style>
