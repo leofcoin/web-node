@@ -24,8 +24,34 @@ export default customElements.define('explorer-dashboard', class ExplorerDashboa
     
     const validators = await client.staticCall(lookupValidators.address, 'validators')
     const lookupFactory = await client.lookup('ArtOnlineContractFactory')
+    const tpeses = []
+    
+    let blocks = await client.blocks(-128)
+    for (const block of blocks) {
+      block.tps = 0
 
-    this.items = [[{
+      let start = block.transactions[0].timestamp
+      for (const transaction of block.transactions) {
+        if (start - transaction.timestamp <= 1000) {
+          block.tps += 1
+        }
+      }
+
+      tpeses.push(block.tps)
+      
+    }
+
+    console.log(tpeses);
+   
+    const median = arr => {
+      const mid = Math.floor(arr.length / 2),
+        nums = [...arr].sort((a, b) => a - b);
+      return arr.length % 2 !== 0 ? nums[mid] : (nums[mid - 1] + nums[mid]) / 2;
+    }
+
+    const tps = median(tpeses)
+
+    this.items = [{
       title: 'transactions',
       items: [{
         title: 'transfers',
@@ -36,7 +62,7 @@ export default customElements.define('explorer-dashboard', class ExplorerDashboa
       }, {
         title: 'mints',
         value: await client.nativeMints()
-      }]        
+      }]     
     }, {
       title: 'validators',
       items: [{
@@ -46,7 +72,7 @@ export default customElements.define('explorer-dashboard', class ExplorerDashboa
         title: 'online',
         value: Object.values(validators).filter(({lastSeen}) => lastSeen - new Date().getTime() < 60_000).length
       }]
-    }], [{
+    }, {
       title: 'contracts',
       items: [{
         title: 'total',
@@ -70,7 +96,25 @@ export default customElements.define('explorer-dashboard', class ExplorerDashboa
         title: 'size',
         value: formatBytes(await client.totalSize())
       }]
-    }]]
+    }, {
+      title: 'pool',
+      items: [{
+        title: 'transactions',
+        value: await client.transactionsInPool()
+      }, {
+        title: 'size',
+        value: formatBytes(await client.transactionPoolSize())
+      }]
+    }, {
+      title: 'network',
+      items: [{
+        title: 'tps',
+        value: tps
+      }, {
+        title: 'peers',
+        value: (await client.peers()).length
+      }]
+    }]
   }
 
   async select(selected) {
@@ -123,6 +167,8 @@ export default customElements.define('explorer-dashboard', class ExplorerDashboa
     flex-direction: column;
     width: 100%;
     height: 100%;
+    align-items: center;
+    justify-content: center;
     overflow-y: auto;
   }
 
@@ -130,13 +176,7 @@ export default customElements.define('explorer-dashboard', class ExplorerDashboa
     padding: 48px;
     box-sizing: border-box;
     overflow-y: auto;
-  }
-
-  flex-column {
-    max-width: 600px;
-    max-height: 480px;
-    width: 100%;
-    height: 100%;
+    max-width: 720px;
   }
 
   ::-webkit-scrollbar {
@@ -152,24 +192,31 @@ export default customElements.define('explorer-dashboard', class ExplorerDashboa
     border-radius: 10px;
     -webkit-box-shadow: inset 0 0 6px rgba(225,255,255,0.5);
   }
-
-  explorer-info-container:first-child {
-    margin-bottom: 12px;
+  
+  explorer-info {
+    margin-bottom: 6px;
+    max-height: 126px;
+    width: calc(100% / 2 - 3px);
   }
 
-  explorer-info-container explorer-info:first-child {
-    margin-right: 12px;
+  @media (max-width: 721px) {
+    flex-wrap-evenly {
+      width: 100%;
+    }
+    :host {
+      align-items: none;
+      justify-content: none;
+    }
   }
 </style>
-<flex-wrap-evenly>
-  ${map(this.items, item => html`
-  <flex-column style="height: auto;">
-    <explorer-info-container items=${JSON.stringify(item)}></explorer-info-container>
-  </flex-column>
-  
-  `)}
+<flex-wrap-around>
+  ${map(this.items, (item, index) => 
+    html`
+      <explorer-info title=${item.title} items=${JSON.stringify(item.items)} index=${index}></explorer-info>
+    `
+ )}
 
-</flex-wrap-evenly>
+</flex-wrap-around>
 `
   }
 })

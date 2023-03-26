@@ -52,12 +52,13 @@ export default customElements.define('explorer-view', class ExplorerView extends
       <explorer-block-transactions data-route="block-transactions"></explorer-block-transactions>
       <explorer-transactions data-route="transactions"></explorer-transactions>
       <explorer-transaction data-route="transaction"></explorer-transaction>
+      <explorer-pool data-route="pool"></explorer-pool>
     </custom-pages>
 
-    ${this.selected === 'transactions' || this.selected === 'blocks' || this.selected === 'dashboard' ? html`
+    ${this.selected === 'transactions' || this.selected === 'blocks' || this.selected === 'dashboard' || this.selected === 'pool' ? html`
       <flex-row class="navigation-bar">
         <flex-one></flex-one>
-        <navigation-bar items='["dashboard", "blocks", "transactions"]' @selected="${this.#customSelect}"></navigation-bar> 
+        <navigation-bar items='["dashboard", "blocks", "transactions", "pool"]' @selected="${this.#customSelect}"></navigation-bar> 
         <flex-one></flex-one>
       </flex-row>
     ` : ''}
