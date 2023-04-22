@@ -45,10 +45,6 @@ export default customElements.define('explorer-info', class ExplorerInfo extends
     margin: 0;
   }
 
-  :host([index="0"]) {
-    margin-right: 12px;
-  }
-
   .title-container {
     border-bottom: 1px solid var(--border-color);
 

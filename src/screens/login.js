@@ -128,6 +128,7 @@ export default customElements.define('login-screen', class LoginScreen extends L
       await globalThis.identityController.unlock(password)
       await this.#handleAfterLogin(wallet)
       this.removeAttribute('shown')
+      this.loadChain(password)
     } catch (e) {
       console.error(e);
       throw e
@@ -141,14 +142,48 @@ export default customElements.define('login-screen', class LoginScreen extends L
     }
   }
 
+  async loadChain(password) {
+    let importee
+    try {
+
+      importee = await import('./../../node_modules/@leofcoin/chain/exports/browser/node-browser.js')
+      await new importee.default({
+        network: 'leofcoin:peach',
+        networkName: 'leofcoin:peach',
+        networkVersion: 'peach',
+        stars: ['wss://peach.leofcoin.org'],
+        autoStart: true
+      },
+      password)
+      
+      importee = await import('./../../node_modules/@leofcoin/lib/exports/node-config.js')
+      const config = await importee.default()
+
+      importee = await import('./../../node_modules/@leofcoin/chain/exports/browser/chain.js')
+      globalThis.chain = await new importee.default()
+      console.log(chain);
+
+      importee = await import('./../../node_modules/@leofcoin/endpoint-clients/exports/direct.js')
+      globalThis.client = await new importee.default('wss://ws-remote.leofcoin.org', 'peach')
+      // await globalThis.client.init()
+    } catch (error) {
+      console.log(error);
+      importee = await import('./../../node_modules/@leofcoin/endpoint-clients/exports/ws.js')
+      globalThis.client = await new importee.default('wss://ws-remote.leofcoin.org', 'peach')
+      await globalThis.client.init()
+    }
+  }
+
   async #handleLogin(password) {
 
     const wallet = await this.#handleBeforeLogin(password)
     try {
 
       await globalThis.identityController.unlock(password)
+     
       await this.#handleAfterLogin(wallet)
       this.removeAttribute('shown')
+      this.loadChain(password)
     } catch (e) {
       console.error(e);
       throw e
@@ -182,10 +217,7 @@ export default customElements.define('login-screen', class LoginScreen extends L
   :host {
     display: flex;
     flex-direction: column;
-    top: 0;
-    left: 24px;
-    right: 0;
-    bottom: 0;
+    inset: 0;
     position: absolute;
     align-items: center;
     justify-content: center;

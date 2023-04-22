@@ -9,7 +9,7 @@ import { platform } from 'os'
 import { exec } from 'child_process'
 
 const osPlatform = platform();
-const port = 9090
+const port = 9555
 
 const root = 'www'
 

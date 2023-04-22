@@ -30,9 +30,19 @@ setTheme(defaultTheme)
 
 export default customElements.define('app-shell', class AppShell extends LitElement {
 
+  static get properties() {
+    return {
+      lastBlockIndex: { type: Number },
+      totalResolved: { type: Number },
+      totalLoaded: { type: Number },
+    };
+  }
+
   constructor() {
     super()
-    this.attachShadow({mode: 'open'})
+    this.totalResolved = 0
+    this.totalLoaded = 0
+    this.lastBlockIndex = 0
   }
 
  
@@ -112,30 +122,72 @@ export default customElements.define('app-shell', class AppShell extends LitElem
   }
 
   async init() {
-    const importee = await import('./../node_modules/@leofcoin/endpoint-clients/exports/ws.js')
-    globalThis.client = await new importee.default('wss://ws-remote.leofcoin.org', 'peach')
-    await globalThis.client.init()
+    let importee
+    try {
+      importee = await import('./../node_modules/@leofcoin/endpoint-clients/exports/ws.js')
+      globalThis.client = await new importee.default('wss://ws-remote.leofcoin.org', 'peach')
+      await globalThis.client.init()
+      console.log({client});
+      importee = await import('./../node_modules/@leofcoin/chain/exports/browser/node-browser.js')
+      const node = await new importee.default({
+        network: 'leofcoin:peach',
+        networkName: 'leofcoin:peach',
+        networkVersion: 'peach',
+        stars: ['wss://peach.leofcoin.org'],
+        autoStart: true
+      })
+      importee = await import('./../node_modules/@leofcoin/lib/exports/node-config.js')
+      const config = await importee.default()
+
+      importee = await import('./../node_modules/@leofcoin/chain/exports/browser/chain.js')
+      globalThis.chain = await new importee.default()
+      
+    } catch (error) {
+      console.log(error);
+      importee = await import('./../node_modules/@leofcoin/endpoint-clients/exports/ws.js')
+      globalThis.client = await new importee.default('wss://ws-remote.leofcoin.org', 'peach')
+      await globalThis.client.init()
+    }
+    
   }
 
   async connectedCallback() {
     super.connectedCallback()
     this.peersConnected = 0
-    await this.init()
-    globalThis.walletStorage = new Storage('wallet')
-    await globalThis.walletStorage.init()
+    pubsub.subscribe('lastBlock', (block) => this.lastBlockIndex = block.index)
+    pubsub.subscribe('block-resolved', (block) => this.totalResolved += 1)
+    pubsub.subscribe('block-loaded', (block) => this.totalLoaded += 1)
+    let importee
+    importee = await import('./../node_modules/@leofcoin/endpoint-clients/exports/ws.js')
+    globalThis.client = await new importee.default('wss://ws-remote.leofcoin.org', 'peach')
+    await globalThis.client.init()
+    console.log({client});
+    onhashchange = this.#onhashchange.bind(this)
+    if (location.hash.split('/')[1]) this.#onhashchange()
+    else this.#select('wallet')
     await this.#login()
+    // await this.init()
+    // globalThis.walletStorage = new Storage('wallet')
+    // await globalThis.walletStorage.init()
+    // lo
+
 
     onhashchange = this.#onhashchange.bind(this)
     if (location.hash.split('/')[1]) this.#onhashchange()
     else this.#select('wallet')
+    
 
    
     
   }
 
   async #login() {
-    const hasWallet = await globalThis.walletStorage.has('identity')
-    console.log(hasWallet);
+    if (!globalThis.walletStorage) {
+      const importee = await import('./../node_modules/@leofcoin/storage/exports/storage.js')
+      globalThis.walletStorage = await new Storage('wallet')
+      await walletStorage.init()
+    }
+    const hasWallet = await walletStorage.has('identity')
     await this.shadowRoot.querySelector('login-screen').requestLogin(hasWallet)
   }
 
@@ -216,6 +268,10 @@ export default customElements.define('app-shell', class AppShell extends LitElem
         border-radius: 10px;
         -webkit-box-shadow: inset 0 0 6px rgba(225,255,255,0.5);
       }
+
+      .resolver-snack, .loader-snack {
+        color: var(--font-color);
+      }
     </style>
     
 
@@ -268,6 +324,26 @@ export default customElements.define('app-shell', class AppShell extends LitElem
       <login-screen></login-screen>
       <export-screen></export-screen>
       <notification-master></notification-master>
+      
+      <flex-row>
+        <span class="resolver-snack">
+        <strong>resolved</strong>
+        <span> ${this.totalResolved} </span>
+          <strong>of</strong>
+
+          <span>${this.lastBlockIndex + 1} </span>
+        </span>
+
+        <flex-one></flex-one>
+
+        <span class="loader-snack">
+          <strong>loaded</strong>
+          <span> ${this.totalLoaded} </span>
+          <strong>of</strong>
+
+          <span>${this.lastBlockIndex + 1} </span>
+        </span>
+      </flex-row>
     `
   }
 })
