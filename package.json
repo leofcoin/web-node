@@ -33,6 +33,8 @@
     "@leofcoin/messages": "^1.3.3",
     "@leofcoin/multi-wallet": "^3.0.3",
     "@leofcoin/storage": "^3.3.2",
+    "@lit-labs/context": "^0.3.1",
+    "@material/web": "^1.0.0-pre.7",
     "@vandeurenglenn/flex-elements": "^0.1.0",
     "@vandeurenglenn/monaco-utils": "^1.0.0",
     "custom-pages": "^0.12.1",

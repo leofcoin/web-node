@@ -1,6 +1,8 @@
 import { html, css, LitElement } from "lit";
 import generateAccount from '@leofcoin/generate-account'
 import IdentityController from '../controllers/identity.js'
+import '@material/web/button/elevated-button.js'
+
 
 export default customElements.define('login-screen', class LoginScreen extends LitElement {
   static properties = {
@@ -31,7 +33,7 @@ export default customElements.define('login-screen', class LoginScreen extends L
   }
 
   _keydown({key, code, keyCode, ctrlKey, altKey, shiftKey}) {
-    if (key === 'Enter') this.renderRoot.querySelector('button[data-route-action="login"]').click()
+    if (key === 'Enter') this.renderRoot.querySelector('[data-route-action="login"]').click()
   }
 
   async requestLogin(hasWallet) {

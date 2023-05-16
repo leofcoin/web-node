@@ -63,6 +63,7 @@ export default customElements.define('wallet-view', class WalletView extends Lit
     const to = this.#to.value
     const amount = this.#amount.value
     let from = this.selectedAccount
+    console.log({from});
     const token = await client.nativeToken()
 
     const nonce = await client.getNonce(from)
