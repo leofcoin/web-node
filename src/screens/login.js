@@ -145,7 +145,7 @@ export default customElements.define('login-screen', class LoginScreen extends L
     }
   }
 
-  async #spawnChain() {
+  async #spawnChain(password) {
     let importee
     importee = await import('./../../node_modules/@leofcoin/chain/exports/browser/node-browser.js')
     await new importee.default({
@@ -185,7 +185,7 @@ export default customElements.define('login-screen', class LoginScreen extends L
     let importee
     try {
       if (direct) {
-        await this.#spawnChain()
+        await this.#spawnChain(password)
       }
       await this.#spawnEndpoint(false)
     } catch (error) {
