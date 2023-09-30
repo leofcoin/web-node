@@ -6,7 +6,7 @@
   "scripts": {
     "serve": "node ./server.js",
     "build": "rollup -c",
-    "build:all": "rollup -c rollup.monaco.config.js",
+    "build:monaco": "rollup -c rollup.monaco.config.js",
     "watch": "rollup -c -w",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
