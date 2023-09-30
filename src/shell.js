@@ -121,36 +121,6 @@ export default customElements.define('app-shell', class AppShell extends LitElem
     }
   }
 
-  async init() {
-    let importee
-    try {
-      importee = await import('./../node_modules/@leofcoin/endpoint-clients/exports/ws.js')
-      globalThis.client = await new importee.default('wss://ws-remote.leofcoin.org', 'peach')
-      await globalThis.client.init()
-      console.log({client});
-      importee = await import('./../node_modules/@leofcoin/chain/exports/browser/node-browser.js')
-      const node = await new importee.default({
-        network: 'leofcoin:peach',
-        networkName: 'leofcoin:peach',
-        networkVersion: 'peach',
-        stars: ['wss://peach.leofcoin.org'],
-        autoStart: true
-      })
-      importee = await import('./../node_modules/@leofcoin/lib/exports/node-config.js')
-      const config = await importee.default()
-
-      importee = await import('./../node_modules/@leofcoin/chain/exports/browser/chain.js')
-      globalThis.chain = await new importee.default()
-      
-    } catch (error) {
-      console.log(error);
-      importee = await import('./../node_modules/@leofcoin/endpoint-clients/exports/ws.js')
-      globalThis.client = await new importee.default('wss://ws-remote.leofcoin.org', 'peach')
-      await globalThis.client.init()
-    }
-    
-  }
-
   async connectedCallback() {
     super.connectedCallback()
     this.peersConnected = 0

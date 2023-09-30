@@ -2,6 +2,7 @@ import { html, css, LitElement } from "lit";
 import generateAccount from '@leofcoin/generate-account'
 import IdentityController from '../controllers/identity.js'
 import '@material/web/button/elevated-button.js'
+import networks from '@leofcoin/networks'
 
 
 export default customElements.define('login-screen', class LoginScreen extends LitElement {
@@ -144,35 +145,52 @@ export default customElements.define('login-screen', class LoginScreen extends L
     }
   }
 
-  async loadChain(password) {
+  async #spawnChain() {
     let importee
-    try {
+    importee = await import('./../../node_modules/@leofcoin/chain/exports/browser/node-browser.js')
+    await new importee.default({
+      network: 'leofcoin:peach',
+      networkName: 'leofcoin:peach',
+      networkVersion: 'peach',
+      stars: networks.leofcoin.peach.stars,
+      autoStart: false
+    },
+    password)
 
-      importee = await import('./../../node_modules/@leofcoin/chain/exports/browser/node-browser.js')
-      await new importee.default({
-        network: 'leofcoin:peach',
-        networkName: 'leofcoin:peach',
-        networkVersion: 'peach',
-        stars: ['wss://peach.leofcoin.org'],
-        autoStart: true
-      },
-      password)
-      
-      importee = await import('./../../node_modules/@leofcoin/lib/exports/node-config.js')
-      const config = await importee.default()
+    importee = await import('./../../node_modules/@leofcoin/lib/exports/node-config.js')
+    const config = await importee.default()
 
-      importee = await import('./../../node_modules/@leofcoin/chain/exports/browser/chain.js')
-      globalThis.chain = await new importee.default()
-      console.log(chain);
+    importee = await import('./../../node_modules/@leofcoin/chain/exports/browser/chain.js')
+    globalThis.chain = await new importee.default()
+    console.log(chain);
 
+    this.#spawnEndpoint()
+    // await globalThis.client.init()
+  }
+
+  async #spawnEndpoint(direct = true) {
+    let importee
+    if (direct) {
       importee = await import('./../../node_modules/@leofcoin/endpoint-clients/exports/direct.js')
       globalThis.client = await new importee.default('wss://ws-remote.leofcoin.org', 'peach')
-      // await globalThis.client.init()
-    } catch (error) {
-      console.log(error);
+    } else {
       importee = await import('./../../node_modules/@leofcoin/endpoint-clients/exports/ws.js')
       globalThis.client = await new importee.default('wss://ws-remote.leofcoin.org', 'peach')
-      await globalThis.client.init()
+      await globalThis.client.init()  
+    }
+    
+  }
+
+  async loadChain(password, direct = true) {
+    let importee
+    try {
+      if (direct) {
+        await this.#spawnChain()
+      }
+      await this.#spawnEndpoint(false)
+    } catch (error) {
+      console.log(error);
+      this.#spawnEndpoint(false)
     }
   }
 
@@ -196,7 +214,7 @@ export default customElements.define('login-screen', class LoginScreen extends L
       <h4>Login</h4>
       <h5>Create a wallet or import one to continue</h5>
       <flex-two></flex-two>
-      <input type="password" placeholder="password" tabindex="0" autofocus autocomplete="password webauthn">
+      <input type="password" placeholder="password" tabindex="0" autofocus autocomplete="new-password">
       <flex-one></flex-one>
       <flex-row>
         <button data-route-action="import">import</button>
@@ -210,7 +228,7 @@ export default customElements.define('login-screen', class LoginScreen extends L
       <h4>Login</h4>
       <h5>Enter password to unlock wallet</h5>
       <flex-two></flex-two>
-      <input type="password" placeholder="password" tabindex="0" autofocus autocomplete="password webauthn">
+      <input type="password" placeholder="password" tabindex="0" autofocus autocomplete="current-password">
       <flex-one></flex-one>
       <button data-route-action="login">login</button>`
   }
