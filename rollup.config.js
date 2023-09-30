@@ -1,6 +1,6 @@
 import typescript from '@rollup/plugin-typescript'
 import tsConfig from './tsconfig.json' assert { type: 'json'}
-import { readdir, unlink } from 'fs/promises'
+import { cp, readdir, unlink } from 'fs/promises'
 import { join } from 'path'
 import resolve from '@rollup/plugin-node-resolve'
 import commonjs from '@rollup/plugin-commonjs'
@@ -30,6 +30,18 @@ const cleanWWW = async () => {
   
 }
 
+const copyChain = async () => {
+  return {
+    name: 'copy-chain', // this name will show up in warnings and errors
+    generateBundle: async ()=> {
+      await cp('node_modules/@leofcoin/chain/exports/browser/node-browser.js', 'www/node-browser.js')
+      return 
+    }
+  };
+  
+  
+}
+
 export default [{
   input: ['./src/shell.js', ...views, './node_modules/@leofcoin/storage/exports/browser-store.js'],
   output: {
@@ -39,13 +51,17 @@ export default [{
   external: [
     './identity.js',
     './../../monaco/monaco-loader.js',
-    '@monaco-import'
+    '@monaco-import',
+    './node-browser.js'
   ],
   plugins: [
     cleanWWW(),
+    // copyChain(),
     json(),
     resolve({mainFields: ['browser', 'module', 'main']}),
     commonjs(),
+    copyChain(),
+    
     modify({
       '@monaco-import': './../../monaco/monaco-loader.js',
       './exports/browser/workers/machine-worker.js': './workers/machine-worker.js',
