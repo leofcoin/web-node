@@ -53,16 +53,13 @@ export default class IdentityController {
   }
 
   async export(password) {
-    if (!this.#wallet) await this.unlock(password)
-    const multiWIF =  this.#wallet.toMultiWif()
-    const encypted = await encrypt(password, multiWIF)
-    return base58.encode(encypted)
+   return this.#wallet.export(password)
   }
 
   async import(password, encrypted) {
     this.#wallet = new MultiWallet(this.network)
-    const decrypted = await decrypt(password, base58.decode(encrypted))
-    await this.#wallet.fromMultiWif(decrypted)
+    await this.#wallet.import(password, encrypted)
+    return this.#wallet
   }
 
   async accounts() {

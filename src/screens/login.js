@@ -3,6 +3,9 @@ import generateAccount from '@leofcoin/generate-account'
 import IdentityController from '../controllers/identity.js'
 import '@material/web/button/elevated-button.js'
 import networks from '@leofcoin/networks'
+import QrScanner from "qr-scanner";
+import { decrypt, encrypt } from "@leofcoin/identity-utils";
+import base58 from '@vandeurenglenn/base58'
 
 
 export default customElements.define('login-screen', class LoginScreen extends LitElement {
@@ -125,12 +128,17 @@ export default customElements.define('login-screen', class LoginScreen extends L
     })
   }
 
+  #iUnderstand = () => {
+    this.removeAttribute('shown')
+  }
+
   async #handleCreate(password) {
     const wallet = await this.#handleBeforeLogin(password)
+    this.#pages.select('create')
     try {
       await globalThis.identityController.unlock(password)
       await this.#handleAfterLogin(wallet)
-      this.removeAttribute('shown')
+      
       this.loadChain(password)
     } catch (e) {
       console.error(e);
@@ -138,10 +146,54 @@ export default customElements.define('login-screen', class LoginScreen extends L
     }
   }
 
-  #handleImport() {
-    this.importing = true
-    if (!this.hasWallet()) {
+  #waitForKey = () => new Promise((resolve, reject) => {
+    const importSection = this.renderRoot.querySelector('[data-route="import"]')
 
+    const _onImport = (result) => {
+      
+      resolve(importSection.querySelector('input').value)
+      
+      importSection.querySelector('md-elevated-button').removeEventListener('click', _onImport)
+    }
+    importSection.querySelector('md-elevated-button').addEventListener('click', _onImport)
+    new QrScanner(this.renderRoot.querySelector('video'), (decoded) => {
+      importSection.querySelector('input').value = decoded
+    })
+  })
+
+  async #handleImport(password) {
+    this.importing = true
+    this.#pages.select('import')
+    const encrypted = await this.#waitForKey()
+    try {
+      const identityController = new IdentityController('leofcoin:peach')
+console.log(encrypted);
+      let wallet = await identityController.import(password, encrypted)
+      const multiWIF = new Uint8Array(await encrypt(password, await wallet.multiWIF));
+
+      const external = await wallet.account(1).external(1);
+      const externalAddress = await external.address;
+      const internal = await wallet.account(1).internal(1);
+      const internalAddress = await internal.address;
+
+      wallet = {
+        identity: {
+            multiWIF: base58.encode(multiWIF),
+            walletId: await external.id
+        },
+        accounts: [['main account', externalAddress, internalAddress]]
+      }
+      globalThis.walletStorage.put('identity', JSON.stringify(wallet.identity))
+      globalThis.walletStorage.put('accounts', JSON.stringify(wallet.accounts))
+      globalThis.walletStorage.put('selectedAccount', wallet.accounts[0][1])
+      globalThis.walletStorage.put('selectedAccountIndex', '0')
+      
+      wallet.selectedAccount = wallet.accounts[0][1]
+      wallet.selectedAccountIndex = 0
+      globalThis.identityController = new IdentityController('leofcoin:peach', wallet)
+    } catch (error) {
+      console.error(error)
+      alert(error)
     }
   }
 
@@ -319,10 +371,21 @@ export default customElements.define('login-screen', class LoginScreen extends L
         </flex-column>
 
         <flex-column data-route="create">
+          <h4>Make sure to backup your password and mnemonic</h4>
           ${this.mnemonic}
+
+          <md-elevated-button @click=${this.#iUnderstand}>I Understand</md-elevated-button>
         </flex-column>
 
         <flex-column data-route="import">
+            
+            <flex-column data-route="qr">
+              <video></video>
+            </flex-column>
+
+            <input type="password" placeholder="multiwif" tabindex="0" autofocus autocomplete="new-password">
+
+            <md-elevated-button>import</md-elevated-button>
           
         </flex-column>
       </custom-pages>

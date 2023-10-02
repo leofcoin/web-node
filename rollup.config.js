@@ -68,33 +68,20 @@ export default [{
     })
   ]
 }, {
-  input: './node_modules/@leofcoin/workers/src/machine-worker.js',
+  input: ['./node_modules/@leofcoin/workers/src/machine-worker.js', './node_modules/@leofcoin/workers/src/block-worker.js'],
   output: {
-    file: './www/workers/machine-worker.js',
+    dir: './www/workers',
     format: 'es'
   },
 
   plugins: [
     json(),
-    resolve({
-      mainFields: ['module', 'browser']
-    }),
-    commonjs(),
     modify({
-      'node_modules/@leofcoin/workers/src/block-worker.js': './block-worker.js',
-    })
-  ]
-}, {
-  input: './node_modules/@leofcoin/workers/src/block-worker.js',
-  output: {
-    file: './www/workers/block-worker.js',
-    format: 'es'
-  },
-  plugins: [
-    json(),
+      '@leofcoin/workers/block-worker.js': './block-worker.js',
+    }),
     resolve({
       mainFields: ['module', 'browser']
     }),
-    commonjs({exclude: ['simple-peer', './simple-peer.js']})
+    commonjs()
   ]
 }]
