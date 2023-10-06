@@ -45,7 +45,7 @@ if (request.url.endsWith('/')) request.url = '/index.html'
     // Store both a compressed and an uncompressed version of the resource.
     response.setHeader('Vary', 'Accept-Encoding');
     response.setHeader('Content-type', map[ext] || 'text/plain' );
-    response.setHeader('Cache-Control', 'max-age=36000')
+    // response.setHeader('Cache-Control', 'max-age=36000')
     let acceptEncoding = request.headers['accept-encoding'];
     if (!acceptEncoding) {
       acceptEncoding = '';
