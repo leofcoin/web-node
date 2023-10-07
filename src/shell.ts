@@ -138,7 +138,6 @@ export class AppShell extends LitElement {
     importee = await import('@leofcoin/endpoint-clients/ws')
     globalThis.client = await new importee.default('wss://ws-remote.leofcoin.org', 'peach')
     await globalThis.client.init()
-    console.log({client});
     onhashchange = this.#onhashchange.bind(this)
     if (location.hash.split('/')[1]) this.#onhashchange()
     else this.#select('wallet')
@@ -306,7 +305,7 @@ export class AppShell extends LitElement {
         <span> ${this.totalResolved} </span>
           <strong>of</strong>
 
-          <span>${this.lastBlockIndex + 1} </span>
+          <span>${this.lastBlockIndex} </span>
         </span>
 
         <flex-one></flex-one>
@@ -316,7 +315,7 @@ export class AppShell extends LitElement {
           <span> ${this.totalLoaded} </span>
           <strong>of</strong>
 
-          <span>${this.lastBlockIndex + 1} </span>
+          <span>${this.lastBlockIndex} </span>
         </span>
       </flex-row>
     `
