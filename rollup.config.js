@@ -67,7 +67,7 @@ export default [{
     
     modify({
       '@monaco-import': './../../monaco/monaco-loader.js',
-      './exports/browser/workers/machine-worker.js': './workers/machine-worker.js',
+      './exports/browser/workers/machine-worker.js': 'workers/machine-worker.js',
     })
   ]
 }, {
@@ -80,7 +80,7 @@ export default [{
   plugins: [
     json(),
     modify({
-      '@leofcoin/workers/block-worker.js': './block-worker.js',
+      '@leofcoin/workers/block-worker.js': 'block-worker.js',
     }),
     resolve({
       mainFields: ['module', 'browser']
