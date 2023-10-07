@@ -1,12 +1,12 @@
 import Pubsub from '@vandeurenglenn/little-pubsub'
-import { LitElement, html } from 'lit'
+import { LitElement, css, html } from 'lit'
 import Storage from '@leofcoin/storage'
-import './../node_modules/@vandeurenglenn/flex-elements/src/flex-elements'
-import './../node_modules/custom-pages/src/custom-pages'
-import './../node_modules/custom-selector/src/index'
-import './../node_modules/custom-svg-iconset/custom-svg-iconset'
-import './../node_modules/custom-svg-icon/custom-svg-icon'
-import './array-repeat'
+import '@vandeurenglenn/flex-elements'
+import '@vandeurenglenn/custom-elements/pages.js'
+import 'custom-selector/src/index.js'
+import 'custom-svg-iconset'
+import 'custom-svg-icon'
+import './array-repeat.js'
 import './screens/login.js'
 import './screens/export.js'
 import './clipboard-copy.js'
@@ -15,7 +15,10 @@ import './notification/master.js'
 import './notification/child.js'
 import './elements/account-select.js'
 import defaultTheme from './themes/default.js'
-globalThis.pubsub = globalThis.pubsub || new Pubsub({verbose: true})
+import { provide } from '@lit-labs/context'
+import { walletContext, Wallet } from './context/wallet.js'
+import { customElement, property } from 'lit/decorators.js';
+globalThis.pubsub = globalThis.pubsub || new Pubsub({verbose: true});
 
 
 
@@ -25,18 +28,22 @@ const setTheme = (theme) => {
   }
 }
 
-setTheme(defaultTheme)
+setTheme(defaultTheme);
 
+@customElement('app-shell')
+export class AppShell extends LitElement {
 
-export default customElements.define('app-shell', class AppShell extends LitElement {
+  @property({ type: Number })
+  lastBlockIndex
 
-  static get properties() {
-    return {
-      lastBlockIndex: { type: Number },
-      totalResolved: { type: Number },
-      totalLoaded: { type: Number },
-    };
-  }
+  @property({ type: Number })
+  totalResolved
+
+  @property({ type: Number })
+  totalLoaded
+
+  @provide({ context: walletContext })
+  wallet: Wallet
 
   constructor() {
     super()
@@ -128,7 +135,7 @@ export default customElements.define('app-shell', class AppShell extends LitElem
     pubsub.subscribe('block-resolved', (block) => this.totalResolved += 1)
     pubsub.subscribe('block-loaded', (block) => this.totalLoaded += 1)
     let importee
-    importee = await import('./../node_modules/@leofcoin/endpoint-clients/exports/ws.js')
+    importee = await import('@leofcoin/endpoint-clients/ws')
     globalThis.client = await new importee.default('wss://ws-remote.leofcoin.org', 'peach')
     await globalThis.client.init()
     console.log({client});
@@ -145,15 +152,11 @@ export default customElements.define('app-shell', class AppShell extends LitElem
     onhashchange = this.#onhashchange.bind(this)
     if (location.hash.split('/')[1]) this.#onhashchange()
     else this.#select('wallet')
-    
-
-   
-    
   }
 
   async #login() {
     if (!globalThis.walletStorage) {
-      const importee = await import('./../node_modules/@leofcoin/storage/exports/storage.js')
+      const importee = await import('@leofcoin/storage')
       globalThis.walletStorage = await new Storage('wallet')
       await walletStorage.init()
     }
@@ -161,10 +164,10 @@ export default customElements.define('app-shell', class AppShell extends LitElem
     await this.shadowRoot.querySelector('login-screen').requestLogin(hasWallet)
   }
 
-  render() {
-    return html`
-    <style>
-      @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100;0,300;0,400;0,600;0,700;0,800;1,300;1,400&display=swap');
+
+  static styles = [
+    css`
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100;0,300;0,400;0,600;0,700;0,800;1,300;1,400&display=swap');
 
       :host {
         position: absolute;
@@ -242,9 +245,11 @@ export default customElements.define('app-shell', class AppShell extends LitElem
       .resolver-snack, .loader-snack {
         color: var(--font-color);
       }
-    </style>
-    
 
+    `
+  ]
+  render() {
+    return html`
     <flex-row class="main">
       <span class="custom-selector-overlay">
         <custom-selector attr-for-selected="data-route">
@@ -316,4 +321,4 @@ export default customElements.define('app-shell', class AppShell extends LitElem
       </flex-row>
     `
   }
-})
+}

@@ -1,35 +1,38 @@
 // import { nativeToken } from './../../../node_modules/@leofcoin/addresses/src/addresses'
 import { parseUnits } from '@leofcoin/utils'
-import { LitElement, html } from 'lit'
+import { LitElement, PropertyValueMap, html } from 'lit'
 import './../elements/button.js'
 import './../elements/navigation-bar.js'
+import { Accounts, Wallet, walletContext } from '../context/wallet.js'
+import { customElement, property } from 'lit/decorators.js'
+import { consume } from '@lit-labs/context'
 
-export default customElements.define('identity-view', class IdentityView extends LitElement {
+@customElement('identity-view')
+export class IdentityView extends LitElement {
 
-  static properties = {
-    identity: {
-      type: 'object'
-    },
-    accounts: {
-      type: 'object'
-    }
-  }
+  @property({ type: Object })
+  @consume({ context: walletContext, subscribe: true })
+  wallet: Wallet
+
+  @property({ type: Array })
+  accounts: Accounts
 
   get #pages() {
     return this.shadowRoot.querySelector('custom-pages')
   }
 
-  constructor() {
-    super()
-  }
-
-
   async select(selected) {
     console.log(selected);
     if (!customElements.get(`identity-${selected}`)) await import(`./identity-${selected}.js`)
-    if (selected !== 'actions') this.renderRoot.querySelector(`identity-${selected}`).accounts = this.accounts
+    
     this.shadowRoot.querySelector('custom-pages').select(selected)
     this.renderRoot.querySelector('navigation-bar').select(selected)
+  }
+
+  protected willUpdate(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
+    if (_changedProperties.has('wallet')) {
+      this.accounts = this.wallet.accounts
+    }
   }
 
   #customSelect({detail}) {
@@ -106,11 +109,11 @@ export default customElements.define('identity-view', class IdentityView extends
 <navigation-bar items='["dashboard", "accounts", "actions"]' @selected="${this.#customSelect}"></navigation-bar>
 
 <custom-pages attr-for-selected="data-route">
-  <identity-dashboard data-route="dashboard"></identity-dashboard>
-  <identity-accounts data-route="accounts"></identity-accounts>
-  <identity-account data-route="account"></identity-account>
-  <identity-actions data-route="actions"></identity-actions>
+  <identity-dashboard data-route="dashboard" .accounts=${this.accounts}></identity-dashboard>
+  <identity-accounts data-route="accounts" .accounts=${this.accounts}></identity-accounts>
+  <identity-account data-route="account" .accounts=${this.accounts}></identity-account>
+  <identity-actions data-route="actions" .accounts=${this.accounts}></identity-actions>
 </custom-pages>
     `
   }
-})
+}

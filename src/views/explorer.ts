@@ -3,7 +3,7 @@ import {map} from 'lit/directives/map.js'
 import '../elements/latest.js'
 import '../elements/explorer/info-container.js'
 import { formatBytes } from '@leofcoin/utils'
-import './../elements/navigation-bar.js'
+import '../elements/navigation-bar.js'
 
 export default customElements.define('explorer-view', class ExplorerView extends LitElement {
   static properties = {

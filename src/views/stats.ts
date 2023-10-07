@@ -1,5 +1,5 @@
 import { version } from '../../package.json'
-import './../elements/shorten-string.js'
+import '../elements/shorten-string.js'
 
 export default customElements.define('stats-view', class StatsView extends HTMLElement {
 

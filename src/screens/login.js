@@ -105,6 +105,9 @@ export default customElements.define('login-screen', class LoginScreen extends L
   }
 
   async #handleAfterLogin(wallet) {
+
+    document.querySelector('app-shell').wallet = wallet
+    
     if (!customElements.get('identity-view')) await import('../views/identity.js')
     const identityView = document.querySelector('app-shell').renderRoot.querySelector('identity-view')
     identityView.identity = wallet.identity
@@ -167,7 +170,7 @@ export default customElements.define('login-screen', class LoginScreen extends L
     const encrypted = await this.#waitForKey()
     try {
       const identityController = new IdentityController('leofcoin:peach')
-console.log(encrypted);
+
       let wallet = await identityController.import(password, encrypted)
       const multiWIF = new Uint8Array(await encrypt(password, await wallet.multiWIF));
 
@@ -187,10 +190,6 @@ console.log(encrypted);
       globalThis.walletStorage.put('accounts', JSON.stringify(wallet.accounts))
       globalThis.walletStorage.put('selectedAccount', wallet.accounts[0][1])
       globalThis.walletStorage.put('selectedAccountIndex', '0')
-      
-      wallet.selectedAccount = wallet.accounts[0][1]
-      wallet.selectedAccountIndex = 0
-      globalThis.identityController = new IdentityController('leofcoin:peach', wallet)
     } catch (error) {
       console.error(error)
       alert(error)
@@ -247,8 +246,8 @@ console.log(encrypted);
   }
 
   async #handleLogin(password) {
-
     const wallet = await this.#handleBeforeLogin(password)
+
     try {
 
       await globalThis.identityController.unlock(password)

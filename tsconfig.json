@@ -1,15 +1,14 @@
 {
   "compilerOptions": {
-    "module": "es2022",
-    "target": "es2022",
+    "module": "NodeNext",
+    "target": "ES2022",
     "outDir": "./www",
     "moduleResolution":"NodeNext",
     "allowJs": true,
-    "allowSyntheticDefaultImports": true,    
-    "resolveJsonModule": true
-  },
-  "include": [
-    "./src/**/*"
-  ],
-  "exclude": ["./node_modules"]
+    "experimentalDecorators": true,
+    "useDefineForClassFields": false,
+    "types": [
+      "lit"
+    ]
+  }
 }

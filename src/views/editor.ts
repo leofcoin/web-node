@@ -1,5 +1,4 @@
-import { version } from '../../package.json'
-import palenightItalic from './../vs-themes/palenight-italic.json' assert {type: 'json'}
+import palenightItalic from '../vs-themes/palenight-italic.json' assert {type: 'json'}
 import Storage from '@leofcoin/storage'
 import { convertTheme } from '@vandeurenglenn/monaco-utils'
 // import 'monaco-editor/esm/vs/basic-languages/javascript/javascript.contribution'

@@ -2,15 +2,23 @@ import '../elements/account.js'
 // import { nativeToken } from './../../../node_modules/@leofcoin/addresses/src/addresses'
 import { parseUnits } from '@leofcoin/utils'
 import { signTransaction } from '@leofcoin/lib'
-import { LitElement, html } from 'lit'
+import { LitElement, PropertyValueMap, html } from 'lit'
 import { map } from 'lit/directives/map.js'
+import { customElement, property } from 'lit/decorators.js'
+import { consume } from '@lit-labs/context'
+import { walletContext, Address } from '../context/wallet.js'
 
-export default customElements.define('wallet-view', class WalletView extends LitElement {
-  static properties = {
-    accounts: {
-      type: 'object'
-    }
-  }
+@customElement('wallet-view')
+export class WalletView extends LitElement {
+  @property({ type: Array })
+  accounts
+
+  @property({ type: String })
+  selectedAccount: Address
+
+  @property({ type: Object })
+  @consume({ context: walletContext, subscribe: true })
+  wallet
 
   get #amount() {
     return this.renderRoot.querySelector('.amount')
@@ -24,30 +32,12 @@ export default customElements.define('wallet-view', class WalletView extends Lit
     return this.renderRoot.querySelector('custom-pages')
   }
 
-  constructor() {
-    super()
-  }
-
-  async connectedCallback() {
-    super.connectedCallback()
-    this.renderRoot.addEventListener('click', this.#handleClick.bind(this))
-    // console.log(await api.accounts());
-    this.accounts = document.querySelector('app-shell').renderRoot.querySelector('identity-view').accounts
-    
-    await this.hasUpdated
-    this.#select('send')
-    this.#addressSelected({})
-  }
-
-  async #addressSelected({detail}) {
-    if (!detail) detail = this.accounts[0][1]
-
-    Array.from(this.renderRoot.querySelectorAll('.address')).forEach(item => {
-      item.innerHTML = detail
-    })
-
-    this.selectedAccount = detail
-    await client.selectAccount(detail)
+  protected willUpdate(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
+    if (_changedProperties.has('wallet')) {
+      this.selectedAccount = this.wallet.selectedAccount
+      this.accounts = this.wallet.accounts
+      client.selectAccount(this.wallet.selectAccount)
+    }
   }
 
   #select(selected) {
@@ -81,7 +71,7 @@ export default customElements.define('wallet-view', class WalletView extends Lit
     console.log(transactionEvent);
   }
 
-  #handleClick(event) {
+  #handleClick = (event) => {
     const target = event.composedPath()[0]
     const action = target.getAttribute('data-action')
     action && this[`_${action}`]()
@@ -181,7 +171,7 @@ export default customElements.define('wallet-view', class WalletView extends Lit
   }
 </style>
 
-<flex-column class="main">
+<flex-column class="main" @click=${this.#handleClick}>
   <custom-pages attr-for-selected="data-route">
     <flex-column data-route="send">
       <flex-column class="container">
@@ -190,13 +180,13 @@ export default customElements.define('wallet-view', class WalletView extends Lit
           <label for=".amount">send</label>
           <flex-one></flex-one>
           <select>
-            <option>ART</option>
+            <option>LFC</option>
           </select>
         </flex-row>
-        <input class="amount" placeholder="1"></input>
+        <input class="amount" placeholder="1">
 
         <label for=".to">to</label>
-        <input class="to" placeholder="address"></input>
+        <input class="to" placeholder="address">
 
         <flex-one></flex-one>
         <flex-row>
@@ -208,7 +198,7 @@ export default customElements.define('wallet-view', class WalletView extends Lit
 
       <flex-column data-route="receive">
         <clipboard-copy class="address peer-id">
-          loading...
+          ${this.selectedAccount ? this.selectedAccount : 'Loading...'}
         </clipboard-copy>
       </flex-column>
     </flex-column>
@@ -232,4 +222,4 @@ export default customElements.define('wallet-view', class WalletView extends Lit
 </flex-column>
     `
   }
-})
+}

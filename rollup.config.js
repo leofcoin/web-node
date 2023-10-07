@@ -8,10 +8,12 @@ import modify from 'rollup-plugin-modify'
 import json from '@rollup/plugin-json'
 
 const views = [
-  ...(await readdir('./src/views')).map(path => join('./src/views', path)),
+  ...(await readdir('./src/views')).map(path => join('./src/views', path)).filter(path => path.endsWith('.ts')),
   ...(await readdir('./src/views/explorer')).map(path => join('./src/views/explorer', path)),
   ...(await readdir('./src/views/identity')).map(path => join('./src/views/identity', path))
 ]
+
+console.log(views)
 
 // const templates = (await readdir('./src/templates')).map(path => join('./src/templates', path))
 const cleanWWW = async () => {
@@ -43,7 +45,7 @@ const copyChain = async () => {
 }
 
 export default [{
-  input: ['./src/shell.js', ...views, './node_modules/@leofcoin/storage/exports/browser-store.js'],
+  input: ['./src/shell.ts', ...views, './node_modules/@leofcoin/storage/exports/browser-store.js'],
   output: {
     dir: './www',
     format: 'es'
@@ -55,7 +57,8 @@ export default [{
     './node-browser.js'
   ],
   plugins: [
-    cleanWWW(),
+    cleanWWW(),,
+    typescript(),
     // copyChain(),
     json(),
     resolve({mainFields: ['browser', 'module', 'main']}),
