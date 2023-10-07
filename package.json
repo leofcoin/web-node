@@ -47,7 +47,7 @@
     "custom-svg-iconset": "^1.0.1",
     "custom-tabs": "^0.13.1",
     "javascript-time-ago": "^2.5.9",
-    "lit": "^2.6.1",
+    "lit": "^2.8.0",
     "monaco": "^1.201704190613.0",
     "monaco-editor": "^0.35.0",
     "qr-scanner": "^1.4.2",

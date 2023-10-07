@@ -1,115 +1,108 @@
+import { LitElement, PropertyValueMap, css, html } from 'lit'
+import { customElement, property } from 'lit/decorators.js'
 import { version } from '../../package.json'
 import '../elements/shorten-string.js'
+import { map } from 'lit/directives/map.js'
 
-export default customElements.define('stats-view', class StatsView extends HTMLElement {
 
-  constructor() {
-    super()
+@customElement('stats-view')
+export class StatsView extends LitElement {
+  @property({ type: Array })
+  peers: [] = []
 
-    this.attachShadow({mode: 'open'})
-    this.shadowRoot.innerHTML = this.template
-    this.peers = []
-  }
+  @property({ type: String })
+  peerId: base58String
 
-  #peerConnected(peer) {
-    if (this.peers.indexOf(peer) !== -1) return
-    const el = document.createElement('flex-row')
-    el.setAttribute('address', peer)
-    el.innerHTML = peer
-    this.shadowRoot.querySelector('.peers-container').appendChild(el)
-    this.peers.push(peer)
-    this.shadowRoot.querySelector('.peers').innerHTML = Number(this.shadowRoot.querySelector('.peers').innerHTML) + 1
-  }
-
-  #peerLeft(peer) {
-    const index = this.peers.indexOf(peer)
-    if (index === -1) return
-
-    this.peers.splice(index)
-    this.shadowRoot.removeChild(this.shadowRoot.querySelector(`[address="${peer}"]`))
-    this.shadowRoot.querySelector('.peers').innerHTML = Number(this.shadowRoot.querySelector('.peers').innerHTML) - 1
+  #peerChange = async (peer) => {
+    this.peers = await client.peers()
   }
 
   async connectedCallback() {
-    this.shadowRoot.querySelector('.peerId').value = await client.peerId()
-    const peers = await client.peers()
-    peers.forEach(peer => {
-      this.#peerConnected(peer)
-    })
-
-    pubsub.subscribe('peer:connected', this.#peerConnected.bind(this))
-    pubsub.subscribe('peer:left', this.#peerLeft.bind(this))
+    super.connectedCallback()
+    // this.shadowRoot.querySelector('.peerId').value = await client.peerId()
+    this.peers = await client.peers()
+    this.peerId = await client.peerId()
+    pubsub.subscribe('peer:connected', this.#peerChange)
+    pubsub.subscribe('peer:left', this.#peerChange)
   }
 
-  get template() {
-    return `
-<style>
-  :host {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: 100%;
-    align-items: center;
-    justify-content: center;
-    color: var(--font-color);
+  static get styles() {
+    return [
+      css`
+        :host {
+          display: flex;
+          flex-direction: column;
+          width: 100%;
+          height: 100%;
+          align-items: center;
+          justify-content: center;
+          color: var(--font-color);
+        }
+
+
+        .bottom-bar {
+          align-items: center;
+          height: 48px;
+        }
+
+        flex-row {
+          width: 100%;
+          align-items: center;
+        }
+
+        flex-column {
+          max-width: 640px;
+          max-height: 480px;
+          width: 100%;
+          height: 100%;
+        }
+
+        .peers-container {
+          padding-top: 24px;
+        }
+
+        .version {
+          padding: 12px 0;
+        }
+
+        .container {
+          max-width: 320px;
+          width: 100%;
+          background: var(--secondary-background);
+          border: 1px solid var(--border-color);
+          padding: 12px 24px;
+          box-sizing: border-box;
+          border-radius: 24px;
+        }
+      `
+    ]
   }
 
+  render() {
+    return html`
+    <flex-column class="container">
+      <flex-row class="id">
+        <strong>id</strong>
+        <flex-one></flex-one>
+        ${this.peerId ? html`<shorten-string .value=${this.peerId}></shorten-string>` : 'loading'}
+      </flex-row>
+      <flex-row class="version">
+        <strong>version</strong>
+        <flex-one></flex-one>
+        <span class="version">${version}</span>
+      </flex-row>
+      <flex-row>
+        <strong>peers</strong>
+        <flex-one></flex-one>
+        <span>${this.peers.length}</span>
+      </flex-row>
 
-  .bottom-bar {
-    align-items: center;
-    height: 48px;
-  }
-
-  flex-row {
-    width: 100%;
-    align-items: center;
-  }
-
-  flex-column {
-    max-width: 640px;
-    max-height: 480px;
-    width: 100%;
-    height: 100%;
-  }
-
-  .peers-container {
-    padding-top: 24px;
-  }
-
-  .version {
-    padding: 12px 0;
-  }
-
-  .container {
-    max-width: 320px;
-    width: 100%;
-    background: var(--secondary-background);
-    border: 1px solid var(--border-color);
-    padding: 12px 24px;
-    box-sizing: border-box;
-    border-radius: 24px;
-  }
-</style>
-
-<flex-column class="container">
-  <flex-row class="id">
-    <strong>id</strong>
-    <flex-one></flex-one>
-    <shorten-string class="peerId"></shorten-string>
-  </flex-row>
-  <flex-row class="version">
-    <strong>version</strong>
-    <flex-one></flex-one>
-    <span class="version">${version}</span>
-  </flex-row>
-  <flex-row>
-    <strong>peers</strong>
-    <flex-one></flex-one>
-    <span class="peers">0</span>
-  </flex-row>
-
-  <flex-column class="peers-container"></flex-column>
-</flex-column>
+      <flex-column class="peers-container">
+        ${this.peers ? map(this.peers, ([id, peer]) => html`
+        <shorten-string .value=${id}></shorten-string>
+        `): ''}
+      </flex-column>
+    </flex-column>
     `
   }
-})
+}
