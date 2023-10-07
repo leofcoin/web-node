@@ -15,7 +15,7 @@ try {
 }
 
 export default [{
-  input: ['./src/monaco-loader.js'],
+  input: ['./src/monaco-loader.ts'],
   output: [{
     format: 'es',
     dir: 'www/monaco'
