@@ -5,9 +5,9 @@ import '../../elements/explorer/info-container.js'
 import { formatBytes } from '@leofcoin/utils'
 import '../../elements/time/ago.js'
 import {TransactionMessage} from '@leofcoin/messages'
-import './../../animations/busy.js'
-import './../../elements/shorten-string.js'
-import './../../elements/explorer/property-info.js'
+import '../../animations/busy.js'
+import '../../elements/shorten-string.js'
+import '../../elements/explorer/property-info.js'
 export default customElements.define('explorer-block', class ExplorerBlock extends LitElement {
   static properties = {
     block: {

@@ -2,7 +2,7 @@
 import { parseUnits } from '@leofcoin/utils'
 import { LitElement, html } from 'lit'
 import { map } from 'lit/directives/map.js'
-import './../../../node_modules/custom-selector/src/index.js'
+import 'custom-selector/src/index.js'
 export default customElements.define('identity-accounts', class IdentityAccounts extends LitElement {
 
   static properties = {

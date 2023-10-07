@@ -1,14 +1,14 @@
 import { LitElement, PropertyValueMap, css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
-import { version } from '../../package.json'
 import '../elements/shorten-string.js'
-import { map } from 'lit/directives/map.js'
+import { map } from 'lit/directives/map.js';
+import P2PTPeer from '@netpeer/p2pt-swarm/peer';
 
 
 @customElement('stats-view')
 export class StatsView extends LitElement {
   @property({ type: Array })
-  peers: [] = []
+  peers: [string, P2PTPeer][] = []
 
   @property({ type: String })
   peerId: base58String
@@ -89,7 +89,7 @@ export class StatsView extends LitElement {
       <flex-row class="version">
         <strong>version</strong>
         <flex-one></flex-one>
-        <span class="version">${version}</span>
+        <span class="version">@version</span>
       </flex-row>
       <flex-row>
         <strong>peers</strong>

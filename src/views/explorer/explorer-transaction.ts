@@ -6,7 +6,7 @@ import { formatBytes } from '@leofcoin/utils'
 import '../../elements/time/ago.js'
 import {TransactionMessage} from '@leofcoin/messages'
 import '../../animations/busy.js'
-import './../../elements/explorer/property-info.js'
+import '../../elements/explorer/property-info.js'
 export default customElements.define('explorer-transaction', class ExplorerTransaction extends LitElement {
   static styles = css`
   :host {

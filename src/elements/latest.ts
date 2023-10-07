@@ -1,7 +1,7 @@
 import { BigNumber, formatUnits } from '@leofcoin/utils'
 import {LitElement, html} from 'lit'
 import {map} from 'lit/directives/map.js'
-import './../elements/time/ago'
+import './time/ago.js'
 
 export default customElements.define('latest-element', class LatestElement extends LitElement {
 

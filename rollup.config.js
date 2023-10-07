@@ -6,6 +6,7 @@ import resolve from '@rollup/plugin-node-resolve'
 import commonjs from '@rollup/plugin-commonjs'
 import modify from 'rollup-plugin-modify'
 import json from '@rollup/plugin-json'
+import packagesJSON from './package.json' assert { type: 'json'}
 
 const views = [
   ...(await readdir('./src/views')).map(path => join('./src/views', path)).filter(path => path.endsWith('.ts')),
@@ -57,15 +58,16 @@ export default [{
     './node-browser.js'
   ],
   plugins: [
-    cleanWWW(),,
+    
     typescript(),
+    cleanWWW(),
     // copyChain(),
     json(),
     resolve({mainFields: ['browser', 'module', 'main']}),
     commonjs(),
     copyChain(),
-    
     modify({
+      '@version': packagesJSON.version,
       '@monaco-import': './../../monaco/monaco-loader.js',
       './exports/browser/workers/machine-worker.js': 'workers/machine-worker.js',
     })

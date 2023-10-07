@@ -1,6 +1,6 @@
 import { html, LitElement } from 'lit'
 import {map} from 'lit/directives/map.js'
-import './info'
+import './info.js'
 
 export default customElements.define('explorer-info-container', class ExplorerInfoContainer extends LitElement {
   static properties = {

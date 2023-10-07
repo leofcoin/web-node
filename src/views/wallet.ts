@@ -6,26 +6,26 @@ import { LitElement, PropertyValueMap, html } from 'lit'
 import { map } from 'lit/directives/map.js'
 import { customElement, property } from 'lit/decorators.js'
 import { consume } from '@lit-labs/context'
-import { walletContext, Address } from '../context/wallet.js'
+import { walletContext, Address, Accounts, Wallet } from '../context/wallet.js';
 
 @customElement('wallet-view')
 export class WalletView extends LitElement {
   @property({ type: Array })
-  accounts
+  accounts: Accounts
 
   @property({ type: String })
   selectedAccount: Address
 
   @property({ type: Object })
   @consume({ context: walletContext, subscribe: true })
-  wallet
+  wallet: Wallet
 
   get #amount() {
-    return this.renderRoot.querySelector('.amount')
+    return this.renderRoot.querySelector('.amount') as HTMLInputElement
   }
 
   get #to() {
-    return this.renderRoot.querySelector('.to')
+    return this.renderRoot.querySelector('.to') as HTMLInputElement
   }
 
   get #pages() {
@@ -36,7 +36,7 @@ export class WalletView extends LitElement {
     if (_changedProperties.has('wallet')) {
       this.selectedAccount = this.wallet.selectedAccount
       this.accounts = this.wallet.accounts
-      client.selectAccount(this.wallet.selectAccount)
+      client.selectAccount(this.wallet.selectedAccount)
     }
   }
 

@@ -1,5 +1,4 @@
 import Pubsub from '@vandeurenglenn/little-pubsub'
-import { LitElement, css, html } from 'lit'
 import Storage from '@leofcoin/storage'
 import '@vandeurenglenn/flex-elements'
 import '@vandeurenglenn/custom-elements/pages.js'
@@ -17,8 +16,10 @@ import './elements/account-select.js'
 import defaultTheme from './themes/default.js'
 import { provide } from '@lit-labs/context'
 import { walletContext, Wallet } from './context/wallet.js'
-import { customElement, property } from 'lit/decorators.js';
-globalThis.pubsub = globalThis.pubsub || new Pubsub({verbose: true});
+import { customElement, property } from 'lit/decorators.js'
+import { LitElement, css, html } from 'lit'
+
+globalThis.pubsub = globalThis.pubsub || new Pubsub(true);
 
 
 
@@ -31,26 +32,19 @@ const setTheme = (theme) => {
 setTheme(defaultTheme);
 
 @customElement('app-shell')
-export class AppShell extends LitElement {
+class AppShell extends LitElement {
 
   @property({ type: Number })
-  lastBlockIndex
+  lastBlockIndex = 0
 
   @property({ type: Number })
-  totalResolved
+  totalResolved = 0
 
   @property({ type: Number })
-  totalLoaded
+  totalLoaded = 0
 
   @provide({ context: walletContext })
   wallet: Wallet
-
-  constructor() {
-    super()
-    this.totalResolved = 0
-    this.totalLoaded = 0
-    this.lastBlockIndex = 0
-  }
 
  
   get notificationMaster() {
@@ -321,3 +315,4 @@ export class AppShell extends LitElement {
     `
   }
 }
+export default AppShell

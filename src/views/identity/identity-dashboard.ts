@@ -1,19 +1,13 @@
 // import { nativeToken } from './../../../node_modules/@leofcoin/addresses/src/addresses'
 import { parseUnits } from '@leofcoin/utils'
 import { LitElement, html } from 'lit'
+import { customElement, property } from 'lit/decorators.js'
 import { map } from 'lit/directives/map.js'
 
-export default customElements.define('identity-dashboard', class IdentityDashboard extends LitElement {
-
-  static properties = {
-    accounts: {
-      type: 'object'
-    }
-  }
-
-  constructor() {
-    super()
-  }
+@customElement('identity-dashboard')
+export class IdentityDashboard extends LitElement {
+  @property({type: Object})
+  accounts
 
   render() {
     return html`
@@ -51,15 +45,15 @@ export default customElements.define('identity-dashboard', class IdentityDashboa
   <flex-row>
     <strong>transactions</strong>
     <flex-one></flex-one>
-    <span>${this.value?.totalTransactions || 0}</span>
+    <span>${this.accounts?.totalTransactions || 0}</span>
   </flex-row>
 
   <flex-row>
     <strong>total amount</strong>
     <flex-one></flex-one>
-    <span>${this.value?.totalValue || 0}</span>
+    <span>${this.accounts?.totalValue || 0}</span>
   </flex-row>
 </flex-wrap-evenly>
 `
   }
-})
+}

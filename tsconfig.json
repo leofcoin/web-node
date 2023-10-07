@@ -7,9 +7,12 @@
     "allowJs": true,
     "experimentalDecorators": true,
     "useDefineForClassFields": false,
-    "resolveJsonModule": true,
+    
     "types": [
       "lit"
     ]
-  }
+  },
+  "include": [
+    "./src/**/*"
+  ]
 }
