@@ -7,8 +7,8 @@ export class ValidatorView extends LitElement {
   @property({ type: Object })
   validators = {};
 
-  @property({ type: Object })
-  onlineValidators = {}
+  @property({ type: Array })
+  onlineValidators = []
 
   async connectedCallback() {
     super.connectedCallback()
@@ -27,7 +27,11 @@ export class ValidatorView extends LitElement {
 
   protected willUpdate(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
     if (_changedProperties.has('validators')) {
-      this.onlineValidators = this.validators.filter(validator => validator.lastSeen - new Date().getTime() > 30_000)
+      const onlineValidators = []
+      for (const [id, validator] of Object.entries(this.validators)) {
+        validator.lastSeen - new Date().getTime() > 30_000 && onlineValidators.push(id)
+      }
+      this.onlineValidators = onlineValidators
     }
   }
 
@@ -56,7 +60,7 @@ export class ValidatorView extends LitElement {
   <span>total validators</span>
     
   <flex-one></flex-one>
-  <strong>${this.validators ? this.validators.length : '0'}</strong>
+  <strong>${this.validators ? Object.keys(this.validators).length : '0'}</strong>
   
 </flex-row>
 
