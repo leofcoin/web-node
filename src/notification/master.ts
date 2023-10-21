@@ -47,14 +47,20 @@ export class NotificationMaster extends LitElement {
     pointer-events: auto;
     z-index: 10001;
     position: absolute;
-    right: 6px;
-    top: 18px;
+    right: 0;
+    top: 0;
     overflow: hidden;
     width: 100%;
     max-width: 320px;
     height: auto;
     box-sizing: border-box;
+    color: #eee;
     pointer-events: none;
+    height: 100%;
+  }
+
+  :host([open]) {
+    background: rgb(51, 55, 80);
   }
   
   .recents {
@@ -63,7 +69,6 @@ export class NotificationMaster extends LitElement {
     top: 12px;
     right: 12px;
     width: 100%;
-    height: 100%;
     pointer-events: none;
 
     box-sizing: border-box;
@@ -71,7 +76,6 @@ export class NotificationMaster extends LitElement {
   }
 
   .list {
-    --svg-icon-color: #ffffffb5;
     padding: 24px;
     height: 100%;
 
@@ -84,9 +88,12 @@ export class NotificationMaster extends LitElement {
 
   render() {
     return html`
-    <flex-row style="margin-right: 12px;">
+    <flex-row style="margin-top: 12px;margin-right: 12px;">
       <flex-it></flex-it>
-      <custom-icon icon="notifications" @click=${() => this.open = !this.open}></custom-icon>
+      <custom-icon-button icon="notifications" @click=${() => {
+        if (this.#list.childElementCount === 0) return
+        this.open = !this.open
+      }}></custom-icon-button>
     </flex-row>
     
     
@@ -102,7 +109,7 @@ export class NotificationMaster extends LitElement {
 
       <flex-row slot="footer" width="100%">
         <flex-it></flex-it>
-        <custom-icon style="margin-right: 24px;" icon="clear-all" @click="${this.#onclick}"></custom-icon>
+        <custom-icon-button style="margin-right: 24px;" icon="clear-all" @click="${this.#onclick}"></custom-icon-button>
       </flex-row>
     </custom-pane>
 

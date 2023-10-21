@@ -5,7 +5,8 @@ const config = {
   'font-color': '#eee',
   'border-color': "#535368",
   'link-color': '#628ed2',
-  'svg-icon-color': '#eee'
+  'svg-icon-color': '#eee',
+  'md-sys-color-on-surface': '#eee'
 }
 
 export { config as default }
