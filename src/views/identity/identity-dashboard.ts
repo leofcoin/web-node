@@ -3,6 +3,7 @@ import { parseUnits } from '@leofcoin/utils'
 import { LitElement, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { map } from 'lit/directives/map.js'
+import '@vandeurenglenn/flex-elements/wrap-evenly.js'
 
 @customElement('identity-dashboard')
 export class IdentityDashboard extends LitElement {
@@ -44,13 +45,13 @@ export class IdentityDashboard extends LitElement {
 <flex-wrap-evenly>
   <flex-row>
     <strong>transactions</strong>
-    <flex-one></flex-one>
+    <flex-it></flex-it>
     <span>${this.accounts?.totalTransactions || 0}</span>
   </flex-row>
 
   <flex-row>
     <strong>total amount</strong>
-    <flex-one></flex-one>
+    <flex-it></flex-it>
     <span>${this.accounts?.totalValue || 0}</span>
   </flex-row>
 </flex-wrap-evenly>

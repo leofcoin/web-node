@@ -57,9 +57,9 @@ export default customElements.define('explorer-view', class ExplorerView extends
 
     ${this.selected === 'transactions' || this.selected === 'blocks' || this.selected === 'dashboard' || this.selected === 'pool' ? html`
       <flex-row class="navigation-bar">
-        <flex-one></flex-one>
+        <flex-it></flex-it>
         <navigation-bar items='["dashboard", "blocks", "transactions", "pool"]' @selected="${this.#customSelect}"></navigation-bar> 
-        <flex-one></flex-one>
+        <flex-it></flex-it>
       </flex-row>
     ` : ''}
     

@@ -86,11 +86,16 @@ export class WalletView extends LitElement {
     pointer-events: none;
   }
 
+  .container flex-row {
+    width: 100%;
+  }
+
   :host {
     display: flex;
     flex-direction: row;
     width: 100%;
     height: 100%;
+    justify-content: center;
   }
   custom-pages {
     width: 100%;
@@ -115,11 +120,11 @@ export class WalletView extends LitElement {
     top: 12px;
   }
 
-  .wallet-nav-container {
+  /* .wallet-nav-container {
     padding: 12px;
     box-sizing: border-box;
     height: 72px;
-  }
+  } */
 
   .wallet-nav {
     border: 1px solid white;
@@ -128,7 +133,7 @@ export class WalletView extends LitElement {
     color: var(--font-color);
     padding: 12px 6px;
     box-sizing: border-box;
-    align-items: center;
+    margin-bottom: 12px;
   }
 
   a {
@@ -152,10 +157,12 @@ export class WalletView extends LitElement {
     margin-top: 12px;
     margin-bottom: 24px;
     box-sizing: border-box;
+    width: 100%;
   }
 
   .main {
     width: 100%;
+    align-items: center;
   }
 
   select, input, button {
@@ -180,7 +187,7 @@ export class WalletView extends LitElement {
 
         <flex-row>
           <label for=".amount">send</label>
-          <flex-one></flex-one>
+          <flex-it></flex-it>
           <select>
             <option>LFC</option>
           </select>
@@ -190,10 +197,10 @@ export class WalletView extends LitElement {
         <label for=".to">to</label>
         <input class="to" placeholder="address">
 
-        <flex-one></flex-one>
+        <flex-it></flex-it>
         <flex-row>
           <button data-action="cancel">cancel</button>
-          <flex-one></flex-one>
+          <flex-it></flex-it>
           <button data-action="send">send</button>
         </flex-row>
       </flex-column>
@@ -206,8 +213,6 @@ export class WalletView extends LitElement {
     </flex-column>
   </custom-pages>
 
-  <flex-row class="wallet-nav-container">
-    <flex-one></flex-one>
     <flex-row class="wallet-nav">
       <a title="send">
         <custom-svg-icon icon="send"></custom-svg-icon>
@@ -219,8 +224,6 @@ export class WalletView extends LitElement {
         <custom-svg-icon icon="transactions"></custom-svg-icon>
       </a>
     </flex-row>
-    <flex-one></flex-one>
-  </flex-row>
 </flex-column>
     `
   }

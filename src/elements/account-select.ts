@@ -59,13 +59,12 @@ export default customElements.define('account-select', class AccountSelect exten
   :host {
     display: flex;
     flex-direction: column;
-    max-width: 360px;
-    width: 100%;
     top: 12px;
     right: 12px;
     position: absolute;
     z-index: 1001;
     color: var(--font-color);
+    min-width: 210px;
   }
   :host([selecting]) custom-svg-icon {
     transform: rotate(180deg);
@@ -120,7 +119,7 @@ export default customElements.define('account-select', class AccountSelect exten
     return html`
     <flex-row class="selected-container">
       ${this.selected ? this.selected[0] : html`<busy-animation></busy-animation>`}
-      <flex-one></flex-one>
+      <flex-it></flex-it>
       <address-amount address=${this.selected[1]}></address-amount>
       <custom-svg-icon icon="arrow-drop-down" @click="${() => this.selecting = !this.selecting}"></custom-svg-icon>
     </flex-row>
@@ -133,11 +132,11 @@ export default customElements.define('account-select', class AccountSelect exten
       <flex-column class="account-container">
         <flex-row>
           <strong>${item[0]}</strong>
-          <flex-one></flex-one>
+          <flex-it></flex-it>
           <very-short-string value=${item[1]}></very-short-string>
         </flex-row>
         <flex-row>
-          <flex-one></flex-one>
+          <flex-it></flex-it>
           <address-amount address=${item[1]}></address-amount>
         </flex-row>
       </flex-column>

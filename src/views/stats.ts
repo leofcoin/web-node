@@ -83,17 +83,17 @@ export class StatsView extends LitElement {
     <flex-column class="container">
       <flex-row class="id">
         <strong>id</strong>
-        <flex-one></flex-one>
+        <flex-it></flex-it>
         ${this.peerId ? html`<shorten-string .value=${this.peerId}></shorten-string>` : 'loading'}
       </flex-row>
       <flex-row class="version">
         <strong>version</strong>
-        <flex-one></flex-one>
+        <flex-it></flex-it>
         <span class="version">@version</span>
       </flex-row>
       <flex-row>
         <strong>peers</strong>
-        <flex-one></flex-one>
+        <flex-it></flex-it>
         <span>${this.peers.length}</span>
       </flex-row>
 

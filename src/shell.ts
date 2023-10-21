@@ -226,6 +226,7 @@ class AppShell extends LitElement {
 
       flex-column {
         width: 100%;
+        height: 100%;
       }
 
       header {
