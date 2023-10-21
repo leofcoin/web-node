@@ -51,8 +51,6 @@ export default customElements.define('account-select', class AccountSelect exten
 
   async startSelect() {
     this.selecting = true
-    
-    
   }
 
   static styles = css`

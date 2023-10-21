@@ -2,7 +2,7 @@ import { LitElement, PropertyValueMap, css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import '../elements/shorten-string.js'
 import { map } from 'lit/directives/map.js';
-import P2PTPeer from '@netpeer/p2pt-swarm/peer';
+import type P2PTPeer from '@netpeer/p2pt-swarm/peer';
 
 
 @customElement('stats-view')
@@ -37,12 +37,6 @@ export class StatsView extends LitElement {
           align-items: center;
           justify-content: center;
           color: var(--font-color);
-        }
-
-
-        .bottom-bar {
-          align-items: center;
-          height: 48px;
         }
 
         flex-row {

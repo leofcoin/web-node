@@ -206,8 +206,7 @@ export class WalletView extends LitElement {
       </flex-column>
 
       <flex-column data-route="receive">
-        <clipboard-copy class="address peer-id">
-          ${this.selectedAccount ? this.selectedAccount : 'Loading...'}
+        <clipboard-copy class="address peer-id" value=${this.selectedAccount}>
         </clipboard-copy>
       </flex-column>
     </flex-column>
