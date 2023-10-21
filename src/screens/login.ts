@@ -314,6 +314,7 @@ export class LoginScreen extends LitElement {
     width: 100%;
     color: var(--font-color);
     border: 1px solid var(--border-color);
+    margin-left: 48px;
   }
 
   input, button {
