@@ -1,13 +1,44 @@
 import { css, html, LitElement } from "lit";
 import './child.js'
+import { customElement, property } from "lit/decorators.js";
+import { NotificationChild } from "./child.js";
+import '@vandeurenglenn/lit-elements/icon.js'
+import '@vandeurenglenn/lit-elements/pane.js'
+import '@vandeurenglenn/flex-elements/row.js'
 
-export default customElements.define('notification-master', class NotificationMaster extends LitElement {
-  constructor() {
-    super()
+@customElement('notification-master')
+export class NotificationMaster extends LitElement {
+  @property({type: Boolean, reflect: true})
+  open: boolean
+
+
+  get #list() {
+    return this.shadowRoot.querySelector('.list')
   }
 
-  get hasMoreThenOneChild() {
-    return this.childElementCount > 1
+  createNotification({title, message}: {title: string, message: string}, timeout: EpochTimeStamp = 3000) {
+    const notification = document.createElement('notification-child') as NotificationChild
+    notification.title = title
+    notification.message = message
+    if (timeout) {
+      setTimeout(() => {
+        this.removeChild(notification)
+        const _notification = document.createElement('notification-child') as NotificationChild
+        _notification.title = title
+        _notification.message = message
+        this.#list.appendChild(_notification)
+        this.requestUpdate()
+      }, timeout);
+    }
+    this.appendChild(notification)
+  }
+
+  #onclick() {
+    const children = Array.from(this.#list.querySelectorAll('notification-child'))
+    for (const child of children) {
+      this.#list.removeChild(child)
+    }
+    this.open = false
   }
 
   static styles = css`:host {
@@ -15,28 +46,67 @@ export default customElements.define('notification-master', class NotificationMa
     flex-direction: column;
     pointer-events: auto;
     z-index: 10001;
-    position: fixed;
+    position: absolute;
+    right: 6px;
+    top: 18px;
+    overflow: hidden;
+    width: 100%;
+    max-width: 320px;
+    height: auto;
+    box-sizing: border-box;
+    pointer-events: none;
+  }
+  
+  .recents {
+    display: block;
+    position: relative;
     top: 12px;
     right: 12px;
-  }`
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
 
-  createNotification({title, message}) {
-    const notification = document.createElement('notification-child')
-    notification.title = title
-    notification.message = message
-    this.appendChild(notification)
-    if (this.hasMoreThenOneChild) this.requestUpdate()
+    box-sizing: border-box;
+    padding: 12px;
   }
 
-  #onclick() {
-    console.log('cl');
+  .list {
+    --svg-icon-color: #ffffffb5;
+    padding: 24px;
+    height: 100%;
+
   }
+
+  custom-icon {
+    pointer-events: auto;
+  }
+  `
 
   render() {
     return html`
-    <slot></slot>
+    <flex-row style="margin-right: 12px;">
+      <flex-it></flex-it>
+      <custom-icon icon="notifications" @click=${() => this.open = !this.open}></custom-icon>
+    </flex-row>
+    
+    
+    <span class="recents">
+      <slot></slot>
+    </span>
+    
+    <custom-pane ?open=${this.open} right top>
+      <span slot="header"></span>
+      <flex-column class="list" slot="content">
+      
+      </flex-column>
 
-    ${this.hasMoreThenOneChild ? html`<custom-svg-icon icon="close" @click="${this.#onclick}"></custom-svg-icon>` : ''}
+      <flex-row slot="footer" width="100%">
+        <flex-it></flex-it>
+        <custom-icon style="margin-right: 24px;" icon="clear-all" @click="${this.#onclick}"></custom-icon>
+      </flex-row>
+    </custom-pane>
+
+    
     `
   }
-})
+}

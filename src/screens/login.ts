@@ -263,12 +263,12 @@ export class LoginScreen extends LitElement {
     return html`
       <h4>Login</h4>
       <h5>Create a wallet or import one to continue</h5>
-      <flex-two></flex-two>
+      <flex-it flex="2"></flex-it>
       <input type="password" placeholder="password" tabindex="0" autofocus autocomplete="new-password">
-      <flex-one></flex-one>
+      <flex-it></flex-it>
       <flex-row>
         <button data-route-action="import">import</button>
-        <flex-one></flex-one>
+        <flex-it></flex-it>
         <button data-route-action="create">create</button> 
       </flex-row>`
   }
@@ -277,10 +277,11 @@ export class LoginScreen extends LitElement {
     return html`
       <h4>Login</h4>
       <h5>Enter password to unlock wallet</h5>
-      <flex-two></flex-two>
+      <flex-it flex="2"></flex-it>
       <input type="password" placeholder="password" tabindex="0" autofocus autocomplete="current-password">
-      <flex-one></flex-one>
-      <button data-route-action="login">login</button>`
+      <flex-it></flex-it>
+      <button data-route-action="login" style="width: 100%; max-width: 190px; margin-bottom: 12px;">login</button>
+      `
   }
 
   static styles = css`
@@ -364,7 +365,7 @@ export class LoginScreen extends LitElement {
 
     <flex-column class="wrapper">   
       <custom-pages attr-for-selected="data-route">
-        <flex-column data-route="login">
+        <flex-column data-route="login" center>
         ${this.hasWallet ?  this.#hasWalletTemplate : this.#defaultTemplate}
         </flex-column>
 

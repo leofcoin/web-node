@@ -1,21 +1,20 @@
 import { css, html, LitElement } from "lit";
+import { customElement, property } from "lit/decorators.js";
+import '@vandeurenglenn/lit-elements/icon.js'
 
-export default customElements.define('notification-child', class NotificationChild extends LitElement {
-  constructor() {
-    super()
-  }
+@customElement('notification-child')
+export class NotificationChild extends LitElement {
+  @property()
+  title: string
 
-  static properties = {
-    title: {
-      type: String
-    },
-    message: {
-      type: String
-    },
-    type: {
-      type: String,
-      reflect: true
-    }
+  @property()
+  message: string
+
+  @property()
+  type: 'error' | 'info' | 'warning'
+
+  #onclick = () => {
+    this.parentElement.removeChild(this)
   }
 
   static styles = css`:host {
@@ -29,6 +28,7 @@ export default customElements.define('notification-child', class NotificationChi
     background: #fff;
 
     --svg-icon-size: 20px;
+    margin-bottom: 12px;
   }
   flex-row {
     height: 24px;
@@ -45,11 +45,11 @@ export default customElements.define('notification-child', class NotificationChi
     return html`
   <flex-row>
     <strong>${this.title}</strong>
-    <flex-one></flex-one>
-    <custom-svg-icon icon="close"></custom-svg-icon>
+    <flex-it></flex-it>
+    <custom-icon icon="close" @click=${this.#onclick}></custom-icon>
   </flex-row>
 
   <p>${this.message}</p>
     `
   }
-})
+}
