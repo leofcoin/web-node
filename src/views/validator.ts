@@ -1,11 +1,20 @@
 import { LitElement, PropertyValueMap, css, html } from "lit";
 import { customElement } from "lit/decorators.js";
 import { property } from "lit/decorators.js";
+import type { Address } from "../context/wallet.js";
+
+declare type Validators = {
+  [index: Address]: {
+    firstSeen: EpochTimeStamp
+    lastSeen: EpochTimeStamp
+    active: boolean
+  }
+}
 
 @customElement('validator-view')
 export class ValidatorView extends LitElement {
   @property({ type: Object })
-  validators = {};
+  validators: Validators = {};
 
   @property({ type: Array })
   onlineValidators = []
@@ -14,7 +23,7 @@ export class ValidatorView extends LitElement {
     super.connectedCallback()
     const result = await client.lookup('ArtOnlineValidators')
     
-    this.validators = await client.staticCall(result.address, 'validators')
+    this.validators = await client.staticCall(result.address, 'validators', [])
     console.log(this.validators);
     
     if (this.validators[await client.selectedAccount()]) {

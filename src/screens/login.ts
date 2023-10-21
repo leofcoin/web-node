@@ -6,30 +6,29 @@ import networks from '@leofcoin/networks'
 import QrScanner from "qr-scanner";
 import { decrypt, encrypt } from "@leofcoin/identity-utils";
 import base58 from '@vandeurenglenn/base58'
+import type Client from '@leofcoin/endpoint-clients/direct'
+import { customElement, property, state } from "lit/decorators.js";
+import type Chain from "@leofcoin/chain/chain";
 
 
-export default customElements.define('login-screen', class LoginScreen extends LitElement {
-  static properties = {
-    shown: {
-      type: 'boolean',
-      reflect: true
-    },
-    mnemonic: {
-      type: 'string'
-    },
-    hasWallet: {
-      type: 'boolean'
-    }
-  }
+declare global {
+  var client: Client
+  var chain: Chain
+}
+@customElement('login-screen')
+export class LoginScreen extends LitElement {
+  @property({type: Boolean, reflect: true})
+  shown: boolean
+  @state()
+  mnemonic: string
+  @property({type: Boolean})
+  hasWallet: boolean
+  @state()
+  importing: boolean
 
   async _hasWallet() {
     const has = await globalThis.walletStorage?.has('identity')
     return has
-  }
-
-  constructor() {
-    super()
-    this.attachShadow({mode: 'open'})
   }
 
   get #pages() {
@@ -198,7 +197,7 @@ export default customElements.define('login-screen', class LoginScreen extends L
 
   async #spawnChain(password) {
     let importee
-    importee = await import('./../../node_modules/@leofcoin/chain/exports/browser/node-browser.js')
+    importee = await import('../../node_modules/@leofcoin/chain/exports/browser/node-browser.js')
     await new importee.default({
       network: 'leofcoin:peach',
       networkName: 'leofcoin:peach',
@@ -208,10 +207,10 @@ export default customElements.define('login-screen', class LoginScreen extends L
     },
     password)
 
-    importee = await import('./../../node_modules/@leofcoin/lib/exports/node-config.js')
+    importee = await import('@leofcoin/lib/node-config')
     const config = await importee.default()
 
-    importee = await import('./../../node_modules/@leofcoin/chain/exports/browser/chain.js')
+    importee = await import('../../node_modules/@leofcoin/chain/exports/browser/chain.js')
     globalThis.chain = await new importee.default()
     console.log(chain);
 
@@ -222,23 +221,23 @@ export default customElements.define('login-screen', class LoginScreen extends L
   async #spawnEndpoint(direct = true) {
     let importee
     if (direct) {
-      importee = await import('./../../node_modules/@leofcoin/endpoint-clients/exports/direct.js')
+      importee = await import('@leofcoin/endpoint-clients/direct')
       globalThis.client = await new importee.default('wss://ws-remote.leofcoin.org', 'peach')
     } else {
-      importee = await import('./../../node_modules/@leofcoin/endpoint-clients/exports/ws.js')
+      importee = await import('@leofcoin/endpoint-clients/ws')
       globalThis.client = await new importee.default('wss://ws-remote.leofcoin.org', 'peach')
-      await globalThis.client.init()  
+      // @ts-ignore
+      globalThis.client.init && await globalThis.client.init()  
     }
     
   }
 
   async loadChain(password, direct = true) {
+    if (globalThis.chain) return
     let importee
     try {
-      if (direct) {
-        await this.#spawnChain(password)
-      }
-      await this.#spawnEndpoint(false)
+      if (direct) await this.#spawnChain(password)
+      else await this.#spawnEndpoint(false)
     } catch (error) {
       console.log(error);
       this.#spawnEndpoint(false)
@@ -391,4 +390,4 @@ export default customElements.define('login-screen', class LoginScreen extends L
     </flex-column>    
     `
   }
-})
+}

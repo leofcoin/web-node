@@ -18,6 +18,8 @@ import { provide } from '@lit-labs/context'
 import { walletContext, Wallet } from './context/wallet.js'
 import { customElement, property } from 'lit/decorators.js'
 import { LitElement, css, html } from 'lit'
+import { Block, blockContext } from './context/block.js'
+import { ContextProvider } from '@lit-labs/context'
 
 globalThis.pubsub = globalThis.pubsub || new Pubsub(true);
 
@@ -43,10 +45,23 @@ class AppShell extends LitElement {
   @property({ type: Number })
   totalLoaded = 0
 
-  @provide({ context: walletContext })
-  wallet: Wallet
+  #blockContextProvider = new ContextProvider(this, {context: blockContext});
+  #walletContextProvider = new ContextProvider(this, {context: walletContext});
 
+  set block(value: Block) {
+    this.#blockContextProvider.setValue(value)
+    this.#blockContextProvider.updateObservers()
+  }
+
+  set wallet(value: Wallet) {
+    this.#walletContextProvider.setValue(value)
+    this.#walletContextProvider.updateObservers()
+  }
  
+  #nodeReady = new Promise((resolve) => {
+    pubsub.subscribe('node:ready', () => resolve(true))
+  })
+
   get notificationMaster() {
     return this.renderRoot.querySelector('notification-master')
   }
@@ -68,7 +83,7 @@ class AppShell extends LitElement {
     }
   }
 
-  async #onhashchange() {
+  #onhashchange = async () => {
     const parts = location.hash.split('/')
     let params = parts[1].split('?')
     const selected = params[0]
@@ -91,7 +106,12 @@ class AppShell extends LitElement {
 
     if (selected === 'explorer' && object.block !== undefined) {
       await this.shadowRoot.querySelector('explorer-view').select('block')
-      explorerView.renderRoot.querySelector('explorer-block').updateInfo(object.block, object.index)
+      await this.#nodeReady
+      console.log('ready');
+      
+      this.block = await client.getBlock(object.index)
+      console.log(this.block);
+      
     }
     if (selected === 'explorer' && object.blockTransactions !== undefined) {
       await this.shadowRoot.querySelector('explorer-view').select('block-transactions')
@@ -124,6 +144,7 @@ class AppShell extends LitElement {
 
   async connectedCallback() {
     super.connectedCallback()
+    
     this.peersConnected = 0
     pubsub.subscribe('lastBlock', (block) => this.lastBlockIndex = block.index)
     pubsub.subscribe('block-resolved', (block) => this.totalResolved += 1)
@@ -131,8 +152,10 @@ class AppShell extends LitElement {
     let importee
     importee = await import('@leofcoin/endpoint-clients/ws')
     globalThis.client = await new importee.default('wss://ws-remote.leofcoin.org', 'peach')
-    await globalThis.client.init()
-    onhashchange = this.#onhashchange.bind(this)
+    // @ts-ignore
+    globalThis.client.init && await globalThis.client.init()
+
+    onhashchange = this.#onhashchange
     if (location.hash.split('/')[1]) this.#onhashchange()
     else this.#select('wallet')
     await this.#login()
@@ -140,11 +163,6 @@ class AppShell extends LitElement {
     // globalThis.walletStorage = new Storage('wallet')
     // await globalThis.walletStorage.init()
     // lo
-
-
-    onhashchange = this.#onhashchange.bind(this)
-    if (location.hash.split('/')[1]) this.#onhashchange()
-    else this.#select('wallet')
   }
 
   async #login() {

@@ -7,6 +7,8 @@ import { map } from 'lit/directives/map.js'
 import { customElement, property } from 'lit/decorators.js'
 import { consume } from '@lit-labs/context'
 import { walletContext, Address, Accounts, Wallet } from '../context/wallet.js';
+import { CustomPages } from '@vandeurenglenn/custom-elements/pages.js'
+
 
 @customElement('wallet-view')
 export class WalletView extends LitElement {
@@ -28,8 +30,8 @@ export class WalletView extends LitElement {
     return this.renderRoot.querySelector('.to') as HTMLInputElement
   }
 
-  get #pages() {
-    return this.renderRoot.querySelector('custom-pages')
+  get #pages(): CustomPages {
+    return this.renderRoot.querySelector('custom-pages') as unknown as CustomPages
   }
 
   protected willUpdate(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
@@ -54,9 +56,9 @@ export class WalletView extends LitElement {
     const amount = this.#amount.value
     let from = this.selectedAccount
     console.log({from});
-    const token = await client.nativeToken()
+    const token = await client.nativeToken() as unknown as string
 
-    const nonce = await client.getNonce(from)
+    const nonce = await client.getNonce(from) as number
     const rawTransaction = {
       timestamp: Date.now(),
       from,

@@ -3,74 +3,22 @@ import {map} from 'lit/directives/map.js'
 import '../../elements/latest.js'
 import '../../elements/explorer/info-container.js'
 import { formatBytes } from '@leofcoin/utils'
+import { customElement, property } from 'lit/decorators.js'
 
+@customElement('explorer-blocks')
+export class ExplorerBlocks extends LitElement {
+  @property({type: Array})
+  items: []
 
-export default customElements.define('explorer-blocks', class ExplorerBlocks extends LitElement {
-
-  static properties = {
-    items: {
-      type: Array
-    }
-  }
-
-  constructor() {
-    super()
-  }
   #blocks = []
   #transactions = []
 
   async updateInfo() {
     const lookupValidators = await client.lookup('ArtOnlineValidators')
     
-    const validators = await client.staticCall(lookupValidators.address, 'validators')
+    const validators = await client.staticCall(lookupValidators.address, 'validators', [])
     const lookupFactory = await client.lookup('ArtOnlineContractFactory')
 
-    this.items = [[{
-      title: 'transactions',
-      items: [{
-        title: 'transfers',
-        value: await client.nativeTransfers()
-      }, {
-        title: 'burns',
-        value: await client.nativeBurns()
-      }, {
-        title: 'mints',
-        value: await client.nativeMints()
-      }]        
-    }, {
-      title: 'validators',
-      items: [{
-        title: 'total',
-        value: Object.keys(validators).length
-      }, {
-        title: 'online',
-        value: Object.values(validators).filter(({lastSeen}) => lastSeen - new Date().getTime() < 60_000).length
-      }]
-    }], [{
-      title: 'contracts',
-      items: [{
-        title: 'total',
-        value: (await client.contracts()).length
-      }, {
-        title: 'registered',
-        value: await client.staticCall(lookupFactory.address, 'totalContracts')        
-      }, {
-        title: 'native calls',
-        value: await client.nativeCalls()
-      }]
-    }, {
-      title: 'chain',
-      items: [{
-        title: 'blocks',
-        value: await client.totalBlocks()
-      }, {
-        title: 'transactions',
-        value: await client.totalTransactions()
-      }, {
-        title: 'size',
-        value: formatBytes(await client.totalSize())
-      }]
-    }]]
   }
 
   async select(selected) {
@@ -108,7 +56,6 @@ export default customElements.define('explorer-blocks', class ExplorerBlocks ext
       i++
     }
 
-    this.updateInfo()
     this.requestUpdate()
 
     client.pubsub.subscribe('add-block', this.#addBlock.bind(this))
@@ -192,4 +139,4 @@ export default customElements.define('explorer-blocks', class ExplorerBlocks ext
   </flex-column>
 `
   }
-})
+}

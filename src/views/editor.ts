@@ -1,26 +1,25 @@
 import palenightItalic from '../vs-themes/palenight-italic.json' assert {type: 'json'}
 import Storage from '@leofcoin/storage'
 import { convertTheme } from '@vandeurenglenn/monaco-utils'
+import { LitElement, html } from 'lit';
 // import 'monaco-editor/esm/vs/basic-languages/javascript/javascript.contribution'
 // import 'monaco-editor/esm/vs/basic-languages/typescript/typescript.contribution'
 
 
-export default customElements.define('editor-view', class editorView extends HTMLElement {
-  #validators = [];
+export default customElements.define('editor-view', class editorView extends LitElement {
   #editor;
   #enterAmount = 0;
+  editorStore = new Storage('editor')
 
-  constructor() {
-    super()
 
-    this.attachShadow({mode: 'open'})
-    this.shadowRoot.innerHTML = this.template
-    
-  }
+
+  dependencies = [
+    '@leofcoin:standards'
+  ]
 
 
   async connectedCallback() {
-    this.editorStore = new Storage('editor')
+    super.connectedCallback()
     await this.editorStore.init()
     const importee = await import('@monaco-import');
     
@@ -148,10 +147,6 @@ export default customElements.define('editor-view', class editorView extends HTM
     }
   });
 
-  this.dependencies = [
-    '@leofcoin:standards'
-  ]
-
   pubsub.subscribe('deployment-dependencies', this.ondependencies.bind(this))
 
   this.shadowRoot.querySelector('button').addEventListener('click', this.deploy.bind(this))
@@ -205,8 +200,8 @@ export default customElements.define('editor-view', class editorView extends HTM
     this.shadowRoot.querySelector('custom-svg-icon[icon="close"]').removeEventListener('click', this.hide.bind(this))
   }
 
-  get template() {
-    return `
+  render() {
+    return html`
 <style>
   :host {
     display: flex;

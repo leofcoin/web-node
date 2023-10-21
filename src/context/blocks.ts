@@ -1,13 +1,5 @@
 import {createContext} from '@lit-labs/context';
-import {TransactionMessage} from '@leofcoin/messages'
-declare type transactionHash = base58String
-
-declare type Block = {
-  index: number
-  hahs: transactionHash
-  previousHash: transactionHash
-  transactions: typeof TransactionMessage[]
-}
+import type { Block } from './block.js';
 
 declare type Blocks = Block[]
 

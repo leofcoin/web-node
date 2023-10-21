@@ -2,24 +2,27 @@ import { css, html, LitElement } from 'lit'
 import {map} from 'lit/directives/map.js'
 import '../../elements/latest.js'
 import '../../elements/explorer/info-container.js'
-import { formatBytes } from '@leofcoin/utils'
+import { formatBytes, formatUnits } from '@leofcoin/utils'
 import '../../elements/time/ago.js'
 import {TransactionMessage} from '@leofcoin/messages'
 import '../../animations/busy.js'
 import '../../elements/shorten-string.js'
 import '../../elements/explorer/property-info.js'
-export default customElements.define('explorer-block', class ExplorerBlock extends LitElement {
-  static properties = {
-    block: {
-      type: Object
-    },
-    size: {
-      type: Number
-    },
-    transactionHashes: {
-      type: Array
-    }
-  }
+import { customElement, property, state } from 'lit/decorators.js'
+import { consume } from '@lit-labs/context'
+import { Block, blockContext } from '../../context/block.js'
+
+@customElement('explorer-block')
+export class ExplorerBlock extends LitElement {
+  @property({ type: Object })
+  @consume({ context: blockContext, subscribe: true})
+  block: Block
+
+  @state()
+  size: number
+
+  @state()
+  transactionHashes: []
 
   #goBack() {
     location.hash = `#!/explorer?selected=blocks`
@@ -27,15 +30,6 @@ export default customElements.define('explorer-block', class ExplorerBlock exten
 
   #goTransactions() {
     location.hash = `#!/explorer?blockTransactions=${this.block.hash}&index=${this.block.index}`
-  }
-
-  constructor() {
-    super()
-  }
-
-  async updateInfo(hash, index) {
-    this.block = await client.getBlock(index)
-    this.size = new TextEncoder().encode(JSON.stringify(this.block)).byteLength
   }
 
   render() {
@@ -83,34 +77,35 @@ export default customElements.define('explorer-block', class ExplorerBlock exten
     <h4>fees</h4>
     <flex-one></flex-one>
     
-    <span>${this.block.fees}</span>
+    <span>${formatUnits(this.block.fees)}</span>
   </property-info>
   <property-info>
     <h4>reward</h4>
     <flex-one></flex-one>
     
-    <span>${this.block.reward}</span>
+    <span>${formatUnits(this.block.reward)}</span>
+    <strong style="margin-left: 12px;">LFC</strong>
   </property-info>
 
   <property-info>
     <h4>size</h4>
     <flex-one></flex-one>
     
-    <span>${formatBytes(Number(this.size))}</span>
+    <span>${formatBytes(Number(new TextEncoder().encode(JSON.stringify(this.block)).byteLength))}</span>
   </property-info>
 
   <property-info>
     <h4>fees burnt</h4>
     <flex-one></flex-one>
     
-    <span>${new Date(this.timestamp).toLocaleString()}</span>
+    <span>${formatUnits(this.block.fees)}</span>
   </property-info>
 
   <property-info>
     <h4>rewards minted</h4>
     <flex-one></flex-one>
     
-    <span>${new Date(this.timestamp).toLocaleString()}</span>
+    <span>${formatUnits(this.block.reward)}</span>
   </property-info>
 
   <property-info class="selector" @click="${this.#goTransactions}">
@@ -224,4 +219,4 @@ export default customElements.define('explorer-block', class ExplorerBlock exten
       box-sizing: border-box;
     }
   `;
-})
+}

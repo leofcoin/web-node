@@ -1,5 +1,5 @@
 import { html, LitElement } from "lit";
-import './../clipboard-copy.js'
+import '../clipboard-copy.js'
 
 export default customElements.define('export-screen', class ExportScreen extends LitElement {
   static properties = {
