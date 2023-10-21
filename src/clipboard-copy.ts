@@ -50,11 +50,19 @@ export default customElements.define('clipboard-copy', class ClipboardCopy exten
     pointer-events: auto !important;
     cursor: pointer;
     font-size: 14px;
+    overflow: hidden;
+    max-width: 320px;
+  }
+  p {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0;
   }
 </style>
+<p>
 <slot>
 </slot>
-
+</p>
     `
   }
 
