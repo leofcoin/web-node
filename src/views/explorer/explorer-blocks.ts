@@ -72,6 +72,8 @@ export class ExplorerBlocks extends LitElement {
     height: 100%;
     overflow-y: auto;
     box-sizing: border-box;
+    padding: 12px;
+    box-sizing: border-box;
   }
   
   .container {

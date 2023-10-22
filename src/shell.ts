@@ -15,14 +15,16 @@ import './elements/account-select.js'
 import defaultTheme from './themes/default.js'
 import { provide } from '@lit-labs/context'
 import { walletContext, Wallet } from './context/wallet.js'
-import { customElement, property } from 'lit/decorators.js'
+import { customElement, property, query } from 'lit/decorators.js'
 import { LitElement, css, html } from 'lit'
 import { Block, blockContext } from './context/block.js'
 import { ContextProvider } from '@lit-labs/context'
 import '@vandeurenglenn/lit-elements/icon-set.js'
+import '@vandeurenglenn/lit-elements/dropdown.js'
 import '@vandeurenglenn/flex-elements/column.js'
 import '@vandeurenglenn/flex-elements/row.js'
 import '@vandeurenglenn/flex-elements/it.js'
+import './elements/sync-info.js'
 
 globalThis.pubsub = globalThis.pubsub || new Pubsub(true);
 
@@ -38,6 +40,9 @@ setTheme(defaultTheme);
 
 @customElement('app-shell')
 class AppShell extends LitElement {
+
+  @property({ type: Boolean })
+  openSync: boolean = false
 
   @property({ type: Number })
   lastBlockIndex = 0
@@ -145,13 +150,16 @@ class AppShell extends LitElement {
     }
   }
 
+  @query('sync-info')
+  syncInfo
+
   async connectedCallback() {
     super.connectedCallback()
     
     this.peersConnected = 0
-    pubsub.subscribe('lastBlock', (block) => this.lastBlockIndex = block.index)
-    pubsub.subscribe('block-resolved', (block) => this.totalResolved += 1)
-    pubsub.subscribe('block-loaded', (block) => this.totalLoaded += 1)
+    pubsub.subscribe('lastBlock', (block) => this.syncInfo.lastBlockIndex = block.index)
+    pubsub.subscribe('block-resolved', (block) => this.syncInfo.totalResolved += 1)
+    pubsub.subscribe('block-loaded', (block) => this.syncInfo.totalLoaded += 1)
     let importee
     importee = await import('@leofcoin/endpoint-clients/ws')
     globalThis.client = await new importee.default('wss://ws-remote.leofcoin.org', 'peach')
@@ -261,7 +269,6 @@ class AppShell extends LitElement {
       .resolver-snack, .loader-snack {
         color: var(--font-color);
       }
-
     `
   ]
   render() {
@@ -270,6 +277,7 @@ class AppShell extends LitElement {
       <template>
         <span name="close">@symbol-close</span>
         <span name="notifications">@symbol-notifications</span>
+        <span name="sync">@symbol-sync</span>
         <span name="clear-all">@symbol-clear_all</span>
       </template>
     </custom-icon-set>
@@ -324,25 +332,8 @@ class AppShell extends LitElement {
       <login-screen></login-screen>
       <export-screen></export-screen>
       
-      <flex-row>
-        <span class="resolver-snack">
-        <strong>resolved</strong>
-        <span> ${this.totalResolved} </span>
-          <strong>of</strong>
-
-          <span>${this.lastBlockIndex} </span>
-        </span>
-
-        <flex-it></flex-it>
-
-        <span class="loader-snack">
-          <strong>loaded</strong>
-          <span> ${this.totalLoaded} </span>
-          <strong>of</strong>
-
-          <span>${this.lastBlockIndex} </span>
-        </span>
-      </flex-row>
+    <sync-info></sync-info>
+      
     `
   }
 }

@@ -34,7 +34,7 @@ export default customElements.define('clipboard-copy', class ClipboardCopy exten
     super.connectedCallback()
     this.addEventListener('click', this.copy.bind(this))
 
-    this.innerHTML = 'loading...'
+    // this.innerHTML = 'loading...'
   }
 
   render() {

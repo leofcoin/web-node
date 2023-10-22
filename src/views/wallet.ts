@@ -35,6 +35,7 @@ export class WalletView extends LitElement {
   }
 
   protected willUpdate(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
+    
     if (_changedProperties.has('wallet')) {
       this.selectedAccount = this.wallet.selectedAccount
       this.accounts = this.wallet.accounts

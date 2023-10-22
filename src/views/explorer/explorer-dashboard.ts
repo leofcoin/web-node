@@ -7,6 +7,7 @@ import '@vandeurenglenn/flex-elements/wrap-around.js'
 
 
 export default customElements.define('explorer-dashboard', class ExplorerDashboard extends LitElement {
+  items: {title: string, items: []}[]
 
   static properties = {
     items: {
@@ -171,6 +172,8 @@ export default customElements.define('explorer-dashboard', class ExplorerDashboa
     align-items: center;
     justify-content: center;
     overflow-y: auto;
+    padding: 12px;
+    box-sizing: border-box;
   }
 
   flex-wrap-evenly {
