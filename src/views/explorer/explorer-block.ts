@@ -44,44 +44,44 @@ export class ExplorerBlock extends LitElement {
 <flex-row class="back-container">
   <custom-svg-icon icon="chevron-left" @click="${this.#goBack}"></custom-svg-icon>
   <strong>back</strong>
-  <flex-one></flex-one>
+  <flex-it></flex-it>
 </flex-row>
 
 <flex-column class="container">
   <property-info>
     <h4>hash</h4>
-    <flex-one></flex-one>
+    <flex-it></flex-it>
     <shorten-string value=${this.block.hash}></shorten-string>
   </property-info>
 
   <property-info>
     <h4>index</h4>
-    <flex-one></flex-one>
+    <flex-it></flex-it>
     <span>${this.block.index}</span>
   </property-info>
 
   <!-- <property-info>
     <h4>height</h4>
-    <flex-one></flex-one>
+    <flex-it></flex-it>
     <span>${this.block.index + 1}</span>
   </property-info> -->
 
   <property-info>
     <h4>timestamp</h4>
-    <flex-one></flex-one>
+    <flex-it></flex-it>
     <time-ago value=${this.block.timestamp}></time-ago>
     <span>${new Date(this.block.timestamp).toLocaleString()}</span>
   </property-info>
 
   <property-info>
     <h4>fees</h4>
-    <flex-one></flex-one>
+    <flex-it></flex-it>
     
     <span>${formatUnits(this.block.fees)}</span>
   </property-info>
   <property-info>
     <h4>reward</h4>
-    <flex-one></flex-one>
+    <flex-it></flex-it>
     
     <span>${formatUnits(this.block.reward)}</span>
     <strong style="margin-left: 12px;">LFC</strong>
@@ -89,35 +89,35 @@ export class ExplorerBlock extends LitElement {
 
   <property-info>
     <h4>size</h4>
-    <flex-one></flex-one>
+    <flex-it></flex-it>
     
     <span>${formatBytes(Number(new TextEncoder().encode(JSON.stringify(this.block)).byteLength))}</span>
   </property-info>
 
   <property-info>
     <h4>fees burnt</h4>
-    <flex-one></flex-one>
+    <flex-it></flex-it>
     
     <span>${formatUnits(this.block.fees)}</span>
   </property-info>
 
   <property-info>
     <h4>rewards minted</h4>
-    <flex-one></flex-one>
+    <flex-it></flex-it>
     
     <span>${formatUnits(this.block.reward)}</span>
   </property-info>
 
   <property-info class="selector" @click="${this.#goTransactions}">
     <h4>transactions</h4>
-    <flex-one></flex-one>
+    <flex-it></flex-it>
     <span>${this.block.transactions.length}</span>
     <custom-svg-icon icon="chevron-right"></custom-svg-icon>
   </property-info>
 
   <property-info>
     <h4>validators</h4>
-    <flex-one></flex-one>
+    <flex-it></flex-it>
     
     <span>${this.block.validators.length}</span>
   </property-info>

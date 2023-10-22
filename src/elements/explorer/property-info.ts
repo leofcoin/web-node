@@ -10,6 +10,7 @@ export default customElements.define('property-info', class PropertyInfo extends
     display: flex;
     padding: 6px 12px;
     box-sizing: border-box;
+    width: 100%;
   }
   .container {
     padding: 6px 12px;
