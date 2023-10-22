@@ -1,6 +1,6 @@
 import { css, html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import '@vandeurenglenn/lit-elements/icon-button.js'
+import '@vandeurenglenn/lit-elements/icon.js'
 
 @customElement('notification-child')
 export class NotificationChild extends LitElement {
@@ -27,7 +27,7 @@ export class NotificationChild extends LitElement {
     box-sizing: border-box;
     margin-bottom: 12px;
   }
-  
+
   flex-row {
     height: 24px;
     box-sizing: border-box;
@@ -44,7 +44,7 @@ export class NotificationChild extends LitElement {
   <flex-row>
     <strong>${this.title}</strong>
     <flex-it></flex-it>
-    <custom-icon-button icon="close" @click=${this.#onclick}></custom-icon-button>
+    <custom-icon icon="close" @click=${this.#onclick}></custom-icon>
   </flex-row>
 
   <p>${this.message}</p>

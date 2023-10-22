@@ -90,10 +90,10 @@ export class NotificationMaster extends LitElement {
     return html`
     <flex-row style="margin-top: 12px;margin-right: 12px;">
       <flex-it></flex-it>
-      <custom-icon-button icon="notifications" @click=${() => {
+      <custom-icon icon="notifications" @click=${() => {
         if (this.#list.childElementCount === 0) return
         this.open = !this.open
-      }}></custom-icon-button>
+      }}></custom-icon>
     </flex-row>
     
     
@@ -109,7 +109,7 @@ export class NotificationMaster extends LitElement {
 
       <flex-row slot="footer" width="100%">
         <flex-it></flex-it>
-        <custom-icon-button style="margin-right: 24px;" icon="clear-all" @click="${this.#onclick}"></custom-icon-button>
+        <custom-icon style="margin-right: 24px;" icon="clear-all" @click="${this.#onclick}"></custom-icon>
       </flex-row>
     </custom-pane>
 
