@@ -160,15 +160,16 @@ class AppShell extends LitElement {
     pubsub.subscribe('lastBlock', (block) => this.syncInfo.lastBlockIndex = block.index)
     pubsub.subscribe('block-resolved', (block) => this.syncInfo.totalResolved += 1)
     pubsub.subscribe('block-loaded', (block) => this.syncInfo.totalLoaded += 1)
-    let importee
-    importee = await import('@leofcoin/endpoint-clients/ws')
-    globalThis.client = await new importee.default('wss://ws-remote.leofcoin.org', 'peach')
-    // @ts-ignore
-    globalThis.client.init && await globalThis.client.init()
+    // let importee
+    // importee = await import('@leofcoin/endpoint-clients/ws')
+    // globalThis.client = await new importee.default('wss://ws-remote.leofcoin.org', 'peach')
+    // // @ts-ignore
+    // globalThis.client.init && await globalThis.client.init()
 
     onhashchange = this.#onhashchange
     if (location.hash.split('/')[1]) this.#onhashchange()
     else this.#select('wallet')
+
     await this.#login()
     // await this.init()
     // globalThis.walletStorage = new Storage('wallet')
@@ -177,6 +178,7 @@ class AppShell extends LitElement {
   }
 
   async #login() {
+    
     if (!globalThis.walletStorage) {
       const importee = await import('@leofcoin/storage')
       globalThis.walletStorage = await new Storage('wallet')
