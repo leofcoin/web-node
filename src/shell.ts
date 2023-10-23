@@ -28,8 +28,6 @@ import './elements/sync-info.js'
 
 globalThis.pubsub = globalThis.pubsub || new Pubsub(true);
 
-
-
 const setTheme = (theme) => {
   for (const key of Object.keys(theme)) {
     document.querySelector('body').style.setProperty(`--${key}`, theme[key])
@@ -96,6 +94,7 @@ class AppShell extends LitElement {
     let params = parts[1].split('?')
     const selected = params[0]
     
+    
     const object = {}
     if (params.length > 1) {
       params = params[1].split('&')
@@ -106,7 +105,7 @@ class AppShell extends LitElement {
     }
     
     
-    
+    if (selected ===  'wallet') await this.#nodeReady
     console.log(selected, object);
     selected && await this.#select(selected)
 
@@ -115,12 +114,12 @@ class AppShell extends LitElement {
     if (selected === 'explorer' && object.block !== undefined) {
       await this.shadowRoot.querySelector('explorer-view').select('block')
       await this.#nodeReady
-      console.log('ready');
       
       this.block = await client.getBlock(object.index)
       console.log(this.block);
       
     }
+    
     if (selected === 'explorer' && object.blockTransactions !== undefined) {
       await this.shadowRoot.querySelector('explorer-view').select('block-transactions')
       explorerView.renderRoot.querySelector('explorer-block-transactions').updateInfo(object.block, object.index)
@@ -160,11 +159,16 @@ class AppShell extends LitElement {
     pubsub.subscribe('lastBlock', (block) => this.syncInfo.lastBlockIndex = block.index)
     pubsub.subscribe('block-resolved', (block) => this.syncInfo.totalResolved += 1)
     pubsub.subscribe('block-loaded', (block) => this.syncInfo.totalLoaded += 1)
-    // let importee
-    // importee = await import('@leofcoin/endpoint-clients/ws')
-    // globalThis.client = await new importee.default('wss://ws-remote.leofcoin.org', 'peach')
-    // // @ts-ignore
-    // globalThis.client.init && await globalThis.client.init()
+   try {
+     let importee
+    importee = await import('@leofcoin/endpoint-clients/ws')
+    globalThis.client = await new importee.default('wss://ws-remote.leofcoin.org', 'peach')
+    // @ts-ignore
+    globalThis.client.init && await globalThis.client.init()
+   } catch (error) {
+    console.error(error);
+    
+   }
 
     onhashchange = this.#onhashchange
     if (location.hash.split('/')[1]) this.#onhashchange()
