@@ -1,6 +1,6 @@
 import { html, LitElement } from "lit";
 import { map } from "lit/directives/map.js";
-import './../clipboard-copy.js'
+import '../clipboard-copy.js'
 
 export default customElements.define('dropdown-element', class DropdownElement extends LitElement {
   static properties = {

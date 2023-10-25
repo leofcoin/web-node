@@ -275,17 +275,6 @@ class AppShell extends LitElement {
       .resolver-snack, .loader-snack {
         color: var(--font-color);
       }
-
-      a:hover{
-        background-color: var(--main-background);
-        transition: 0.25s;
-      }
-
-      .selected{
-        background-color: var(--main-background);
-      }
-      
-
     `
   ]
   render() {

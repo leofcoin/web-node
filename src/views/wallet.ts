@@ -127,16 +127,6 @@ export class WalletView extends LitElement {
     height: 72px;
   } */
 
-  button:hover{
-    background-color: var(--main-background);;
-    transition: 0.25s;
-  }
-
-  button:not(:hover){
-    background-color: var(--secondary-background);;
-    transition: 0.25s;
-  }
-
   .wallet-nav {
     border: 1px solid white;
     background: var(--secondary-background);
@@ -145,12 +135,6 @@ export class WalletView extends LitElement {
     padding: 12px 6px;
     box-sizing: border-box;
     margin-bottom: 12px;
-  }
-
-  @media screen and (max-width: 800px) {
-    .address {
-      display: none;
-    }
   }
 
   a {
@@ -209,7 +193,7 @@ export class WalletView extends LitElement {
             <option>LFC</option>
           </select>
         </flex-row>
-        <input class="amount" placeholder="amount">
+        <input class="amount" placeholder="1">
 
         <label for=".to">to</label>
         <input class="to" placeholder="address">

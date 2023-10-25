@@ -38,7 +38,6 @@ export default customElements.define('address-amount', class AddressAmount exten
     background: #7986cb;
     color: #fff;
     padding: 6px 12px;
-    min-width: 50px;
     box-sizing: border-box;
     border-radius: 24px;
   }
@@ -46,7 +45,7 @@ export default customElements.define('address-amount', class AddressAmount exten
 
   render() {
     return html`
-    ${this.amount} LFC
+    ${this.amount}
     `
 
   }

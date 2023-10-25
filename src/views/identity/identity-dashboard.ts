@@ -26,7 +26,7 @@ export class IdentityDashboard extends LitElement {
     box-sizing: border-box;
   }
   flex-row {
-    text-align: center;
+
     display: flex;
     flex-direction: column;
     box-sizing: border-box;

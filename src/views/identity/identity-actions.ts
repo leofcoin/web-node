@@ -44,10 +44,6 @@ export default customElements.define('identity-actions', class IdentityActions e
     box-sizing: border-box;
   }
 
-  flex-row{
-    
-  }
-
   .container {
     max-width: 480px;
     max-height: 480px;
