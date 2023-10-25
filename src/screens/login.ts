@@ -275,7 +275,7 @@ export class LoginScreen extends LitElement {
 
   get #hasWalletTemplate() {
     return html`
-      <h4>Login</h4>
+      <h4>Welcome back!</h4>
       <h5>Enter password to unlock wallet</h5>
       <flex-it flex="2"></flex-it>
       <input type="password" placeholder="password" tabindex="0" autofocus autocomplete="current-password">
@@ -301,6 +301,7 @@ export class LoginScreen extends LitElement {
     opacity: 1;
     pointer-events: auto;
     z-index: 1002;
+    transition: 0.25s;
   }
 
   .wrapper {
@@ -334,6 +335,11 @@ export class LoginScreen extends LitElement {
     border-color: white;
     background: transparent;
     padding: 10px 20px;
+  }
+
+  button:hover{
+    background: var(--active-background);
+    transition: 0.25s;
   }
   
   h5 {
