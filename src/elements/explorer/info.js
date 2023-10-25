@@ -67,7 +67,7 @@ export default customElements.define('explorer-info', class ExplorerInfo extends
     ${map(this.items, item => html`
     <flex-row>
       <span>${item.title}</span>
-      <flex-it></flex-it>
+      <flex-one></flex-one>
       <strong>${item.value}</strong>  
     </flex-row>
     `)}

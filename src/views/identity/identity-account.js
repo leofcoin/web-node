@@ -1,9 +1,9 @@
 // import { nativeToken } from './../../../node_modules/@leofcoin/addresses/src/addresses'
 import { parseUnits } from '@leofcoin/utils'
 import { LitElement, html } from 'lit'
-import qrcode from 'qrcode'
+import { map } from 'lit/directives/map.js'
 
-export default customElements.define('identity-actions', class IdentityActions extends LitElement {
+export default customElements.define('identity-account', class IdentityAccount extends LitElement {
 
   static properties = {
     accounts: {
@@ -15,13 +15,6 @@ export default customElements.define('identity-actions', class IdentityActions e
     super()
   }
 
-  async #export() {
-    const password = await document.querySelector('app-shell').renderRoot.querySelector('login-screen').requestPassword()
-    const exported = await globalThis.identityController.export(password)
-    const qr = await qrcode.toDataURL(exported)
-    document.querySelector('app-shell').renderRoot.querySelector('export-screen').show(qr, exported)
-    console.log(qr);
-  }
   render() {
     return html`
 <style>
@@ -44,10 +37,6 @@ export default customElements.define('identity-actions', class IdentityActions e
     box-sizing: border-box;
   }
 
-  flex-row{
-    
-  }
-
   .container {
     max-width: 480px;
     max-height: 480px;
@@ -61,13 +50,25 @@ export default customElements.define('identity-actions', class IdentityActions e
   }
   
 </style>
-<flex-row>
-  <flex-one></flex-one>
-  <button-element>view mnemonic</button-element>
-  <flex-two></flex-two>
-  <button-element @click=${this.#export}>export</button-element>
-  <flex-one></flex-one>
-</flex-row>
+<flex-column class="container">
+${map(this.accounts, ([name, external, internal]) => html`
+    <strong>${name}</strong>
+  <flex-column class="account-container">
+    
+    <flex-row>
+      <strong>external</strong>
+      <flex-one></flex-one>
+      <span>${external}</span>
+    </flex-row>
+
+    <flex-row>
+      <strong>internal</strong>
+      <flex-one></flex-one>
+      <span>${internal}</span>
+    </flex-row>
+  </flex-column>
+`)}
+</flex-column>
 `
   }
 })

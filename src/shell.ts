@@ -1,6 +1,5 @@
 import Pubsub from '@vandeurenglenn/little-pubsub'
 import Storage from '@leofcoin/storage'
-import '@vandeurenglenn/flex-elements'
 import '@vandeurenglenn/custom-elements/pages.js'
 import 'custom-selector/src/index.js'
 import 'custom-svg-iconset'
@@ -16,14 +15,18 @@ import './elements/account-select.js'
 import defaultTheme from './themes/default.js'
 import { provide } from '@lit-labs/context'
 import { walletContext, Wallet } from './context/wallet.js'
-import { customElement, property } from 'lit/decorators.js'
+import { customElement, property, query } from 'lit/decorators.js'
 import { LitElement, css, html } from 'lit'
 import { Block, blockContext } from './context/block.js'
 import { ContextProvider } from '@lit-labs/context'
+import '@vandeurenglenn/lit-elements/icon-set.js'
+import '@vandeurenglenn/lit-elements/dropdown.js'
+import '@vandeurenglenn/flex-elements/column.js'
+import '@vandeurenglenn/flex-elements/row.js'
+import '@vandeurenglenn/flex-elements/it.js'
+import './elements/sync-info.js'
 
 globalThis.pubsub = globalThis.pubsub || new Pubsub(true);
-
-
 
 const setTheme = (theme) => {
   for (const key of Object.keys(theme)) {
@@ -35,6 +38,9 @@ setTheme(defaultTheme);
 
 @customElement('app-shell')
 class AppShell extends LitElement {
+
+  @property({ type: Boolean })
+  openSync: boolean = false
 
   @property({ type: Number })
   lastBlockIndex = 0
@@ -88,6 +94,7 @@ class AppShell extends LitElement {
     let params = parts[1].split('?')
     const selected = params[0]
     
+    
     const object = {}
     if (params.length > 1) {
       params = params[1].split('&')
@@ -98,7 +105,7 @@ class AppShell extends LitElement {
     }
     
     
-    
+    if (selected ===  'wallet') await this.#nodeReady
     console.log(selected, object);
     selected && await this.#select(selected)
 
@@ -107,12 +114,12 @@ class AppShell extends LitElement {
     if (selected === 'explorer' && object.block !== undefined) {
       await this.shadowRoot.querySelector('explorer-view').select('block')
       await this.#nodeReady
-      console.log('ready');
       
       this.block = await client.getBlock(object.index)
       console.log(this.block);
       
     }
+    
     if (selected === 'explorer' && object.blockTransactions !== undefined) {
       await this.shadowRoot.querySelector('explorer-view').select('block-transactions')
       explorerView.renderRoot.querySelector('explorer-block-transactions').updateInfo(object.block, object.index)
@@ -142,22 +149,31 @@ class AppShell extends LitElement {
     }
   }
 
+  @query('sync-info')
+  syncInfo
+
   async connectedCallback() {
     super.connectedCallback()
     
     this.peersConnected = 0
-    pubsub.subscribe('lastBlock', (block) => this.lastBlockIndex = block.index)
-    pubsub.subscribe('block-resolved', (block) => this.totalResolved += 1)
-    pubsub.subscribe('block-loaded', (block) => this.totalLoaded += 1)
-    let importee
+    pubsub.subscribe('lastBlock', (block) => this.syncInfo.lastBlockIndex = block.index)
+    pubsub.subscribe('block-resolved', (block) => this.syncInfo.totalResolved += 1)
+    pubsub.subscribe('block-loaded', (block) => this.syncInfo.totalLoaded += 1)
+   try {
+     let importee
     importee = await import('@leofcoin/endpoint-clients/ws')
     globalThis.client = await new importee.default('wss://ws-remote.leofcoin.org', 'peach')
     // @ts-ignore
     globalThis.client.init && await globalThis.client.init()
+   } catch (error) {
+    console.error(error);
+    
+   }
 
     onhashchange = this.#onhashchange
     if (location.hash.split('/')[1]) this.#onhashchange()
     else this.#select('wallet')
+
     await this.#login()
     // await this.init()
     // globalThis.walletStorage = new Storage('wallet')
@@ -166,6 +182,7 @@ class AppShell extends LitElement {
   }
 
   async #login() {
+    
     if (!globalThis.walletStorage) {
       const importee = await import('@leofcoin/storage')
       globalThis.walletStorage = await new Storage('wallet')
@@ -209,6 +226,7 @@ class AppShell extends LitElement {
       }
 
       .custom-selector-overlay {
+        height: 100%;
         background: #333750;
         --svg-icon-color: #ffffffb5;
         border-right: 1px solid #383941;
@@ -222,6 +240,7 @@ class AppShell extends LitElement {
 
       flex-column {
         width: 100%;
+        height: 100%;
       }
 
       header {
@@ -257,10 +276,28 @@ class AppShell extends LitElement {
         color: var(--font-color);
       }
 
+      a:hover{
+        background-color: var(--main-background);
+        transition: 0.25s;
+      }
+
+      .selected{
+        background-color: var(--main-background);
+      }
+      
+
     `
   ]
   render() {
     return html`
+    <custom-icon-set>
+      <template>
+        <span name="close">@symbol-close</span>
+        <span name="notifications">@symbol-notifications</span>
+        <span name="sync">@symbol-sync</span>
+        <span name="clear-all">@symbol-clear_all</span>
+      </template>
+    </custom-icon-set>
     <flex-row class="main">
       <span class="custom-selector-overlay">
         <custom-selector attr-for-selected="data-route">
@@ -288,8 +325,10 @@ class AppShell extends LitElement {
       <flex-column>
 
       <header>
-        <flex-one></flex-one>
-        <account-select></account-select>
+        <flex-it></flex-it>
+        <account-select style="margin-right: 48px;"></account-select>
+
+        <notification-master></notification-master>
       </header>
         <custom-pages attr-for-selected="data-route">
           <identity-view data-route="identity"></identity-view>
@@ -309,27 +348,9 @@ class AppShell extends LitElement {
 
       <login-screen></login-screen>
       <export-screen></export-screen>
-      <notification-master></notification-master>
       
-      <flex-row>
-        <span class="resolver-snack">
-        <strong>resolved</strong>
-        <span> ${this.totalResolved} </span>
-          <strong>of</strong>
-
-          <span>${this.lastBlockIndex} </span>
-        </span>
-
-        <flex-one></flex-one>
-
-        <span class="loader-snack">
-          <strong>loaded</strong>
-          <span> ${this.totalLoaded} </span>
-          <strong>of</strong>
-
-          <span>${this.lastBlockIndex} </span>
-        </span>
-      </flex-row>
+    <sync-info></sync-info>
+      
     `
   }
 }

@@ -35,6 +35,7 @@ export class WalletView extends LitElement {
   }
 
   protected willUpdate(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
+    
     if (_changedProperties.has('wallet')) {
       this.selectedAccount = this.wallet.selectedAccount
       this.accounts = this.wallet.accounts
@@ -86,11 +87,16 @@ export class WalletView extends LitElement {
     pointer-events: none;
   }
 
+  .container flex-row {
+    width: 100%;
+  }
+
   :host {
     display: flex;
     flex-direction: row;
     width: 100%;
     height: 100%;
+    justify-content: center;
   }
   custom-pages {
     width: 100%;
@@ -115,10 +121,20 @@ export class WalletView extends LitElement {
     top: 12px;
   }
 
-  .wallet-nav-container {
+  /* .wallet-nav-container {
     padding: 12px;
     box-sizing: border-box;
     height: 72px;
+  } */
+
+  button:hover{
+    background-color: var(--main-background);;
+    transition: 0.25s;
+  }
+
+  button:not(:hover){
+    background-color: var(--secondary-background);;
+    transition: 0.25s;
   }
 
   .wallet-nav {
@@ -128,7 +144,13 @@ export class WalletView extends LitElement {
     color: var(--font-color);
     padding: 12px 6px;
     box-sizing: border-box;
-    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  @media screen and (max-width: 800px) {
+    .address {
+      display: none;
+    }
   }
 
   a {
@@ -152,10 +174,12 @@ export class WalletView extends LitElement {
     margin-top: 12px;
     margin-bottom: 24px;
     box-sizing: border-box;
+    width: 100%;
   }
 
   .main {
     width: 100%;
+    align-items: center;
   }
 
   select, input, button {
@@ -180,34 +204,31 @@ export class WalletView extends LitElement {
 
         <flex-row>
           <label for=".amount">send</label>
-          <flex-one></flex-one>
+          <flex-it></flex-it>
           <select>
             <option>LFC</option>
           </select>
         </flex-row>
-        <input class="amount" placeholder="1">
+        <input class="amount" placeholder="amount">
 
         <label for=".to">to</label>
         <input class="to" placeholder="address">
 
-        <flex-one></flex-one>
+        <flex-it></flex-it>
         <flex-row>
           <button data-action="cancel">cancel</button>
-          <flex-one></flex-one>
+          <flex-it></flex-it>
           <button data-action="send">send</button>
         </flex-row>
       </flex-column>
 
       <flex-column data-route="receive">
-        <clipboard-copy class="address peer-id">
-          ${this.selectedAccount ? this.selectedAccount : 'Loading...'}
+        <clipboard-copy class="address peer-id" value=${this.selectedAccount}>
         </clipboard-copy>
       </flex-column>
     </flex-column>
   </custom-pages>
 
-  <flex-row class="wallet-nav-container">
-    <flex-one></flex-one>
     <flex-row class="wallet-nav">
       <a title="send">
         <custom-svg-icon icon="send"></custom-svg-icon>
@@ -219,8 +240,6 @@ export class WalletView extends LitElement {
         <custom-svg-icon icon="transactions"></custom-svg-icon>
       </a>
     </flex-row>
-    <flex-one></flex-one>
-  </flex-row>
 </flex-column>
     `
   }

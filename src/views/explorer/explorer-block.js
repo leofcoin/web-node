@@ -2,27 +2,24 @@ import { css, html, LitElement } from 'lit'
 import {map} from 'lit/directives/map.js'
 import '../../elements/latest.js'
 import '../../elements/explorer/info-container.js'
-import { formatBytes, formatUnits } from '@leofcoin/utils'
+import { formatBytes } from '@leofcoin/utils'
 import '../../elements/time/ago.js'
 import {TransactionMessage} from '@leofcoin/messages'
-import '../../animations/busy.js'
-import '../../elements/shorten-string.js'
-import '../../elements/explorer/property-info.js'
-import { customElement, property, state } from 'lit/decorators.js'
-import { consume } from '@lit-labs/context'
-import { Block, blockContext } from '../../context/block.js'
-
-@customElement('explorer-block')
-export class ExplorerBlock extends LitElement {
-  @property({ type: Object })
-  @consume({ context: blockContext, subscribe: true})
-  block: Block
-
-  @state()
-  size: number
-
-  @state()
-  transactionHashes: []
+import './../../animations/busy.js'
+import './../../elements/shorten-string.js'
+import './../../elements/explorer/property-info.js'
+export default customElements.define('explorer-block', class ExplorerBlock extends LitElement {
+  static properties = {
+    block: {
+      type: Object
+    },
+    size: {
+      type: Number
+    },
+    transactionHashes: {
+      type: Array
+    }
+  }
 
   #goBack() {
     location.hash = `#!/explorer?selected=blocks`
@@ -30,6 +27,15 @@ export class ExplorerBlock extends LitElement {
 
   #goTransactions() {
     location.hash = `#!/explorer?blockTransactions=${this.block.hash}&index=${this.block.index}`
+  }
+
+  constructor() {
+    super()
+  }
+
+  async updateInfo(hash, index) {
+    this.block = await client.getBlock(index)
+    this.size = new TextEncoder().encode(JSON.stringify(this.block)).byteLength
   }
 
   render() {
@@ -44,80 +50,79 @@ export class ExplorerBlock extends LitElement {
 <flex-row class="back-container">
   <custom-svg-icon icon="chevron-left" @click="${this.#goBack}"></custom-svg-icon>
   <strong>back</strong>
-  <flex-it></flex-it>
+  <flex-one></flex-one>
 </flex-row>
 
 <flex-column class="container">
   <property-info>
     <h4>hash</h4>
-    <flex-it></flex-it>
+    <flex-one></flex-one>
     <shorten-string value=${this.block.hash}></shorten-string>
   </property-info>
 
   <property-info>
     <h4>index</h4>
-    <flex-it></flex-it>
+    <flex-one></flex-one>
     <span>${this.block.index}</span>
   </property-info>
 
   <!-- <property-info>
     <h4>height</h4>
-    <flex-it></flex-it>
+    <flex-one></flex-one>
     <span>${this.block.index + 1}</span>
   </property-info> -->
 
   <property-info>
     <h4>timestamp</h4>
-    <flex-it></flex-it>
+    <flex-one></flex-one>
     <time-ago value=${this.block.timestamp}></time-ago>
     <span>${new Date(this.block.timestamp).toLocaleString()}</span>
   </property-info>
 
   <property-info>
     <h4>fees</h4>
-    <flex-it></flex-it>
+    <flex-one></flex-one>
     
-    <span>${formatUnits(this.block.fees)}</span>
+    <span>${this.block.fees}</span>
   </property-info>
   <property-info>
     <h4>reward</h4>
-    <flex-it></flex-it>
+    <flex-one></flex-one>
     
-    <span>${formatUnits(this.block.reward)}</span>
-    <strong style="margin-left: 12px;">LFC</strong>
+    <span>${this.block.reward}</span>
   </property-info>
 
   <property-info>
     <h4>size</h4>
-    <flex-it></flex-it>
+    <flex-one></flex-one>
     
-    <span>${formatBytes(Number(new TextEncoder().encode(JSON.stringify(this.block)).byteLength))}</span>
+    <span>${formatBytes(Number(this.size))}</span>
   </property-info>
 
   <property-info>
     <h4>fees burnt</h4>
-    <flex-it></flex-it>
+    <flex-one></flex-one>
     
-    <span>${formatUnits(this.block.fees)}</span>
+    <span>${new Date(this.timestamp).toLocaleString()}</span>
   </property-info>
 
   <property-info>
     <h4>rewards minted</h4>
-    <flex-it></flex-it>
+    <flex-one></flex-one>
     
-    <span>${formatUnits(this.block.reward)}</span>
+    <span>${new Date(this.timestamp).toLocaleString()}</span>
   </property-info>
 
   <property-info class="selector" @click="${this.#goTransactions}">
     <h4>transactions</h4>
-    <flex-it></flex-it>
+    <flex-one></flex-one>
     <span>${this.block.transactions.length}</span>
     <custom-svg-icon icon="chevron-right"></custom-svg-icon>
   </property-info>
 
   <property-info>
     <h4>validators</h4>
-    <flex-it></flex-it>
+    <flex-one></flex-one>
     
     <span>${this.block.validators.length}</span>
   </property-info>
@@ -219,4 +224,4 @@ export class ExplorerBlock extends LitElement {
       box-sizing: border-box;
     }
   `;
-}
+})

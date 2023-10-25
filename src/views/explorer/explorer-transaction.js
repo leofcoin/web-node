@@ -6,7 +6,7 @@ import { formatBytes } from '@leofcoin/utils'
 import '../../elements/time/ago.js'
 import {TransactionMessage} from '@leofcoin/messages'
 import '../../animations/busy.js'
-import '../../elements/explorer/property-info.js'
+import './../../elements/explorer/property-info.js'
 export default customElements.define('explorer-transaction', class ExplorerTransaction extends LitElement {
   static styles = css`
   :host {
@@ -108,27 +108,27 @@ export default customElements.define('explorer-transaction', class ExplorerTrans
   
   <property-info>
     <h4>hash</h4>
-    <flex-it></flex-it>
+    <flex-one></flex-one>
     <very-short-string value=${this.transaction.hash}></very-short-string>
   </property-info>
 
   <property-info>
     <h4>from</h4>
-    <flex-it></flex-it>
+    <flex-one></flex-one>
     
     <span>${this.transaction.from}</span>
   </property-info>
 
   <property-info>
     <h4>to</h4>
-    <flex-it></flex-it>
+    <flex-one></flex-one>
     
     <span>${this.transaction.to}</span>
   </property-info>
 
   <property-info>
     <h4>method</h4>
-    <flex-it></flex-it>
+    <flex-one></flex-one>
     
     <span>${this.transaction.method}</span>
   </property-info>
@@ -141,27 +141,27 @@ export default customElements.define('explorer-transaction', class ExplorerTrans
   </property-info>
   <!-- <property-info>
     <h4>height</h4>
-    <flex-it></flex-it>
+    <flex-one></flex-one>
     <span>${this.transaction.index + 1}</span>
   </property-info> -->
 
   <property-info>
     <h4>timestamp</h4>
-    <flex-it></flex-it>
+    <flex-one></flex-one>
     <time-ago value=${this.transaction.timestamp}></time-ago>
     <span>${new Date(this.transaction.timestamp).toLocaleString()}</span>
   </property-info>
 
   <property-info>
     <h4>fees</h4>
-    <flex-it></flex-it>
+    <flex-one></flex-one>
     
     <span>${this.transaction.fee}</span>
   </property-info>
 
   <property-info>
     <h4>size</h4>
-    <flex-it></flex-it>
+    <flex-one></flex-one>
     
     <span>${formatBytes(Number(this.size))}</span>
   </property-info>

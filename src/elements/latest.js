@@ -1,7 +1,7 @@
 import { BigNumber, formatUnits } from '@leofcoin/utils'
 import {LitElement, html} from 'lit'
 import {map} from 'lit/directives/map.js'
-import './time/ago.js'
+import './../elements/time/ago'
 
 export default customElements.define('latest-element', class LatestElement extends LitElement {
 
@@ -45,9 +45,11 @@ export default customElements.define('latest-element', class LatestElement exten
     let total = BigNumber.from(0)
 
     for (const tx of this.value.transactions) {
+      if (tx.to === this.nativetoken) {
         if (tx.method === 'mint') total = total.add(BigNumber.from(tx.params[1]))
         if (tx.method === 'burn') total = total.add(BigNumber.from(tx.params[1]))
         if (tx.method === 'transfer') total = total.add(BigNumber.from(tx.params[2]))
+      }
     }
 
     total = formatUnits(total).toLocaleString()
@@ -73,11 +75,12 @@ export default customElements.define('latest-element', class LatestElement exten
             `)}
           </span>
         </flex-column>
-        <flex-it></flex-it>
+        <flex-one></flex-one>
       </flex-row>
-      <div class="total">${Number(total).toLocaleString()}</div>
+        <flex-column>
           <!-- <strong>amount</strong> -->
-       
+          <div class="total">${Number(total).toLocaleString()}</div>
+        </flex-column>
     `
   }
 
@@ -104,11 +107,12 @@ export default customElements.define('latest-element', class LatestElement exten
             <strong>${this.value.to.slice(0,8)}...${this.value.to.slice(-8)}</strong>
           </flex-row>
         </flex-column>
-        <flex-it></flex-it>
+        <flex-one></flex-one>
       </flex-row>
-      <div class="total">${Number(amount).toLocaleString()}</div>
-      <!-- <strong>amount</strong> -->
-      
+        <flex-column>
+          <!-- <strong>amount</strong> -->
+          <div class="total">${Number(amount).toLocaleString()}</div>
+        </flex-column>
     `
   }
 
@@ -137,10 +141,6 @@ export default customElements.define('latest-element', class LatestElement exten
     border-radius: 24px;
   }
 
-  flex-row {
-    width: 100%;
-  }
-
   .last-row {
     height: 100%;
     max-width: 88%;
@@ -160,14 +160,13 @@ export default customElements.define('latest-element', class LatestElement exten
   }
 
   .total {
-    /* text-overflow: ellipsis;
-    overflow: hidden; */
+    text-overflow: ellipsis;
+    overflow: hidden;
     background: #7986cb;
     color: #fff;
     padding: 6px 12px;
     box-sizing: border-box;
     border-radius: 24px;
-    width: fit-content
   }
   
 </style>

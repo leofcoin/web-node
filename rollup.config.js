@@ -7,6 +7,7 @@ import commonjs from '@rollup/plugin-commonjs'
 import modify from 'rollup-plugin-modify'
 import json from '@rollup/plugin-json'
 import packagesJSON from './package.json' assert { type: 'json'}
+import materialSymbols from 'rollup-plugin-material-symbols'
 
 const views = [
   ...(await readdir('./src/views')).map(path => join('./src/views', path)).filter(path => path.endsWith('.ts')),
@@ -66,6 +67,9 @@ export default [{
     resolve({mainFields: ['browser', 'module', 'main']}),
     commonjs(),
     copyChain(),
+    materialSymbols({
+      placeholderPrefix: 'symbol',
+    }),
     modify({
       '@version': packagesJSON.version,
       '@monaco-import': './../../monaco/monaco-loader.js',

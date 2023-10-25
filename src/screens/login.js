@@ -27,6 +27,11 @@ export default customElements.define('login-screen', class LoginScreen extends L
     return has
   }
 
+  constructor() {
+    super()
+    this.attachShadow({mode: 'open'})
+  }
+
   get #pages() {
     return this.renderRoot.querySelector('custom-pages')
   }
@@ -39,7 +44,6 @@ export default customElements.define('login-screen', class LoginScreen extends L
     return new Promise(async (resolve, reject) => {
       this.addEventListener('keydown', this._keydown)
       this.shown = true
-      this.welcomephrase = "Welcome back!"
       this.hasWallet = await this._hasWallet()
       this.renderRoot.querySelector('input').focus()
       this.addEventListener('click', async (event) => {
@@ -62,7 +66,6 @@ export default customElements.define('login-screen', class LoginScreen extends L
     return new Promise(async (resolve, reject) => {
       this.addEventListener('keydown', this._keydown)
       this.shown = true
-      this.welcomephrase = "To make sure it's really you..."
       this.renderRoot.querySelector('input').focus()
       this.addEventListener('click', async (event) => {
         const target = event.composedPath()[0]
@@ -195,7 +198,7 @@ export default customElements.define('login-screen', class LoginScreen extends L
 
   async #spawnChain(password) {
     let importee
-    importee = await import('../../node_modules/@leofcoin/chain/exports/browser/node-browser.js')
+    importee = await import('./../../node_modules/@leofcoin/chain/exports/browser/node-browser.js')
     await new importee.default({
       network: 'leofcoin:peach',
       networkName: 'leofcoin:peach',
@@ -205,10 +208,10 @@ export default customElements.define('login-screen', class LoginScreen extends L
     },
     password)
 
-    importee = await import('@leofcoin/lib/node-config')
+    importee = await import('./../../node_modules/@leofcoin/lib/exports/node-config.js')
     const config = await importee.default()
 
-    importee = await import('../../node_modules/@leofcoin/chain/exports/browser/chain.js')
+    importee = await import('./../../node_modules/@leofcoin/chain/exports/browser/chain.js')
     globalThis.chain = await new importee.default()
     console.log(chain);
 
@@ -219,23 +222,23 @@ export default customElements.define('login-screen', class LoginScreen extends L
   async #spawnEndpoint(direct = true) {
     let importee
     if (direct) {
-      importee = await import('@leofcoin/endpoint-clients/direct')
+      importee = await import('./../../node_modules/@leofcoin/endpoint-clients/exports/direct.js')
       globalThis.client = await new importee.default('wss://ws-remote.leofcoin.org', 'peach')
     } else {
-      importee = await import('@leofcoin/endpoint-clients/ws')
+      importee = await import('./../../node_modules/@leofcoin/endpoint-clients/exports/ws.js')
       globalThis.client = await new importee.default('wss://ws-remote.leofcoin.org', 'peach')
-      // @ts-ignore
-      globalThis.client.init && await globalThis.client.init()  
+      await globalThis.client.init()  
     }
     
   }
 
   async loadChain(password, direct = true) {
-    if (globalThis.chain) return
     let importee
     try {
-      if (direct) await this.#spawnChain(password)
-      else await this.#spawnEndpoint(false)
+      if (direct) {
+        await this.#spawnChain(password)
+      }
+      await this.#spawnEndpoint(false)
     } catch (error) {
       console.log(error);
       this.#spawnEndpoint(false)
@@ -261,19 +264,19 @@ export default customElements.define('login-screen', class LoginScreen extends L
     return html`
       <h4>Login</h4>
       <h5>Create a wallet or import one to continue</h5>
-      <flex-it flex="2"></flex-it>
+      <flex-two></flex-two>
       <input type="password" placeholder="password" tabindex="0" autofocus autocomplete="new-password">
-      <flex-it></flex-it>
+      <flex-one></flex-one>
       <flex-row>
         <button data-route-action="import">import</button>
-        <flex-it></flex-it>
+        <flex-one></flex-one>
         <button data-route-action="create">create</button> 
       </flex-row>`
   }
 
   get #hasWalletTemplate() {
     return html`
-      <h4>Login</h4>
+      <h4>Welcome back!</h4>
       <h5>Enter password to unlock wallet</h5>
       <flex-two></flex-two>
       <input type="password" placeholder="password" tabindex="0" autofocus autocomplete="current-password">
@@ -292,11 +295,9 @@ export default customElements.define('login-screen', class LoginScreen extends L
     pointer-events: none;
     opacity: 0;
     background: #1116;
-    transition: 0.25s;
   }
 
   :host([shown]) {
-    transition: 0.25s;
     opacity: 1;
     pointer-events: auto;
     z-index: 1002;
@@ -313,7 +314,6 @@ export default customElements.define('login-screen', class LoginScreen extends L
     width: 100%;
     color: var(--font-color);
     border: 1px solid var(--border-color);
-    margin-left: 48px;
   }
 
   input, button {
@@ -334,27 +334,8 @@ export default customElements.define('login-screen', class LoginScreen extends L
     background: transparent;
     padding: 10px 20px;
   }
-
-  h4{
-    text-align: center;
-  }
-
-  input{
-    text-align: center;
-  }
-  
-  button:hover{
-    background-color: var(--main-background);;
-    transition: 0.25s;
-  }
-
-  button:not(:hover){
-    background-color: var(--active-background);;
-    transition: 0.25s;
-  }
   
   h5 {
-    text-align: center;
     margin: 0;
   }
 
@@ -384,7 +365,7 @@ export default customElements.define('login-screen', class LoginScreen extends L
 
     <flex-column class="wrapper">   
       <custom-pages attr-for-selected="data-route">
-        <flex-column data-route="login" center>
+        <flex-column data-route="login">
         ${this.hasWallet ?  this.#hasWalletTemplate : this.#defaultTemplate}
         </flex-column>
 
@@ -410,4 +391,4 @@ export default customElements.define('login-screen', class LoginScreen extends L
     </flex-column>    
     `
   }
-}
+})

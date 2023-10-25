@@ -1,7 +1,8 @@
 import { html, LitElement } from "lit";
 
 export default customElements.define('clipboard-copy', class ClipboardCopy extends LitElement {
-  #value
+  #value;
+
   static get properties() {
     return {
       value: { type: String }
@@ -10,11 +11,6 @@ export default customElements.define('clipboard-copy', class ClipboardCopy exten
 
   set value(value) {
     this.#value = value
-    this.innerHTML = value
-  }
-
-  get value() {
-    return this.#value
   }
   
   constructor() {
@@ -23,7 +19,7 @@ export default customElements.define('clipboard-copy', class ClipboardCopy exten
   }
 
   copy() {
-    navigator.clipboard.writeText(this.value);
+    navigator.clipboard.writeText(this.#value || this.innerHTML);
     const innerHTML = this.innerHTML
     this.innerHTML = 'copied!'
 
@@ -33,8 +29,6 @@ export default customElements.define('clipboard-copy', class ClipboardCopy exten
   connectedCallback() {
     super.connectedCallback()
     this.addEventListener('click', this.copy.bind(this))
-
-    // this.innerHTML = 'loading...'
   }
 
   render() {
@@ -50,19 +44,9 @@ export default customElements.define('clipboard-copy', class ClipboardCopy exten
     pointer-events: auto !important;
     cursor: pointer;
     font-size: 14px;
-    overflow: hidden;
-    max-width: 320px;
-  }
-  p {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    margin: 0;
   }
 </style>
-<p>
-<slot>
-</slot>
-</p>
+<slot></slot>
     `
   }
 

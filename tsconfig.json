@@ -9,7 +9,8 @@
     "useDefineForClassFields": false,
     
     "types": [
-      "lit"
+      "lit",
+      "@leofcoin/peernet"
     ]
   },
   "include": [

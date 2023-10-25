@@ -2,7 +2,7 @@ import { LitElement, PropertyValueMap, css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import '../elements/shorten-string.js'
 import { map } from 'lit/directives/map.js';
-import P2PTPeer from '@netpeer/p2pt-swarm/peer';
+import type P2PTPeer from '@netpeer/p2pt-swarm/peer';
 
 
 @customElement('stats-view')
@@ -37,12 +37,6 @@ export class StatsView extends LitElement {
           align-items: center;
           justify-content: center;
           color: var(--font-color);
-        }
-
-
-        .bottom-bar {
-          align-items: center;
-          height: 48px;
         }
 
         flex-row {
@@ -83,17 +77,17 @@ export class StatsView extends LitElement {
     <flex-column class="container">
       <flex-row class="id">
         <strong>id</strong>
-        <flex-one></flex-one>
+        <flex-it></flex-it>
         ${this.peerId ? html`<shorten-string .value=${this.peerId}></shorten-string>` : 'loading'}
       </flex-row>
       <flex-row class="version">
         <strong>version</strong>
-        <flex-one></flex-one>
+        <flex-it></flex-it>
         <span class="version">@version</span>
       </flex-row>
       <flex-row>
         <strong>peers</strong>
-        <flex-one></flex-one>
+        <flex-it></flex-it>
         <span>${this.peers.length}</span>
       </flex-row>
 
