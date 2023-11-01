@@ -45,7 +45,7 @@ export default customElements.define('address-amount', class AddressAmount exten
 
   render() {
     return html`
-    ${this.amount}
+    ${this.amount} LFC
     `
 
   }
