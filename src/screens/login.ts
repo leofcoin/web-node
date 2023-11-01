@@ -295,6 +295,7 @@ export class LoginScreen extends LitElement {
     pointer-events: none;
     opacity: 0;
     background: #1116;
+    transition: 0.25s;
   }
 
   :host([shown]) {
@@ -338,7 +339,7 @@ export class LoginScreen extends LitElement {
   }
 
   button:hover{
-    background: var(--active-background);
+    background: var(--secondary-background);
     transition: 0.25s;
   }
   
