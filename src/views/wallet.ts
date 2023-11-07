@@ -12,6 +12,9 @@ import { CustomPages } from '@vandeurenglenn/custom-elements/pages.js'
 
 @customElement('wallet-view')
 export class WalletView extends LitElement {
+  @property({ type: Boolean })
+  touchpay: boolean
+
   @property({ type: Array })
   accounts: Accounts
 
@@ -51,6 +54,18 @@ export class WalletView extends LitElement {
     this.#to.value = null
     this.#amount.value = null
   }
+
+_togglencf() {
+  if (this.touchpay == false) {
+    this.touchpay = true
+    this.querySelector('.nfcb').setAttribute('active', '')
+  }
+  else {
+    this.touchpay = false
+    this.querySelector('.nfcb').removeAttribute('active')
+  }
+}
+  
 
   async _send() {
     const to = this.#to.value
@@ -161,6 +176,10 @@ export class WalletView extends LitElement {
     width: 100%;
   }
 
+  .active{
+    background: --var(barcolor);
+  }
+
   .main {
     width: 100%;
     align-items: center;
@@ -201,6 +220,8 @@ export class WalletView extends LitElement {
         <flex-it></flex-it>
         <flex-row>
           <button data-action="cancel">cancel</button>
+          <flex-it></flex-it>
+          <button class="nfcb" data-action="togglencf">touchpay</button>
           <flex-it></flex-it>
           <button data-action="send">send</button>
         </flex-row>
