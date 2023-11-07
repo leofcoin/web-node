@@ -58,11 +58,11 @@ export class WalletView extends LitElement {
 _togglencf() {
   if (this.touchpay == false) {
     this.touchpay = true
-    this.querySelector('.nfcb').setAttribute('active', '')
+    this.shadowRoot.querySelector('.nfcb').setAttribute('active', '')
   }
   else {
     this.touchpay = false
-    this.querySelector('.nfcb').removeAttribute('active')
+    this.shadowRoot.querySelector('.nfcb').removeAttribute('active')
   }
 }
   
@@ -176,8 +176,9 @@ _togglencf() {
     width: 100%;
   }
 
-  .active{
+  .nfcb[active] {
     background: --var(barcolor);
+    transition: 0.25s;
   }
 
   .main {
