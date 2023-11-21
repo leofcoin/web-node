@@ -85,6 +85,11 @@ export class StatsView extends LitElement {
         <flex-it></flex-it>
         <span class="version">@version</span>
       </flex-row>
+      <flex-row class="version">
+        <strong>build</strong>
+        <flex-it></flex-it>
+        <span class="version">@build</span>
+      </flex-row>
       <flex-row>
         <strong>peers</strong>
         <flex-it></flex-it>
