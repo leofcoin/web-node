@@ -1,5 +1,4 @@
 import typescript from '@rollup/plugin-typescript'
-import tsConfig from './tsconfig.json' assert { type: 'json'}
 import { cp, readdir, unlink } from 'fs/promises'
 import { join } from 'path'
 import resolve from '@rollup/plugin-node-resolve'
