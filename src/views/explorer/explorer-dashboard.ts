@@ -18,6 +18,7 @@ export default customElements.define('explorer-dashboard', class ExplorerDashboa
   constructor() {
     super()
   }
+
   #blocks = []
   #transactions = []
 
@@ -130,7 +131,7 @@ export default customElements.define('explorer-dashboard', class ExplorerDashboa
     this.shadowRoot.querySelector('custom-pages').querySelector('.custom-selected').updateInfo(hash, index)
   }
 
-  #addBlock(block) {
+  #addBlock = block => {
     console.log(block);
     if (block.transactions.length > 25) {
       this.#transactions = block.transactions.slice(-25)
@@ -157,8 +158,8 @@ export default customElements.define('explorer-dashboard', class ExplorerDashboa
     this.updateInfo()
     this.requestUpdate()
 
-    client.pubsub.subscribe('add-block', this.#addBlock.bind(this))
-    client.pubsub.subscribe('block-processed', this.#addBlock.bind(this))
+    client.pubsub.subscribe('add-block', this.#addBlock)
+    client.pubsub.subscribe('block-processed', this.#addBlock)
   }
 
   render() {
