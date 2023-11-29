@@ -58,7 +58,7 @@ export class WalletView extends LitElement {
 _togglencf() {
   if (this.touchpay == false) {
     this.touchpay = true
-    this.shadowRoot.querySelector('.nfcb').setAttribute('active', '')
+    this.shadowRoot.querySelector('.nfcb').setAttribute('active', 'true')
   }
   else {
     this.touchpay = false
@@ -177,8 +177,12 @@ _togglencf() {
   }
 
   .nfcb[active] {
-    background: --var(barcolor);
+    background: var(--barcolor);
     transition: 0.25s;
+  }
+
+  :host[hidden]{
+    opacity: 0.1;
   }
 
   .main {
@@ -221,8 +225,6 @@ _togglencf() {
         <flex-it></flex-it>
         <flex-row>
           <button data-action="cancel">cancel</button>
-          <flex-it></flex-it>
-          <button class="nfcb" data-action="togglencf">touchpay</button>
           <flex-it></flex-it>
           <button data-action="send">send</button>
         </flex-row>
