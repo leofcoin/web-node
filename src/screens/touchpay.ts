@@ -51,8 +51,6 @@ export class LoginScreen extends LitElement {
         const password = this.renderRoot.querySelector('input').value
         try {
           if (routeAction) {
-            if (routeAction === 'create') await this.#handleCreate(password)
-            if (routeAction === 'import') await this.#handleImport(password)
             if (routeAction === 'login') await this.#handleLogin(password)
             resolve()
           }
@@ -130,7 +128,7 @@ export class LoginScreen extends LitElement {
     })
   }
 
-  #iUnderstand = () => {
+  #Confirm = () => {
     this.removeAttribute('shown')
   }
 
@@ -253,35 +251,11 @@ export class LoginScreen extends LitElement {
      
       await this.#handleAfterLogin(wallet)
       this.removeAttribute('shown')
-      this.loadChain(password)
+      //this.loadChain(password)
     } catch (e) {
       console.error(e);
       throw e
     }
-  }
-  get #defaultTemplate() {
-    return html`
-      <h4>Login</h4>
-      <h5>Create a wallet or import one to continue</h5>
-      <flex-it flex="2"></flex-it>
-      <input type="password" placeholder="password" tabindex="0" autofocus autocomplete="new-password">
-      <flex-it></flex-it>
-      <flex-row>
-        <button data-route-action="import">import</button>
-        <flex-it></flex-it>
-        <button data-route-action="create">create</button> 
-      </flex-row>`
-  }
-
-  get #hasWalletTemplate() {
-    return html`
-      <h4>Welcome back!</h4>
-      <h5>Enter password to unlock wallet</h5>
-      <flex-it flex="2"></flex-it>
-      <input type="password" placeholder="password" tabindex="0" autofocus autocomplete="current-password">
-      <flex-it></flex-it>
-      <button data-route-action="login" style="width: 100%; max-width: 190px; margin-bottom: 12px;">login</button>
-      `
   }
 
   static styles = css`
@@ -367,36 +341,16 @@ export class LoginScreen extends LitElement {
     color: #333;
   }
   `
-
   render() {
     return html`
-
-    <flex-column class="wrapper">   
-      <custom-pages attr-for-selected="data-route">
-        <flex-column data-route="login" center>
-        ${this.hasWallet ?  this.#hasWalletTemplate : this.#defaultTemplate}
-        </flex-column>
-
-        <flex-column data-route="create">
-          <h4>Make sure to backup your password and mnemonic</h4>
-          ${this.mnemonic}
-
-          <md-elevated-button @click=${this.#iUnderstand}>I Understand</md-elevated-button>
-        </flex-column>
-
-        <flex-column data-route="import">
-            
-            <flex-column data-route="qr">
-              <video></video>
-            </flex-column>
-
-            <input type="password" placeholder="multiwif" tabindex="0" autofocus autocomplete="new-password">
-
-            <md-elevated-button>import</md-elevated-button>
-          
-        </flex-column>
-      </custom-pages>
-    </flex-column>    
-    `
+      <h4>Hold on</h4>
+      <h5>NFC transaction</h5>
+      <flex-it flex="2"></flex-it>
+      <h5>to:</h5> <h5 class="adress">ugh</h5>
+      <flex-it></flex-it>
+      <h5>amount</h5> <h5 class="amount">ugh</h5>
+      `
   }
 }
+
+  
