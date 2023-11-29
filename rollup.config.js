@@ -1,5 +1,4 @@
 import typescript from '@rollup/plugin-typescript'
-import tsConfig from './tsconfig.json' assert { type: 'json'}
 import { cp, readdir, unlink } from 'fs/promises'
 import { join } from 'path'
 import resolve from '@rollup/plugin-node-resolve'
@@ -8,6 +7,10 @@ import modify from 'rollup-plugin-modify'
 import json from '@rollup/plugin-json'
 import packagesJSON from './package.json' assert { type: 'json'}
 import materialSymbols from 'rollup-plugin-material-symbols'
+
+const date = new Date()
+
+const BUILD = `${date.getUTCFullYear()}_${date.getDay()}_${date.getDay()}-${date.getTime()}`
 
 const views = [
   ...(await readdir('./src/views')).map(path => join('./src/views', path)).filter(path => path.endsWith('.ts')),
@@ -71,6 +74,7 @@ export default [{
       placeholderPrefix: 'symbol',
     }),
     modify({
+      '@build': BUILD,
       '@version': packagesJSON.version,
       '@monaco-import': './../../monaco/monaco-loader.js',
       './exports/browser/workers/machine-worker.js': 'workers/machine-worker.js',
