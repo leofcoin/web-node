@@ -21,13 +21,13 @@ const views = [
 console.log(views)
 
 // const templates = (await readdir('./src/templates')).map(path => join('./src/templates', path))
-const cleanWWW = async () => {
+const cleanWWW = async (dir) => {
   return {
     name: 'clean-www', // this name will show up in warnings and errors
     generateBundle: async ()=> {
-      const files = await readdir('www')
+      const files = await readdir(dir ? join('www', dir) : 'www')
       for (const file of files) {
-        if (file.endsWith('.js') && !file.includes('monaco')) await unlink(join('www', file))
+        if (file.endsWith('.js') && !file.includes('monaco')) await unlink(dir ? join('www', dir, file) : join('www', file))
         
       }
       return 
@@ -88,6 +88,7 @@ export default [{
   },
 
   plugins: [
+    cleanWWW('workers'),
     json(),
     modify({
       '@leofcoin/workers/block-worker.js': 'block-worker.js',
