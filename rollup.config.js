@@ -25,9 +25,13 @@ const cleanWWW = async (dir) => {
   return {
     name: 'clean-www', // this name will show up in warnings and errors
     generateBundle: async ()=> {
-      const files = await readdir(dir ? join('www', dir) : 'www')
-      for (const file of files) {
-        if (file.endsWith('.js') && !file.includes('monaco')) await unlink(dir ? join('www', dir, file) : join('www', file))
+      try {
+        const files = await readdir(dir ? join('www', dir) : 'www')
+        for (const file of files) {
+          if (file.endsWith('.js') && !file.includes('monaco')) await unlink(dir ? join('www', dir, file) : join('www', file))
+          
+        }
+      } catch (error) {
         
       }
       return 
