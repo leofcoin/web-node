@@ -78,9 +78,9 @@ export class WalletView extends LitElement {
   }
 
   async #test() {
-    document.querySelector('app-shell').renderRoot.('touchpay-screen').IncomingTransactionRequest()
+    document.querySelector('app-shell').renderRoot.querySelector('touchpay-screen').IncomingTransactionRequest()
   }
-  }
+  
 
   #handleClick = (event) => {
     const target = event.composedPath()[0]
@@ -94,11 +94,9 @@ export class WalletView extends LitElement {
   * {
     pointer-events: none;
   }
-
   .container flex-row {
     width: 100%;
   }
-
   :host {
     display: flex;
     flex-direction: row;
@@ -111,13 +109,11 @@ export class WalletView extends LitElement {
     height: 100%;
   }
   [data-route="send"] {
-
     width: 100%;
     height: 100%;
     align-items: center;
     justify-content: center;
   }
-
   .peer-id {
     border: 1px solid white;
     border-radius: 12px;
@@ -128,13 +124,11 @@ export class WalletView extends LitElement {
     transform: translateX(-50%);
     top: 12px;
   }
-
   /* .wallet-nav-container {
     padding: 12px;
     box-sizing: border-box;
     height: 72px;
   } */
-
   .wallet-nav {
     border: 1px solid white;
     background: var(--secondary-background);
@@ -144,12 +138,10 @@ export class WalletView extends LitElement {
     box-sizing: border-box;
     margin-bottom: 12px;
   }
-
   a {
     padding: 0 12px;
     cursor: pointer;
   }
-
   .container {
     border-radius: 24px;
     padding: 24px;
@@ -161,28 +153,23 @@ export class WalletView extends LitElement {
     width: 100%;
     max-width: 320px;
   }
-
   input {
     margin-top: 12px;
     margin-bottom: 24px;
     box-sizing: border-box;
     width: 100%;
   }
-
   .nfcb[active] {
     background: var(--barcolor);
     transition: 0.25s;
   }
-
   :host[hidden]{
     opacity: 0.1;
   }
-
   .main {
     width: 100%;
     align-items: center;
   }
-
   select, input, button {
     pointer-events: auto;
     background: transparent;
@@ -192,17 +179,14 @@ export class WalletView extends LitElement {
     border-radius: 24px;
     padding: 6px 12px;
   }
-
   select, button {
     cursor: pointer;
   }
 </style>
-
 <flex-column class="main" @click=${this.#handleClick}>
   <custom-pages attr-for-selected="data-route">
     <flex-column data-route="send">
       <flex-column class="container">
-
         <flex-row>
           <label for=".amount">send</label>
           <flex-it></flex-it>
@@ -211,27 +195,23 @@ export class WalletView extends LitElement {
           </select>
         </flex-row>
         <input class="amount" placeholder="1">
-
         <label for=".to">to</label>
         <input class="to" placeholder="address">
-
         <flex-it></flex-it>
         <flex-row>
           <button data-action="cancel">cancel</button>
           <flex-it></flex-it>
-          <button class="nfcb" @click=${this.#test}>touchyhpay</button>
+          <button class="nfcb" @click=${this.#test}>touchpay</button>
           <flex-it></flex-it>
           <button data-action="send">send</button>
         </flex-row>
       </flex-column>
-
       <flex-column data-route="receive">
         <clipboard-copy class="address peer-id" value=${this.selectedAccount}>
         </clipboard-copy>
       </flex-column>
     </flex-column>
   </custom-pages>
-
     <flex-row class="wallet-nav">
       <a title="send">
         <custom-svg-icon icon="send"></custom-svg-icon>

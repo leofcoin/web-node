@@ -15,70 +15,33 @@ declare global {
   var client: Client
   var chain: Chain
 }
-@customElement('touchpay-screen')
-export class LoginScreen extends LitElement {
-  @property({type: Boolean, reflect: true})
-  shown: boolean
-  @state()
-  mnemonic: string
-  @property({type: Boolean})
-  hasWallet: boolean
-  @state()
-  importing: boolean
-
-  async _hasWallet() {
-    const has = await globalThis.walletStorage?.has('identity')
-    return has
-  }
-
-  async IncomingTransactionRequest() {
-    return new Promise(async (resolve, reject) => {
-      this.addEventListener('keydown', this._keydown)
-      this.shown = true
-      this.renderRoot.querySelector('input').focus()
-      this.addEventListener('click', async (event) => {
-        const target = event.composedPath()[0]
-        const routeAction = target.dataset.routeAction
-        const password = this.renderRoot.querySelector('input').value
-        try {
-          if (routeAction) {
-            resolve(password)
-          }
-        } catch {}
-      })
-    })
-  }
-
-  async #handleBeforeLogin(password) {
-
-    
-    this.renderRoot.querySelector('input').value = null
-    let wallet
-    this.hasWallet = await this._hasWallet()
-    if (!this.hasWallet && !this.importing) {
-      wallet = await generateAccount(password, 'leofcoin:peach')
-      globalThis.walletStorage.put('identity', JSON.stringify(wallet.identity))
-      globalThis.walletStorage.put('accounts', JSON.stringify(wallet.accounts))
-      globalThis.walletStorage.put('selectedAccount', wallet.accounts[0][1])
-      globalThis.walletStorage.put('selectedAccountIndex', '0')
-    } else if (this.hasWallet) {
-      const identity = JSON.parse(await new TextDecoder().decode(await globalThis.walletStorage.get('identity')))
-      const accounts = JSON.parse(await new TextDecoder().decode(await globalThis.walletStorage.get('accounts')))
-      const selectedAccount = await new TextDecoder().decode(await globalThis.walletStorage.get('selectedAccount'))
-      const selectedAccountIndex = Number(await new TextDecoder().decode(await globalThis.walletStorage.get('selectedAccountIndex')))
-      wallet = {identity, accounts, selectedAccount, selectedAccountIndex}
+export default customElements.define('touchpay-screen', class ExportScreen extends LitElement {
+  static properties = {
+    shown: {
+      type: 'boolean',
+      reflect: true
+    },
+    qrcode: {
+      type: 'string'
+    },
+    exported: {
+      type: 'string'
     }
-
-    globalThis.identityController = new IdentityController('leofcoin:peach', wallet)
-    return wallet
   }
 
-
-  #Confirm = () => {
-    this.removeAttribute('shown')
+   IncomingTransactionRequest(qr, exported) {
+    //this.qrcode = qr
+    //this.renderRoot.querySelector('clipboard-copy').value = exported
+    this.shown = true
   }
 
-  static styles = css`
+  #close() {
+    this.shown = false
+  }
+
+  render() {
+    return html`
+    <style>
   :host {
     display: flex;
     flex-direction: column;
@@ -160,9 +123,7 @@ export class LoginScreen extends LitElement {
     background: #fff;
     color: #333;
   }
-  `
-  render() {
-    return html`
+  </style>
       <h4>Hold on</h4>
       <h5>NFC transaction request</h5>
       <flex-it flex="2"></flex-it>
@@ -170,9 +131,10 @@ export class LoginScreen extends LitElement {
       <flex-it></flex-it>
       <h5>amount</h5> <h5 class="amount">nil</h5>
       <flex-it></flex-it>
+      <button data-action="reject">reject</button>
+      <flex-it></flex-it>
       <button data-action="send">send</button>
       `
   }
-}
-
+})
   
