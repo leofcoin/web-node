@@ -31,35 +31,7 @@ export class LoginScreen extends LitElement {
     return has
   }
 
-  get #pages() {
-    return this.renderRoot.querySelector('custom-pages')
-  }
-
-  _keydown({key, code, keyCode, ctrlKey, altKey, shiftKey}) {
-    if (key === 'Enter') this.renderRoot.querySelector('[data-route-action="login"]').click()
-  }
-
-  async requestLogin(hasWallet) {
-    return new Promise(async (resolve, reject) => {
-      this.addEventListener('keydown', this._keydown)
-      this.shown = true
-      this.hasWallet = await this._hasWallet()
-      this.renderRoot.querySelector('input').focus()
-      this.addEventListener('click', async (event) => {
-        const target = event.composedPath()[0]
-        const routeAction = target.dataset.routeAction
-        const password = this.renderRoot.querySelector('input').value
-        try {
-          if (routeAction) {
-            if (routeAction === 'login') await this.#handleLogin(password)
-            resolve()
-          }
-        } catch {}
-      })
-    })
-  }
-
-  async requestPassword(hasWallet) {
+  /* async requestPassword(hasWallet) {
     return new Promise(async (resolve, reject) => {
       this.addEventListener('keydown', this._keydown)
       this.shown = true
@@ -75,7 +47,7 @@ export class LoginScreen extends LitElement {
         } catch {}
       })
     })
-  }
+  } */
 
   async #handleBeforeLogin(password) {
 
@@ -101,161 +73,9 @@ export class LoginScreen extends LitElement {
     return wallet
   }
 
-  async #handleAfterLogin(wallet) {
-
-    document.querySelector('app-shell').wallet = wallet
-    
-    if (!customElements.get('identity-view')) await import('../views/identity.js')
-    const identityView = document.querySelector('app-shell').renderRoot.querySelector('identity-view')
-    identityView.identity = wallet.identity
-    identityView.accounts = wallet.accounts
-    identityView.selectedAccount = wallet.selectedAccount
-    identityView.selectedAccountIndex = isNaN(Number(wallet.selectedAccountIndex)) ?
-      wallet.accounts.filter(([name, external, internal]) => external === wallet.selectedAccount)[0] :
-      wallet.selectedAccountIndex
-
-    // this.hasWallet = await this._hasWallet()
-    this.removeEventListener('keydown', this._keydown)
-
-    if (!this.hasWallet) {
-      document.querySelector('app-shell').select('identity')
-    }
-
-    pubsub.publish('identity-change', {
-      accounts: wallet.accounts,
-      selectedAccount: wallet.selectedAccount,
-      selectedAccountIndex: wallet.selectedAccountIndex
-    })
-  }
 
   #Confirm = () => {
     this.removeAttribute('shown')
-  }
-
-  async #handleCreate(password) {
-    const wallet = await this.#handleBeforeLogin(password)
-    this.#pages.select('create')
-    try {
-      await globalThis.identityController.unlock(password)
-      await this.#handleAfterLogin(wallet)
-      
-      this.loadChain(password)
-    } catch (e) {
-      console.error(e);
-      throw e
-    }
-  }
-
-  #waitForKey = () => new Promise((resolve, reject) => {
-    const importSection = this.renderRoot.querySelector('[data-route="import"]')
-
-    const _onImport = (result) => {
-      
-      resolve(importSection.querySelector('input').value)
-      
-      importSection.querySelector('md-elevated-button').removeEventListener('click', _onImport)
-    }
-    importSection.querySelector('md-elevated-button').addEventListener('click', _onImport)
-    new QrScanner(this.renderRoot.querySelector('video'), (decoded) => {
-      importSection.querySelector('input').value = decoded
-    })
-  })
-
-  async #handleImport(password) {
-    this.importing = true
-    this.#pages.select('import')
-    const encrypted = await this.#waitForKey()
-    try {
-      const identityController = new IdentityController('leofcoin:peach')
-
-      let wallet = await identityController.import(password, encrypted)
-      const multiWIF = new Uint8Array(await encrypt(password, await wallet.multiWIF));
-
-      const external = await wallet.account(1).external(1);
-      const externalAddress = await external.address;
-      const internal = await wallet.account(1).internal(1);
-      const internalAddress = await internal.address;
-
-      wallet = {
-        identity: {
-            multiWIF: base58.encode(multiWIF),
-            walletId: await external.id
-        },
-        accounts: [['main account', externalAddress, internalAddress]]
-      }
-      globalThis.walletStorage.put('identity', JSON.stringify(wallet.identity))
-      globalThis.walletStorage.put('accounts', JSON.stringify(wallet.accounts))
-      globalThis.walletStorage.put('selectedAccount', wallet.accounts[0][1])
-      globalThis.walletStorage.put('selectedAccountIndex', '0')
-    } catch (error) {
-      console.error(error)
-      alert(error)
-    }
-  }
-
-  async #spawnChain(password) {
-    let importee
-    importee = await import('../../node_modules/@leofcoin/chain/exports/browser/node-browser.js')
-    await new importee.default({
-      network: 'leofcoin:peach',
-      networkName: 'leofcoin:peach',
-      networkVersion: 'peach',
-      stars: networks.leofcoin.peach.stars,
-      autoStart: false
-    },
-    password)
-
-    importee = await import('@leofcoin/lib/node-config')
-    const config = await importee.default()
-
-    importee = await import('@leofcoin/chain/browser/chain')
-    globalThis.chain = await new importee.default()
-    console.log(chain);
-
-    this.#spawnEndpoint()
-    // await globalThis.client.init()
-  }
-
-  async #spawnEndpoint(direct = true) {
-    let importee
-    if (direct) {
-      importee = await import('@leofcoin/endpoint-clients/direct')
-      globalThis.client = await new importee.default('wss://ws-remote.leofcoin.org', 'peach')
-    } else {
-      importee = await import('@leofcoin/endpoint-clients/ws')
-      globalThis.client = await new importee.default('wss://ws-remote.leofcoin.org', 'peach')
-      // @ts-ignore
-      globalThis.client.init && await globalThis.client.init()  
-    }
-    
-  }
-
-  async loadChain(password, direct = true) {
-    if (globalThis.chain) return
-    let importee
-    try {
-      if (direct) await this.#spawnChain(password)
-      else await this.#spawnEndpoint(false)
-    } catch (error) {
-      console.log(error);
-      this.#spawnEndpoint(false)
-    }
-  }
-
-  async #handleLogin(password) {
-    const wallet = await this.#handleBeforeLogin(password)
-
-    try {
-
-      await globalThis.identityController.unlock(password)
-     
-      await this.#handleAfterLogin(wallet)
-      this.removeAttribute('shown')
-      //this.loadChain(password)
-    } catch (e) {
-      console.error(e);
-      throw e
-    }
   }
 
   static styles = css`
@@ -344,11 +164,13 @@ export class LoginScreen extends LitElement {
   render() {
     return html`
       <h4>Hold on</h4>
-      <h5>NFC transaction</h5>
+      <h5>NFC transaction request</h5>
       <flex-it flex="2"></flex-it>
-      <h5>to:</h5> <h5 class="adress">ugh</h5>
+      <h5>to:</h5> <h5 class="adress">nil</h5>
       <flex-it></flex-it>
-      <h5>amount</h5> <h5 class="amount">ugh</h5>
+      <h5>amount</h5> <h5 class="amount">nil</h5>
+      <flex-it></flex-it>
+      <button data-action="send">send</button>
       `
   }
 }
