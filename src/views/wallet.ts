@@ -55,18 +55,6 @@ export class WalletView extends LitElement {
     this.#amount.value = null
   }
 
-_togglencf() {
-  if (this.touchpay == false) {
-    this.touchpay = true
-    this.shadowRoot.querySelector('.nfcb').setAttribute('active', 'true')
-  }
-  else {
-    this.touchpay = false
-    this.shadowRoot.querySelector('.nfcb').removeAttribute('active')
-  }
-}
-  
-
   async _send() {
     const to = this.#to.value
     const amount = this.#amount.value
@@ -89,8 +77,9 @@ _togglencf() {
     console.log(transactionEvent);
   }
 
-  async _test(){
-    this.shadowRoot.querySelector('touchpay-screen').IncomingTransactionRequest()
+  async #test() {
+    document.querySelector('app-shell').renderRoot.('touchpay-screen').IncomingTransactionRequest()
+  }
   }
 
   #handleClick = (event) => {
@@ -230,7 +219,7 @@ _togglencf() {
         <flex-row>
           <button data-action="cancel">cancel</button>
           <flex-it></flex-it>
-          <button class="nfcb" data-action="togglencf">touchpay</button>
+          <button class="nfcb" @click=${this.#test}>touchyhpay</button>
           <flex-it></flex-it>
           <button data-action="send">send</button>
         </flex-row>
