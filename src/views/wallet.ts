@@ -89,6 +89,10 @@ _togglencf() {
     console.log(transactionEvent);
   }
 
+  async _test(){
+    this.shadowRoot.querySelector('touchpay-screen').IncomingTransactionRequest()
+  }
+
   #handleClick = (event) => {
     const target = event.composedPath()[0]
     const action = target.getAttribute('data-action')
@@ -225,6 +229,8 @@ _togglencf() {
         <flex-it></flex-it>
         <flex-row>
           <button data-action="cancel">cancel</button>
+          <flex-it></flex-it>
+          <button class="nfcb" data-action="togglencf">touchpay</button>
           <flex-it></flex-it>
           <button data-action="send">send</button>
         </flex-row>

@@ -15,7 +15,7 @@ declare global {
   var client: Client
   var chain: Chain
 }
-@customElement('login-screen')
+@customElement('touchpay-screen')
 export class LoginScreen extends LitElement {
   @property({type: Boolean, reflect: true})
   shown: boolean
@@ -31,7 +31,7 @@ export class LoginScreen extends LitElement {
     return has
   }
 
-  /* async requestPassword(hasWallet) {
+  async IncomingTransactionRequest() {
     return new Promise(async (resolve, reject) => {
       this.addEventListener('keydown', this._keydown)
       this.shown = true
@@ -47,7 +47,7 @@ export class LoginScreen extends LitElement {
         } catch {}
       })
     })
-  } */
+  }
 
   async #handleBeforeLogin(password) {
 
