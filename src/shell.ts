@@ -7,6 +7,7 @@ import 'custom-svg-icon'
 import './array-repeat.js'
 import './screens/login.js'
 import './screens/export.js'
+import './screens/touchpay.js'
 import './clipboard-copy.js'
 import './screens/login.js'
 import './notification/master.js'
@@ -337,6 +338,7 @@ class AppShell extends LitElement {
 
       <login-screen></login-screen>
       <export-screen></export-screen>
+      <touchpay-screen></touchpay-screen>
       
     <sync-info></sync-info>
       

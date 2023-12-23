@@ -15,7 +15,7 @@ declare global {
   var client: Client
   var chain: Chain
 }
-export default customElements.define('touchpay-screen', class ExportScreen extends LitElement {
+export default customElements.define('touchpay-screen', class TouchPayScreen extends LitElement {
   static properties = {
     shown: {
       type: 'boolean',
@@ -29,9 +29,7 @@ export default customElements.define('touchpay-screen', class ExportScreen exten
     }
   }
 
-   IncomingTransactionRequest(qr, exported) {
-    //this.qrcode = qr
-    //this.renderRoot.querySelector('clipboard-copy').value = exported
+   IncomingTransactionRequest() {
     this.shown = true
   }
 
