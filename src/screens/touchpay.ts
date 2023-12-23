@@ -122,16 +122,28 @@ export default customElements.define('touchpay-screen', class TouchPayScreen ext
     color: #333;
   }
   </style>
-      <h4>Hold on</h4>
+      <flex-column class="wrapper">   
+      <custom-pages attr-for-selected="data-route">
+        <flex-column data-route="login" center>
+        <h4>Hold on</h4>
       <h5>NFC transaction request</h5>
       <flex-it flex="2"></flex-it>
+      <flex-row>
       <h5>to:</h5> <h5 class="adress">nil</h5>
+      </flex-row>
       <flex-it></flex-it>
+      <flex-row>
       <h5>amount</h5> <h5 class="amount">nil</h5>
+      </flex-row>
       <flex-it></flex-it>
+      <flex-row>
       <button data-action="reject">reject</button>
       <flex-it></flex-it>
       <button data-action="send">send</button>
+      </flex-row>
+        </flex-column>
+      </custom-pages>
+    </flex-column>    
       `
   }
 })
