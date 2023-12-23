@@ -76,12 +76,13 @@ export class WalletView extends LitElement {
     console.log(transaction);
     const transactionEvent = await client.sendTransaction(transaction)
     console.log(transactionEvent);
+    document.querySelector('app-shell').renderRoot.querySelector('touchpay-screen').close()
     this._cancel
   }
 
   async #test() {
-    const adress = 1
-    const amount = 1
+    const adress = "sum addres"
+    const amount = "1"
     document.querySelector('app-shell').renderRoot.querySelector('touchpay-screen').IncomingTransactionRequest(adress, amount)
   }
   

@@ -20,14 +20,11 @@ export default customElements.define('touchpay-screen', class TouchPayScreen ext
       type: 'boolean',
       reflect: true
     },
-    qrcode: {
-      type: 'string'
-    },
     exported: {
       type: 'string'
     },
     adress: {
-      type: 'string'
+      type: 'integer'
     },
     amount: {
       type: 'string'
@@ -40,12 +37,14 @@ export default customElements.define('touchpay-screen', class TouchPayScreen ext
     this.shown = true
   }
 
-  #close() {
+  close() {
     this.shown = false
   }
 
   async #send() {
-    
+    let amount = this.amount
+    let adress = this.adress
+    document.querySelector('app-shell').renderRoot.querySelector('wallet-view')._send(adress, amount)
   }
 
   render() {
@@ -148,7 +147,7 @@ export default customElements.define('touchpay-screen', class TouchPayScreen ext
       </flex-row>
       <flex-it></flex-it>
       <flex-row>
-      <button @click=${this.#close}>reject</button>
+      <button @click=${this.close}>reject</button>
       <flex-it></flex-it>
       <button @click=${this.#send}>send</button>
       </flex-row>
