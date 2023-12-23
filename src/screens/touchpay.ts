@@ -107,7 +107,7 @@ export default customElements.define('touchpay-screen', class TouchPayScreen ext
     height: 100%;
   }
 
-  span[data-route="login"] {
+  span[data-route="touchpay"] {
     display: flex;
     width: 100%;
     height: 100%;
@@ -124,7 +124,7 @@ export default customElements.define('touchpay-screen', class TouchPayScreen ext
   </style>
       <flex-column class="wrapper">   
       <custom-pages attr-for-selected="data-route">
-        <flex-column data-route="login" center>
+        <flex-column data-route="touchpay" center>
         <h4>Hold on</h4>
       <h5>NFC transaction request</h5>
       <flex-it flex="2"></flex-it>
@@ -137,7 +137,7 @@ export default customElements.define('touchpay-screen', class TouchPayScreen ext
       </flex-row>
       <flex-it></flex-it>
       <flex-row>
-      <button data-action="reject">reject</button>
+      <button @click=${this.#close}>reject</button>
       <flex-it></flex-it>
       <button data-action="send">send</button>
       </flex-row>
