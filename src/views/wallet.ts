@@ -55,18 +55,11 @@ export class WalletView extends LitElement {
   async _RequestSend() {
     const to = this.#to.value
     const amount = this.#amount.value
-    let from = this.selectedAccount
-    this._send(from, to, amount)
+    this._send(to, amount)
   }
 
-  async _NFCsend() {
-    const to = this.#to.value
-    const amount = this.#amount.value
+  async _send(to, amount){
     let from = this.selectedAccount
-    this._send(from, to, amount)
-  }
-
-  async _send(from, to, amount){
     console.log({from});
     const token = await client.nativeToken() as unknown as string
 
