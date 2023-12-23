@@ -53,7 +53,7 @@ export default customElements.define('touchpay-screen', class TouchPayScreen ext
     transition: 0.25s;
   }
 
-  :host([shown]) {
+  :host([shown="true"]) {
     opacity: 1;
     pointer-events: auto;
     z-index: 1002;
