@@ -12,9 +12,6 @@ import { CustomPages } from '@vandeurenglenn/custom-elements/pages.js'
 
 @customElement('wallet-view')
 export class WalletView extends LitElement {
-  @property({ type: Boolean })
-  touchpay: boolean
-
   @property({ type: Array })
   accounts: Accounts
 
@@ -55,10 +52,21 @@ export class WalletView extends LitElement {
     this.#amount.value = null
   }
 
-  async _send() {
+  async _RequestSend() {
     const to = this.#to.value
     const amount = this.#amount.value
     let from = this.selectedAccount
+    this._send(from, to, amount)
+  }
+
+  async _NFCsend() {
+    const to = this.#to.value
+    const amount = this.#amount.value
+    let from = this.selectedAccount
+    this._send(from, to, amount)
+  }
+
+  async _send(from, to, amount){
     console.log({from});
     const token = await client.nativeToken() as unknown as string
 
@@ -75,10 +83,13 @@ export class WalletView extends LitElement {
     console.log(transaction);
     const transactionEvent = await client.sendTransaction(transaction)
     console.log(transactionEvent);
+    this._cancel
   }
 
   async #test() {
-    document.querySelector('app-shell').renderRoot.querySelector('touchpay-screen').IncomingTransactionRequest()
+    const adress = 1
+    const amount = 1
+    document.querySelector('app-shell').renderRoot.querySelector('touchpay-screen').IncomingTransactionRequest(adress, amount)
   }
   
 
@@ -203,7 +214,7 @@ export class WalletView extends LitElement {
           <flex-it></flex-it>
           <button class="nfcb" @click=${this.#test}>touchpay</button>
           <flex-it></flex-it>
-          <button data-action="send">send</button>
+          <button data-action="RequestSend">send</button>
         </flex-row>
       </flex-column>
       <flex-column data-route="receive">

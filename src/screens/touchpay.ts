@@ -3,7 +3,6 @@ import generateAccount from '@leofcoin/generate-account'
 import IdentityController from '../controllers/identity.js'
 import '@material/web/button/elevated-button.js'
 import networks from '@leofcoin/networks'
-import QrScanner from "qr-scanner";
 import { decrypt, encrypt } from "@leofcoin/identity-utils";
 import base58 from '@vandeurenglenn/base58'
 import type Client from '@leofcoin/endpoint-clients/direct'
@@ -26,15 +25,27 @@ export default customElements.define('touchpay-screen', class TouchPayScreen ext
     },
     exported: {
       type: 'string'
+    },
+    adress: {
+      type: 'string'
+    },
+    amount: {
+      type: 'string'
     }
   }
 
-   IncomingTransactionRequest() {
+   IncomingTransactionRequest(adress, amount) {
+    this.amount = amount
+    this.adress = adress
     this.shown = true
   }
 
   #close() {
     this.shown = false
+  }
+
+  async #send() {
+    
   }
 
   render() {
@@ -129,17 +140,17 @@ export default customElements.define('touchpay-screen', class TouchPayScreen ext
       <h5>NFC transaction request</h5>
       <flex-it flex="2"></flex-it>
       <flex-row>
-      <h5>to:</h5> <h5 class="adress">nil</h5>
+      <h5>to: </h5> <h5 class="adress"> ${this.adress}</h5>
       </flex-row>
       <flex-it></flex-it>
       <flex-row>
-      <h5>amount</h5> <h5 class="amount">nil</h5>
+      <h5>amount: </h5> <h5 class="amount">${this.amount}</h5>
       </flex-row>
       <flex-it></flex-it>
       <flex-row>
       <button @click=${this.#close}>reject</button>
       <flex-it></flex-it>
-      <button data-action="send">send</button>
+      <button @click=${this.#send}>send</button>
       </flex-row>
         </flex-column>
       </custom-pages>
