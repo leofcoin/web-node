@@ -79,14 +79,7 @@ export class WalletView extends LitElement {
     document.querySelector('app-shell').renderRoot.querySelector('touchpay-screen').close()
     this._cancel
   }
-
-  async #test() {
-    const adress = "sum addres"
-    const amount = "1"
-    document.querySelector('app-shell').renderRoot.querySelector('touchpay-screen').IncomingTransactionRequest(adress, amount)
-  }
   
-
   #handleClick = (event) => {
     const target = event.composedPath()[0]
     const action = target.getAttribute('data-action')
@@ -205,8 +198,6 @@ export class WalletView extends LitElement {
         <flex-it></flex-it>
         <flex-row>
           <button data-action="cancel">cancel</button>
-          <flex-it></flex-it>
-          <button class="nfcb" @click=${this.#test}>touchpay</button>
           <flex-it></flex-it>
           <button data-action="RequestSend">send</button>
         </flex-row>

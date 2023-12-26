@@ -104,9 +104,14 @@ class AppShell extends LitElement {
         object[param[0]] = param[1]
       }
     }
-    
+
     
     if (selected ===  'wallet') await this.#nodeReady
+
+    if (object.address) {
+      document.querySelector('app-shell').renderRoot.querySelector('touchpay-screen').CheckChanges(object.address, object.amount)
+    }
+
     console.log(selected, object);
     selected && await this.#select(selected)
 

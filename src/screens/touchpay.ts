@@ -31,9 +31,25 @@ export default customElements.define('touchpay-screen', class TouchPayScreen ext
     }
   }
 
-   IncomingTransactionRequest(adress, amount) {
+  CheckChanges(address, amount){
+    const parts = location.hash.split('/')
+    let params = parts[1].split('?')
+    const object = {}
+    if (params.length > 1) {
+      params = params[1].split('&')
+      for (let param of params) {
+        param = param.split('=')
+        object[param[0]] = param[1]
+      }
+    }
+    if (address == object.address, amount == object.amount){
+      this.address = address
+      this.IncomingTransactionRequest(amount)
+    }
+  }
+
+   IncomingTransactionRequest(amount) {
     this.amount = amount
-    this.adress = adress
     this.shown = true
   }
 
@@ -43,8 +59,8 @@ export default customElements.define('touchpay-screen', class TouchPayScreen ext
 
   async #send() {
     let amount = this.amount
-    let adress = this.adress
-    document.querySelector('app-shell').renderRoot.querySelector('wallet-view')._send(adress, amount)
+    let address = this.address
+    document.querySelector('app-shell').renderRoot.querySelector('wallet-view')._send(address, amount)
   }
 
   render() {
@@ -139,7 +155,7 @@ export default customElements.define('touchpay-screen', class TouchPayScreen ext
       <h5>NFC transaction request</h5>
       <flex-it flex="2"></flex-it>
       <flex-row>
-      <h5>to: </h5> <h5 class="adress"> ${this.adress}</h5>
+      <h5>to: </h5> <h5 class="adress"> ${this.address}</h5>
       </flex-row>
       <flex-it></flex-it>
       <flex-row>
