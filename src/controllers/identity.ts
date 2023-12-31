@@ -1,12 +1,12 @@
-import { decrypt, encrypt } from "@leofcoin/identity-utils";
+import { decrypt, encrypt } from '@leofcoin/identity-utils'
 import base58 from '@vandeurenglenn/base58'
 import MultiWallet from '@leofcoin/multi-wallet'
 import qrcode from 'qrcode'
-import QrScanner from "qr-scanner";
+import QrScanner from 'qr-scanner'
 
 export default class IdentityController {
-  #walletInput;
-  #wallet;
+  #walletInput
+  #wallet
 
   constructor(network, walletInput) {
     this.network = network
@@ -14,14 +14,14 @@ export default class IdentityController {
   }
 
   /**
-   * 
-   * @param {string} password 
-   * @param {Number | Boolean} keepUnlocked 
+   *
+   * @param {string} password
+   * @param {Number | Boolean} keepUnlocked
    */
   async unlock(password, keepUnlocked = false) {
     try {
       const decrypted = await decrypt(password, base58.decode(this.#walletInput.identity.multiWIF))
-      console.log(decrypted);
+      console.log(decrypted)
       this.#wallet = new MultiWallet(this.network)
       this.#wallet.fromMultiWif(decrypted)
       // if (keepUnlocked) {
@@ -29,13 +29,18 @@ export default class IdentityController {
       //     this.#wallet = undefined
       //   }, keepUnlocked)
       // } else {
-        
+
       // }
     } catch (error) {
-      document.querySelector('app-shell').notificationMaster.createNotification({title: 'Identity Error', message: `couldn't decrypt wallet using given password.`, type: 'alert'})
+      document
+        .querySelector('app-shell')
+        .notificationMaster.createNotification({
+          title: 'Identity Error',
+          message: `couldn't decrypt wallet using given password.`,
+          type: 'alert'
+        })
       throw error
     }
-    
   }
 
   sign(hash) {
@@ -44,7 +49,9 @@ export default class IdentityController {
 
   async exportQR(password) {
     const exported = await this.export(password)
-    return globalThis.navigator ? await qrcode.toDataURL(exported) : await qrcode.toString(exported, {type: 'terminal'})
+    return globalThis.navigator
+      ? await qrcode.toDataURL(exported)
+      : await qrcode.toString(exported, { type: 'terminal' })
   }
 
   async importQR(image, password) {
@@ -53,7 +60,7 @@ export default class IdentityController {
   }
 
   async export(password) {
-   return this.#wallet.export(password)
+    return this.#wallet.export(password)
   }
 
   async import(password, encrypted) {
@@ -63,7 +70,6 @@ export default class IdentityController {
   }
 
   async accounts() {
-    return JSON.parse(await new TextDecoder().decode(await globalThis.walletStorage.get('accounts')))
+    return JSON.parse(await new TextDecoder().decode(await globalThis.walletStore.get('accounts')))
   }
-
 }
