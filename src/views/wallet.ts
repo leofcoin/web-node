@@ -73,6 +73,7 @@ export class WalletView extends LitElement {
     const transaction = await signTransaction(rawTransaction, globalThis.identityController)
     console.log(transaction)
     const transactionEvent = await client.sendTransaction(transaction)
+
     console.log(transactionEvent);
     document.querySelector('app-shell').renderRoot.querySelector('touchpay-screen').close()
     this._cancel

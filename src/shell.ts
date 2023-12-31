@@ -106,7 +106,6 @@ class AppShell extends LitElement {
       }
     }
     
-    
     if (selected ===  'wallet') await this.#nodeReady
 
     if (object.address) {
