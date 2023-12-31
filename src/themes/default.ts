@@ -6,7 +6,8 @@ const config = {
   'border-color': "#535368",
   'link-color': '#628ed2',
   'svg-icon-color': '#eee',
-  'md-sys-color-on-surface': '#eee'
+  'md-sys-color-on-surface': '#eee',
+  'barcolor': '#628ed2'
 }
 
 export { config as default }

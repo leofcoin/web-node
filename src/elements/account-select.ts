@@ -66,7 +66,7 @@ export default customElements.define('account-select', class AccountSelect exten
   }
   :host([selecting]) custom-svg-icon {
     transform: rotate(180deg);
-    transition: transform ease-in 60ms;
+    transition: transform ease-in-out 0.25s;
   }
 
   flex-row {

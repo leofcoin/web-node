@@ -7,6 +7,7 @@ import 'custom-svg-icon'
 import './array-repeat.js'
 import './screens/login.js'
 import './screens/export.js'
+import './screens/touchpay.js'
 import './clipboard-copy.js'
 import './screens/login.js'
 import './notification/master.js'
@@ -104,10 +105,15 @@ class AppShell extends LitElement {
         object[param[0]] = param[1]
       }
     }
+    
+    if (selected ===  'wallet') await this.#nodeReady
 
-    if (selected === 'wallet') await this.#nodeReady
-    console.log(selected, object)
-    selected && (await this.#select(selected))
+    if (object.address) {
+      document.querySelector('app-shell').renderRoot.querySelector('touchpay-screen').checkChanges(object.address, object.amount)
+    }
+
+    console.log(selected, object);
+    selected && await this.#select(selected)
 
     const explorerView = this.shadowRoot.querySelector('explorer-view')
 
@@ -352,8 +358,9 @@ class AppShell extends LitElement {
 
       <login-screen></login-screen>
       <export-screen></export-screen>
-
-      <sync-info></sync-info>
+      <touchpay-screen></touchpay-screen>
+      
+    <sync-info></sync-info>
     `
   }
 }

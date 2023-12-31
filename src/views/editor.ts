@@ -254,6 +254,7 @@ export default customElements.define('editor-view', class editorView extends Lit
 .updates[shown] {  
   opacity: 1;
   pointer-events: auto;
+  transition: 0.25;
 }
 </style>
 

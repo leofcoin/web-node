@@ -27,6 +27,14 @@ export default customElements.define('navigation-bar', class NavigationBar exten
   custom-tab {
     width: 100%;
     user-select: none;
+    transition: 0.25s;
+  }
+
+  custom-tab:hover{
+    border: none;
+    background-color:rgba(98, 142, 210, 0);
+    border-radius: 250px;
+    height: calc(100% - 2px);
   }
 
   custom-tab.custom-selected {
@@ -36,6 +44,7 @@ export default customElements.define('navigation-bar', class NavigationBar exten
     border-radius: 24px;
     box-sizing: border-box;
     height: calc(100% - 1px);
+    transition: 0.45s;
   }
   `
 
