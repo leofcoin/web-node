@@ -21,13 +21,14 @@ import { LitElement, css, html } from 'lit'
 import { Block, blockContext } from './context/block.js'
 import { ContextProvider } from '@lit-labs/context'
 import '@vandeurenglenn/lit-elements/icon-set.js'
+import '@vandeurenglenn/lit-elements/icon.js'
 import '@vandeurenglenn/lit-elements/dropdown.js'
 import '@vandeurenglenn/flex-elements/column.js'
 import '@vandeurenglenn/flex-elements/row.js'
 import '@vandeurenglenn/flex-elements/it.js'
 import './elements/sync-info.js'
 
-globalThis.pubsub = globalThis.pubsub || new Pubsub(true);
+globalThis.pubsub = globalThis.pubsub || new Pubsub(true)
 
 const setTheme = (theme) => {
   for (const key of Object.keys(theme)) {
@@ -35,11 +36,10 @@ const setTheme = (theme) => {
   }
 }
 
-setTheme(defaultTheme);
+setTheme(defaultTheme)
 
 @customElement('app-shell')
 class AppShell extends LitElement {
-
   @property({ type: Boolean })
   openSync: boolean = false
 
@@ -52,8 +52,10 @@ class AppShell extends LitElement {
   @property({ type: Number })
   totalLoaded = 0
 
-  #blockContextProvider = new ContextProvider(this, {context: blockContext});
-  #walletContextProvider = new ContextProvider(this, {context: walletContext});
+  #blockContextProvider = new ContextProvider(this, { context: blockContext })
+  #walletContextProvider = new ContextProvider(this, {
+    context: walletContext
+  })
 
   set block(value: Block) {
     this.#blockContextProvider.setValue(value)
@@ -64,7 +66,7 @@ class AppShell extends LitElement {
     this.#walletContextProvider.setValue(value)
     this.#walletContextProvider.updateObservers()
   }
- 
+
   #nodeReady = new Promise((resolve) => {
     pubsub.subscribe('node:ready', () => resolve(true))
   })
@@ -94,8 +96,7 @@ class AppShell extends LitElement {
     const parts = location.hash.split('/')
     let params = parts[1].split('?')
     const selected = params[0]
-    
-    
+
     const object = {}
     if (params.length > 1) {
       params = params[1].split('&')
@@ -104,7 +105,7 @@ class AppShell extends LitElement {
         object[param[0]] = param[1]
       }
     }
-
+    
     
     if (selected ===  'wallet') await this.#nodeReady
 
@@ -120,12 +121,11 @@ class AppShell extends LitElement {
     if (selected === 'explorer' && object.block !== undefined) {
       await this.shadowRoot.querySelector('explorer-view').select('block')
       await this.#nodeReady
-      
+
       this.block = await client.getBlock(object.index)
-      console.log(this.block);
-      
+      console.log(this.block)
     }
-    
+
     if (selected === 'explorer' && object.blockTransactions !== undefined) {
       await this.shadowRoot.querySelector('explorer-view').select('block-transactions')
       explorerView.renderRoot.querySelector('explorer-block-transactions').updateInfo(object.block, object.index)
@@ -160,21 +160,20 @@ class AppShell extends LitElement {
 
   async connectedCallback() {
     super.connectedCallback()
-    
+
     this.peersConnected = 0
-    pubsub.subscribe('lastBlock', (block) => this.syncInfo.lastBlockIndex = block.index)
-    pubsub.subscribe('block-resolved', (block) => this.syncInfo.totalResolved += 1)
-    pubsub.subscribe('block-loaded', (block) => this.syncInfo.totalLoaded += 1)
-   try {
-     let importee
-    importee = await import('@leofcoin/endpoint-clients/ws')
-    globalThis.client = await new importee.default('wss://ws-remote.leofcoin.org', 'peach')
-    // @ts-ignore
-    globalThis.client.init && await globalThis.client.init()
-   } catch (error) {
-    console.error(error);
-    
-   }
+    pubsub.subscribe('lastBlock', (block) => (this.syncInfo.lastBlockIndex = block.index))
+    pubsub.subscribe('block-resolved', (block) => (this.syncInfo.totalResolved += 1))
+    pubsub.subscribe('block-loaded', (block) => (this.syncInfo.totalLoaded += 1))
+    try {
+      let importee
+      importee = await import('@leofcoin/endpoint-clients/ws')
+      globalThis.client = await new importee.default('wss://ws-remote.leofcoin.org', 'peach')
+      // @ts-ignore
+      globalThis.client.init && (await globalThis.client.init())
+    } catch (error) {
+      console.error(error)
+    }
 
     onhashchange = this.#onhashchange
     if (location.hash.split('/')[1]) this.#onhashchange()
@@ -188,20 +187,23 @@ class AppShell extends LitElement {
   }
 
   async #login() {
-    
-    if (!globalThis.walletStorage) {
+    if (!globalThis.walletStore) {
       const importee = await import('@leofcoin/storage')
-      globalThis.walletStorage = await new Storage('wallet')
-      await walletStorage.init()
+      // todo: race condition introduced?
+      // for some reason walletStore can't find current wallet
+      globalThis.walletStore = globalThis.walletStore || (await new Storage('wallet', '.leofcoin/peach'))
+      await walletStore.init()
     }
-    const hasWallet = await walletStorage.has('identity')
+
+    const hasWallet = await walletStore.has('identity')
+    console.log(hasWallet)
+
     await this.shadowRoot.querySelector('login-screen').requestLogin(hasWallet)
   }
 
-
   static styles = [
     css`
-    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100;0,300;0,400;0,600;0,700;0,800;1,300;1,400&display=swap');
+      @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100;0,300;0,400;0,600;0,700;0,800;1,300;1,400&display=swap');
 
       :host {
         position: absolute;
@@ -211,11 +213,12 @@ class AppShell extends LitElement {
         right: 0;
         display: flex;
         flex-direction: column;
-        font-family: system-ui, "Noto Sans", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+        font-family: system-ui, 'Noto Sans', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+          'Segoe UI Symbol';
 
         background: linear-gradient(45deg, #6495ed78, transparent);
         background: var(--main-background);
-        font-size: .875rem;
+        font-size: 0.875rem;
         font-weight: 400;
         line-height: 1.5;
       }
@@ -259,9 +262,9 @@ class AppShell extends LitElement {
       }
 
       ::slotted(.container) {
-        display:flex;
-        flex-direction:column;
-        width:100%;
+        display: flex;
+        flex-direction: column;
+        width: 100%;
         height: 100%;
       }
 
@@ -270,83 +273,95 @@ class AppShell extends LitElement {
         height: 8px;
       }
       ::-webkit-scrollbar-track {
-        -webkit-box-shadow: inset 0 0 6px rgba(255,255,255,0.3);
+        box-shadow: inset 0 0 6px rgba(255, 255, 255, 0.3);
+        -webkit-box-shadow: inset 0 0 6px rgba(255, 255, 255, 0.3);
         border-radius: 10px;
       }
       ::-webkit-scrollbar-thumb {
         border-radius: 10px;
-        -webkit-box-shadow: inset 0 0 6px rgba(225,255,255,0.5);
+        box-shadow: inset 0 0 6px rgba(225, 255, 255, 0.5);
+        -webkit-box-shadow: inset 0 0 6px rgba(225, 255, 255, 0.5);
       }
 
-      .resolver-snack, .loader-snack {
+      .resolver-snack,
+      .loader-snack {
         color: var(--font-color);
       }
     `
   ]
   render() {
     return html`
-    <custom-icon-set>
-      <template>
-        <span name="close">@symbol-close</span>
-        <span name="notifications">@symbol-notifications</span>
-        <span name="sync">@symbol-sync</span>
-        <span name="clear-all">@symbol-clear_all</span>
-      </template>
-    </custom-icon-set>
-    <flex-row class="main">
-      <span class="custom-selector-overlay">
-        <custom-selector attr-for-selected="data-route">
-          <a href="#!/wallet" data-route="wallet">
-            <custom-svg-icon icon="wallet"></custom-svg-icon>
-          </a>
-          <a href="#!/identity" data-route="identity">
-            <custom-svg-icon icon="account-circle"></custom-svg-icon>
-          </a>
-          <a href="#!/explorer" data-route="explorer">
-            <custom-svg-icon icon="explorer"></custom-svg-icon>
-          </a>
-          <a href="#!/validator" data-route="validator">
-            <custom-svg-icon icon="gavel"></custom-svg-icon>
-          </a>
-          <a href="#!/editor" data-route="editor">
-            <custom-svg-icon icon="mode-edit"></custom-svg-icon>
-          </a>
-          <a href="#!/stats" data-route="stats">
-            <custom-svg-icon icon="stats"></custom-svg-icon>
-          </a>
-        </custom-selector>
-      </span>
+      <custom-icon-set>
+        <template>
+          <span name="close">@symbol-close</span>
+          <span name="notifications">@symbol-notifications</span>
+          <span name="sync">@symbol-sync</span>
+          <span name="clear-all">@symbol-clear_all</span>
+          <span name="wallet">@symbol-wallet</span>
+          <span name="account_circle">@symbol-account_circle</span>
+          <span name="travel_explore">@symbol-travel_explore</span>
+          <span name="gavel">@symbol-gavel</span>
+          <span name="edit_note">@symbol-edit_note</span>
+          <span name="analytics">@symbol-analytics</span>
+          <span name="chat">@symbol-chat</span>
+          <span name="database">@symbol-database</span>
+          <span name="input_circle">@symbol-input_circle</span>
+          <span name="output_circle">@symbol-output_circle</span>
+        </template>
+      </custom-icon-set>
+      <flex-row class="main">
+        <span class="custom-selector-overlay">
+          <custom-selector attr-for-selected="data-route">
+            <a href="#!/wallet" data-route="wallet">
+              <custom-icon icon="wallet"></custom-icon>
+            </a>
+            <a href="#!/identity" data-route="identity">
+              <custom-icon icon="account_circle"></custom-icon>
+            </a>
+            <a href="#!/explorer" data-route="explorer">
+              <custom-icon icon="travel_explore"></custom-icon>
+            </a>
+            <a href="#!/validator" data-route="validator">
+              <custom-icon icon="gavel"></custom-icon>
+            </a>
+            <a href="#!/editor" data-route="editor">
+              <custom-icon icon="edit_note"></custom-icon>
+            </a>
+            <a href="#!/chat" data-route="chat">
+              <custom-icon icon="chat"></custom-icon>
+            </a>
+            <a href="#!/database" data-route="database">
+              <custom-icon icon="database"></custom-icon>
+            </a>
+            <a href="#!/stats" data-route="stats">
+              <custom-icon icon="analytics"></custom-icon>
+            </a>
+          </custom-selector>
+        </span>
 
-      <flex-column>
+        <flex-column>
+          <header>
+            <flex-it></flex-it>
+            <account-select style="margin-right: 48px;"></account-select>
 
-      <header>
-        <flex-it></flex-it>
-        <account-select style="margin-right: 48px;"></account-select>
-
-        <notification-master></notification-master>
-      </header>
-        <custom-pages attr-for-selected="data-route">
-          <identity-view data-route="identity"></identity-view>
-          <wallet-view data-route="wallet"></wallet-view>
-          <explorer-view data-route="explorer"></explorer-view>
-          <validator-view data-route="validator"></validator-view>
-          <editor-view data-route="editor"><slot></slot></editor-view>
-          <stats-view data-route="stats"></stats-view>
-          
-        </custom-pages>
-
-      </flex-column>
-      
-
-
-    </flex-row>
+            <notification-master></notification-master>
+          </header>
+          <custom-pages attr-for-selected="data-route">
+            <identity-view data-route="identity"></identity-view>
+            <wallet-view data-route="wallet"></wallet-view>
+            <explorer-view data-route="explorer"></explorer-view>
+            <validator-view data-route="validator"></validator-view>
+            <editor-view data-route="editor"><slot></slot></editor-view>
+            <stats-view data-route="stats"></stats-view>
+          </custom-pages>
+        </flex-column>
+      </flex-row>
 
       <login-screen></login-screen>
       <export-screen></export-screen>
       <touchpay-screen></touchpay-screen>
       
     <sync-info></sync-info>
-      
     `
   }
 }

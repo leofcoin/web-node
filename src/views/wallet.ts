@@ -6,9 +6,8 @@ import { LitElement, PropertyValueMap, html } from 'lit'
 import { map } from 'lit/directives/map.js'
 import { customElement, property } from 'lit/decorators.js'
 import { consume } from '@lit-labs/context'
-import { walletContext, Address, Accounts, Wallet } from '../context/wallet.js';
+import { walletContext, Address, Accounts, Wallet } from '../context/wallet.js'
 import { CustomPages } from '@vandeurenglenn/custom-elements/pages.js'
-
 
 @customElement('wallet-view')
 export class WalletView extends LitElement {
@@ -35,7 +34,6 @@ export class WalletView extends LitElement {
   }
 
   protected willUpdate(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
-    
     if (_changedProperties.has('wallet')) {
       this.selectedAccount = this.wallet.selectedAccount
       this.accounts = this.wallet.accounts
@@ -60,20 +58,20 @@ export class WalletView extends LitElement {
 
   async _send(to, amount){
     let from = this.selectedAccount
-    console.log({from});
-    const token = await client.nativeToken() as unknown as string
+    console.log({ from })
+    const token = (await client.nativeToken()) as unknown as string
 
-    const nonce = await client.getNonce(from) as number
+    const nonce = (await client.getNonce(from)) as number
     const rawTransaction = {
       timestamp: Date.now(),
       from,
-      to: token, 
+      to: token,
       method: 'transfer',
       nonce: nonce + 1,
       params: [from, to, parseUnits(amount).toString()]
     }
     const transaction = await signTransaction(rawTransaction, globalThis.identityController)
-    console.log(transaction);
+    console.log(transaction)
     const transactionEvent = await client.sendTransaction(transaction)
     console.log(transactionEvent);
     document.querySelector('app-shell').renderRoot.querySelector('touchpay-screen').close()
@@ -220,6 +218,7 @@ export class WalletView extends LitElement {
       </a>
     </flex-row>
 </flex-column>
+
     `
   }
 }
