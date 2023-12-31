@@ -31,7 +31,7 @@ export default customElements.define('touchpay-screen', class TouchPayScreen ext
     }
   }
 
-  CheckChanges(address, amount){
+  checkChanges(address, amount){
     const parts = location.hash.split('/')
     let params = parts[1].split('?')
     const object = {}
@@ -44,11 +44,11 @@ export default customElements.define('touchpay-screen', class TouchPayScreen ext
     }
     if (address == object.address, amount == object.amount){
       this.address = address
-      this.IncomingTransactionRequest(amount)
+      this.incomingTransactionRequest(amount)
     }
   }
 
-   IncomingTransactionRequest(amount) {
+   incomingTransactionRequest(amount) {
     this.amount = amount
     this.shown = true
   }

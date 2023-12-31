@@ -52,7 +52,7 @@ export class WalletView extends LitElement {
     this.#amount.value = null
   }
 
-  async _RequestSend() {
+  async _requestSend() {
     const to = this.#to.value
     const amount = this.#amount.value
     this._send(to, amount)
