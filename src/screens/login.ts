@@ -216,7 +216,7 @@ export class LoginScreen extends LitElement {
     importee = await import('@leofcoin/lib/node-config')
     const config = await importee.default()
 
-    importee = await import('../../node_modules/@leofcoin/chain/exports/browser/chain.js')
+    importee = await import('./../../node_modules/@leofcoin/chain/exports/browser/chain.js')
     globalThis.chain = await new importee.default({ resolveTimeout: 30_000 })
     console.log(chain)
 
@@ -288,25 +288,25 @@ export class LoginScreen extends LitElement {
   }
 
   static styles = css`
-  :host {
-    display: flex;
-    flex-direction: column;
-    inset: 0;
-    position: absolute;
-    align-items: center;
-    justify-content: center;
-    pointer-events: none;
-    opacity: 0;
-    background: #1116;
-    transition: 0.25s;
-  }
+    :host {
+      display: flex;
+      flex-direction: column;
+      inset: 0;
+      position: absolute;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      opacity: 0;
+      background: #1116;
+      transition: 0.25s;
+    }
 
-  :host([shown]) {
-    opacity: 1;
-    pointer-events: auto;
-    z-index: 1002;
-    transition: 0.25s;
-  }
+    :host([shown]) {
+      opacity: 1;
+      pointer-events: auto;
+      z-index: 1002;
+      transition: 0.25s;
+    }
 
     .wrapper {
       background: var(--active-background);
@@ -334,22 +334,22 @@ export class LoginScreen extends LitElement {
       font-size: 16px;
     }
 
-  button {
-    background: #12b8e4a3;
-    color: white;
-    border-color: white;
-    background: transparent;
-    padding: 10px 20px;
-  }
+    button {
+      background: #12b8e4a3;
+      color: white;
+      border-color: white;
+      background: transparent;
+      padding: 10px 20px;
+    }
 
-  button:hover{
-    background: var(--secondary-background);
-    transition: 0.25s;
-  }
-  
-  h5 {
-    margin: 0;
-  }
+    button:hover {
+      background: var(--secondary-background);
+      transition: 0.25s;
+    }
+
+    h5 {
+      margin: 0;
+    }
 
     h5 {
       margin: 0;
