@@ -109,6 +109,8 @@ class AppShell extends LitElement {
     if (selected ===  'wallet') await this.#nodeReady
 
     if (object.address) {
+      await this.#login()
+      await this.#nodeReady
       document.querySelector('app-shell').renderRoot.querySelector('touchpay-screen').checkChanges(object.address, object.amount)
     }
 
@@ -352,6 +354,7 @@ class AppShell extends LitElement {
             <validator-view data-route="validator"></validator-view>
             <editor-view data-route="editor"><slot></slot></editor-view>
             <stats-view data-route="stats"></stats-view>
+            <chat-view data-route="chat"></chat-view>
           </custom-pages>
         </flex-column>
       </flex-row>

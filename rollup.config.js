@@ -15,7 +15,7 @@ const BUILD = `${date.getUTCFullYear()}_${date.getDay()}_${date.getDay()}-${date
 const views = [
   ...(await readdir('./src/views')).map(path => join('./src/views', path)).filter(path => path.endsWith('.ts')),
   ...(await readdir('./src/views/explorer')).map(path => join('./src/views/explorer', path)),
-  ...(await readdir('./src/views/identity')).map(path => join('./src/views/identity', path))
+  ...(await readdir('./src/views/identity')).map(path => join('./src/views/identity', path)),
 ]
 
 console.log(views)
