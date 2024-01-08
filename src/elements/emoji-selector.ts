@@ -1,3 +1,4 @@
+import uEmojiParser from 'universal-emoji-parser'
 customElements.define(
   'emo-ji',
   class EmoJi extends HTMLElement {
@@ -20,6 +21,11 @@ customElements.define(
       ::slotted(*), slot {
         pointer-events: none;
       }
+
+      ::slotted(img) {
+        width: 32px;
+        height: 32px;
+      }
     </style>
     <slot></slot>`
     }
@@ -37,48 +43,21 @@ customElements.define(
       this.attachShadow({ mode: 'open' })
       this.render()
     }
-    connectedCallback() {
-      async function init(self) {
-        globalThis.emojis = (await import('./../../node_modules/unicode-emoji-json/data-by-group.json')).default
-        // const emojis = await self._parseEmojis()
-        await self._buildPages(globalThis.emojis)
-      }
+    async connectedCallback() {
       this._select = this._select.bind(this)
       this.shadowRoot.querySelector('custom-tabs').addEventListener('selected', this._select)
       this.addEventListener('click', (event) => {
-        if (!this.opened) {
-          this.opened = true
-          this.classList.add('opened')
-          // } else {
-          // this.opened = false;
-          // this.classList.remove('opened')
-        } else if (event.path[0].localName === 'emo-ji') {
-          this.opened = false
-          this.dispatchEvent(new CustomEvent('selected', { detail: event.path[0].char }))
-          this.classList.remove('opened')
+        const paths = event.composedPath()
+        if (paths[0].localName === 'emo-ji') {
+          this.dispatchEvent(new CustomEvent('emoji-selected', { detail: paths[0].emoji }))
         }
       })
 
-      init(this)
-    }
+      globalThis.emojis = (await import('./../../node_modules/unicode-emoji-json/data-by-group.json')).default
+      // const emojis = await self._parseEmojis()
+      // await this._buildPages(globalThis.emojis)
 
-    _parseEmojis() {
-      return new Promise((resolve, reject) => {
-        this.emojis = {}
-        for (const [category, emojis] of Object.entries(globalThis.emojis)) {
-          if (globalThis.emojis[i].category && emojis[i].category !== '_custom') {
-            this.emojis[category] = this.emojis[emojis[i].category] || []
-
-            this.emojis[emojis[i].category].push({
-              name: i,
-              keywords: emojis[i].keywords,
-              char: emojis[i].emoji
-            })
-          }
-        }
-
-        resolve(this.emojis)
-      })
+      this.shadowRoot.querySelector('custom-tabs').querySelector('[data-route="Smileys & Emotion"]').click()
     }
 
     _initPage(category) {
@@ -89,32 +68,24 @@ customElements.define(
       return page
     }
 
-    _buildPages(emojis) {
-      console.log(emojis)
-
-      return new Promise((resolve, reject) => {
-        for (const category of Object.keys(emojis)) {
-          console.log(category)
-          const page = this.querySelector(`span[data-route="${category}"]`) || this._initPage(category)
-          for (const emoji of emojis[category]) {
-            const el = document.createElement('emo-ji')
-            page.appendChild(el)
-            requestAnimationFrame(() => {
-              el.title = `${emoji.name}\n\n${emoji.keywords}`
-              el.name = emoji.name
-              el.keywords = emoji.keywords
-              el.emoji = emoji.emoji
-              el.innerHTML = el.emoji
-            })
-          }
-        }
-      })
-    }
     _select({ detail }) {
+      console.log({ detail })
+
       const route = detail.getAttribute('data-route')
-      requestAnimationFrame(() => {
+      if (!this.shadowRoot.querySelector(`span[data-route="${route}"]`)) {
+        const page = this._initPage(route)
+
         this._pages.select(route)
-      })
+        for (const emoji of globalThis.emojis[route]) {
+          const el = document.createElement('emo-ji')
+          page.appendChild(el)
+          el.title = `${emoji.name}\n\n${emoji.slug}`
+          el.name = emoji.name
+          el.slug = emoji.slug
+          el.emoji = emoji.emoji
+          el.innerHTML = uEmojiParser.parse(`:${emoji.slug}:`).replace('<img', '<img loading="lazy"')
+        }
+      } else this._pages.select(route)
     }
     render() {
       this.shadowRoot.innerHTML = `
@@ -122,17 +93,17 @@ customElements.define(
       :host {
         display: flex;
         flex-direction: column;
-        height: 40px;
-        width: 100%;
+        height: 360px;
+        width: 430px;
         align-items: center;
+        border-radius: 20px;
+        box-shadow: 0 3px 4px 0 rgba(0, 0, 0, 0.14), 0 1px 8px 0 rgba(0, 0, 0, 0.12), 0 3px 3px -2px rgba(0, 0, 0, 0.4);
       }
       custom-tab, custom-tabs {
-        height: 40px;
         box-sizing: border-box;
         outline: none;
       }
       custom-tab {
-        width: 40px;
         width: 40px;
         align-items: center;
         justify-content: center;
@@ -143,25 +114,11 @@ customElements.define(
         display: flex;
         justify-content: center
       }
-      :host(.opened) {
-        height: 360px;
-        // transform: translateY(-250px);
-      }
-      custom-tab.custom-seleced {
-        border: none;
-      }
-      :host(.opened) custom-tab.custom-seleced {
-        border: auto;
-      }
-      :host(.opened) custom-pages {
-        margin-bottom: 12px;
-      }
       custom-pages {
         height: 100%;
         
         max-width: 960px;
-        border-radius: 20px;
-        box-shadow: 0 3px 4px 0 rgba(0, 0, 0, 0.14), 0 1px 8px 0 rgba(0, 0, 0, 0.12), 0 3px 3px -2px rgba(0, 0, 0, 0.4);
+        margin-bottom: 12px;
         
       }
       .page {
@@ -185,13 +142,34 @@ customElements.define(
         font-size: 24px;
 
       }
+      /* width */
+      ::-webkit-scrollbar {
+        width: 10px;
+        border-radius: 12px;
+      }
+
+      /* Track */
+      ::-webkit-scrollbar-track {
+        background: #f1f1f166;
+        border-radius: 12px;
+      }
+
+      /* Handle */
+      ::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 12px;
+      }
+
+      /* Handle on hover */
+      ::-webkit-scrollbar-thumb:hover {
+        background: #555;
+      }
     </style>
     <custom-pages attr-for-selected="data-route">
       <span class="page" data-route="history"></span>
     </custom-pages>
-    <custom-tabs selected="history" id="tabs" tabindex="0" attr-for-seleced="data-route">
-      <custom-tab data-route="history" title="history"><custom-icon icon="history"></custom-icon></custom-tab>
-      
+    <custom-tabs selected="history" id="tabs" tabindex="0" attr-for-seleced="data-route" default-selected="history" round>
+      <custom-tab data-route="history" title="history"><custom-icon icon="history"></custom-icon></custom-tab>      
       <custom-tab data-route="Smileys & Emotion" title="Smileys & Emotion"><custom-icon icon="mood"></custom-icon></custom-tab>
       <custom-tab data-route="People & Body" title="People & Body"><custom-icon icon="people"></custom-icon></custom-tab>
       <custom-tab data-route="Animals & Nature" title="Animals & Nature"><custom-icon icon="local-florist"></custom-icon></custom-tab>

@@ -19,8 +19,6 @@ const views = [
   ...(await readdir('./src/views/identity')).map((path) => join('./src/views/identity', path))
 ]
 
-console.log(views)
-
 // const templates = (await readdir('./src/templates')).map(path => join('./src/templates', path))
 const cleanWWW = async (dir) => {
   return {
@@ -48,6 +46,18 @@ const copyChain = async () => {
   }
 }
 
+const copyTheme = async () => {
+  return {
+    name: 'copy-theme', // this name will show up in warnings and errors
+    generateBundle: async () => {
+      await cp('node_modules/@vandeurenglenn/lit-elements/exports/themes/default', 'www/themes/default', {
+        recursive: true
+      })
+      return
+    }
+  }
+}
+
 export default [
   {
     input: ['./src/shell.ts', ...views, './node_modules/@leofcoin/storage/exports/browser-store.js'],
@@ -64,6 +74,7 @@ export default [
       resolve({ browser: true, mainFields: ['browser', 'module', 'main'] }),
       commonjs(),
       copyChain(),
+      copyTheme(),
       polyfill(),
       materialSymbols({
         placeholderPrefix: 'symbol'

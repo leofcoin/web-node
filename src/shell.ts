@@ -1,9 +1,7 @@
 import Pubsub from '@vandeurenglenn/little-pubsub'
 import Storage from '@leofcoin/storage'
-import '@vandeurenglenn/custom-elements/pages.js'
-import 'custom-selector/src/index.js'
-import 'custom-svg-iconset'
-import 'custom-svg-icon'
+import '@vandeurenglenn/lit-elements/pages.js'
+import '@vandeurenglenn/lit-elements/selector.js'
 import './array-repeat.js'
 import './screens/login.js'
 import './screens/export.js'
@@ -22,10 +20,11 @@ import { Block, blockContext } from './context/block.js'
 import { ContextProvider } from '@lit-labs/context'
 import '@vandeurenglenn/lit-elements/icon-set.js'
 import '@vandeurenglenn/lit-elements/icon.js'
-import '@vandeurenglenn/lit-elements/dropdown.js'
+import '@vandeurenglenn/lit-elements/dropdown-menu.js'
 import '@vandeurenglenn/flex-elements/column.js'
 import '@vandeurenglenn/flex-elements/row.js'
 import '@vandeurenglenn/flex-elements/it.js'
+import '@vandeurenglenn/lit-elements/theme.js'
 import './elements/sync-info.js'
 
 globalThis.pubsub = globalThis.pubsub || new Pubsub(true)
@@ -106,7 +105,7 @@ class AppShell extends LitElement {
       }
     }
 
-    if (selected === 'wallet') await this.#nodeReady
+    // if (selected === 'wallet') await this.#nodeReady
 
     if (object.address) {
       document
@@ -171,6 +170,8 @@ class AppShell extends LitElement {
       let importee
       importee = await import('@leofcoin/endpoint-clients/ws')
       globalThis.client = await new importee.default('wss://ws-remote.leofcoin.org', 'peach')
+      console.log(client)
+
       // @ts-ignore
       globalThis.client.init && (await globalThis.client.init())
     } catch (error) {
@@ -320,8 +321,12 @@ class AppShell extends LitElement {
           <span name="flags">@symbol-emoji_flags</span>
           <span name="people">@symbol-emoji_people</span>
           <span name="gif">@symbol-gif</span>
+          <span name="list">@symbol-list_alt</span>
+          <span name="call_received">@symbol-call_received</span>
+          <span name="call_made">@symbol-call_made</span>
         </template>
       </custom-icon-set>
+      <custom-theme load-symbols="false"></custom-theme>
       <flex-row class="main">
         <span class="custom-selector-overlay">
           <custom-selector attr-for-selected="data-route">
