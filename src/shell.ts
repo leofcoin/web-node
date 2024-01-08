@@ -105,8 +105,8 @@ class AppShell extends LitElement {
         object[param[0]] = param[1]
       }
     }
-    
-    if (selected ===  'wallet') await this.#nodeReady
+
+    if (selected === 'wallet') await this.#nodeReady
 
     if (object.address) {
       await this.#login()
@@ -114,8 +114,8 @@ class AppShell extends LitElement {
       document.querySelector('app-shell').renderRoot.querySelector('touchpay-screen').checkChanges(object.address, object.amount)
     }
 
-    console.log(selected, object);
-    selected && await this.#select(selected)
+    console.log(selected, object)
+    selected && (await this.#select(selected))
 
     const explorerView = this.shadowRoot.querySelector('explorer-view')
 
@@ -225,7 +225,7 @@ class AppShell extends LitElement {
       }
 
       .main {
-        height: -webkit-fill-available;
+        height: 100%;
       }
 
       custom-selector {
@@ -299,6 +299,7 @@ class AppShell extends LitElement {
           <span name="sync">@symbol-sync</span>
           <span name="clear-all">@symbol-clear_all</span>
           <span name="wallet">@symbol-wallet</span>
+          <span name="send">@symbol-send</span>
           <span name="account_circle">@symbol-account_circle</span>
           <span name="travel_explore">@symbol-travel_explore</span>
           <span name="gavel">@symbol-gavel</span>
@@ -306,8 +307,18 @@ class AppShell extends LitElement {
           <span name="analytics">@symbol-analytics</span>
           <span name="chat">@symbol-chat</span>
           <span name="database">@symbol-database</span>
+          <span name="history">@symbol-history</span>
+          <span name="mood">@symbol-mood</span>
+          <span name="local-florist">@symbol-local_florist</span>
+          <span name="local-pizza">@symbol-local_pizza</span>
+          <span name="directions-walk">@symbol-directions_walk</span>
           <span name="input_circle">@symbol-input_circle</span>
-          <span name="output_circle">@symbol-output_circle</span>
+          <span name="cake">@symbol-cake</span>
+          <span name="account-balance">@symbol-account_balance</span>
+          <span name="euro-symbol">@symbol-euro_symbol</span>
+          <span name="flags">@symbol-emoji_flags</span>
+          <span name="people">@symbol-emoji_people</span>
+          <span name="gif">@symbol-gif</span>
         </template>
       </custom-icon-set>
       <flex-row class="main">
@@ -362,8 +373,8 @@ class AppShell extends LitElement {
       <login-screen></login-screen>
       <export-screen></export-screen>
       <touchpay-screen></touchpay-screen>
-      
-    <sync-info></sync-info>
+
+      <sync-info></sync-info>
     `
   }
 }

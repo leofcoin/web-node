@@ -3,17 +3,12 @@
     "module": "NodeNext",
     "target": "ES2022",
     "outDir": "./www",
-    "moduleResolution":"NodeNext",
+    "moduleResolution": "NodeNext",
     "allowJs": true,
     "experimentalDecorators": true,
     "useDefineForClassFields": false,
-    
-    "types": [
-      "lit",
-      "@leofcoin/peernet"
-    ]
+    "resolveJsonModule": true,
+    "types": ["lit", "@leofcoin/peernet"]
   },
-  "include": [
-    "./src/**/*"
-  ]
+  "include": ["./src/**/*"]
 }
