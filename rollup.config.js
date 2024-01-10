@@ -20,43 +20,39 @@ const views = [
 ]
 
 // const templates = (await readdir('./src/templates')).map(path => join('./src/templates', path))
-const cleanWWW = async (dir) => {
-  return {
-    name: 'clean-www', // this name will show up in warnings and errors
-    generateBundle: async () => {
-      try {
-        const files = await readdir(dir ? join('www', dir) : 'www')
-        for (const file of files) {
-          if (file.endsWith('.js') && !file.includes('monaco'))
-            await unlink(dir ? join('www', dir, file) : join('www', file))
-        }
-      } catch (error) {}
-      return
-    }
+// const cleanWWW = async (dir) => {
+//   return {
+//     name: 'clean-www', // this name will show up in warnings and errors
+//     generateBundle: async () => {
+//       try {
+//         const files = await readdir(dir ? join('www', dir) : 'www')
+//         for (const file of files) {
+//           if (file.endsWith('.js') && !file.includes('monaco'))
+//             await unlink(dir ? join('www', dir, file) : join('www', file))
+//         }
+//       } catch (error) {}
+//       return
+//     }
+//   }
+// }
+try {
+  const files = await readdir('www')
+  for (const file of files) {
+    if (file.endsWith('.js') && !file.includes('monaco')) await unlink(join('www', file))
   }
-}
+} catch (error) {}
 
-const copyChain = async () => {
-  return {
-    name: 'copy-chain', // this name will show up in warnings and errors
-    generateBundle: async () => {
-      await cp('node_modules/@leofcoin/chain/exports/browser/node-browser.js', 'www/node-browser.js')
-      return
-    }
+try {
+  const _files = await readdir('www/workers')
+  for (const file of files) {
+    if (file.endsWith('.js')) await unlink(join('www/workers', file))
   }
-}
+} catch (error) {}
 
-const copyTheme = async () => {
-  return {
-    name: 'copy-theme', // this name will show up in warnings and errors
-    generateBundle: async () => {
-      await cp('node_modules/@vandeurenglenn/lit-elements/exports/themes/default', 'www/themes/default', {
-        recursive: true
-      })
-      return
-    }
-  }
-}
+await cp('node_modules/@leofcoin/chain/exports/browser/node-browser.js', 'www/node-browser.js')
+await cp('node_modules/@vandeurenglenn/lit-elements/exports/themes/default', 'www/themes/default', {
+  recursive: true
+})
 
 export default [
   {
@@ -68,13 +64,9 @@ export default [
     external: ['./identity.js', './../../monaco/monaco-loader.js', '@monaco-import', './node-browser.js'],
     plugins: [
       typescript(),
-      cleanWWW(),
-      // copyChain(),
       json(),
       resolve({ browser: true, mainFields: ['browser', 'module', 'main'] }),
       commonjs(),
-      copyChain(),
-      copyTheme(),
       polyfill(),
       materialSymbols({
         placeholderPrefix: 'symbol'
@@ -98,7 +90,6 @@ export default [
     },
 
     plugins: [
-      cleanWWW('workers'),
       json(),
       modify({
         '@leofcoin/workers/block-worker.js': 'block-worker.js'

@@ -12,12 +12,11 @@ import './notification/master.js'
 import './notification/child.js'
 import './elements/account-select.js'
 import defaultTheme from './themes/default.js'
-import { provide } from '@lit-labs/context'
 import { walletContext, Wallet } from './context/wallet.js'
 import { customElement, property, query } from 'lit/decorators.js'
 import { LitElement, css, html } from 'lit'
 import { Block, blockContext } from './context/block.js'
-import { ContextProvider } from '@lit-labs/context'
+import { ContextProvider } from '@lit/context'
 import '@vandeurenglenn/lit-elements/icon-set.js'
 import '@vandeurenglenn/lit-elements/icon.js'
 import '@vandeurenglenn/lit-elements/dropdown-menu.js'
@@ -159,8 +158,20 @@ class AppShell extends LitElement {
   @query('sync-info')
   syncInfo
 
+  @property({ type: Boolean, reflect: true, attribute: 'is-desktop' })
+  isDesktop: boolean = false
+
+  #matchMedia = ({ matches }) => {
+    this.isDesktop = matches
+    document.dispatchEvent(new CustomEvent('is-desktop', { detail: matches }))
+  }
+
   async connectedCallback() {
     super.connectedCallback()
+
+    var matchMedia = window.matchMedia('(min-width: 640px)')
+    this.#matchMedia(matchMedia)
+    matchMedia.onchange = this.#matchMedia(matchMedia)
 
     this.peersConnected = 0
     pubsub.subscribe('lastBlock', (block) => (this.syncInfo.lastBlockIndex = block.index))
@@ -371,7 +382,7 @@ class AppShell extends LitElement {
             <validator-view data-route="validator"></validator-view>
             <editor-view data-route="editor"><slot></slot></editor-view>
             <stats-view data-route="stats"></stats-view>
-            <chat-view data-route="chat"></chat-view>
+            <chat-view data-route="chat" ?is-desktop=${this.isDesktop}></chat-view>
           </custom-pages>
         </flex-column>
       </flex-row>
