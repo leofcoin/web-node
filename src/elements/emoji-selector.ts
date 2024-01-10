@@ -1,24 +1,27 @@
+import { LitElement, css, html } from 'lit'
+import './../array-repeat.js'
 import uEmojiParser from 'universal-emoji-parser'
-customElements.define(
-  'emo-ji',
-  class EmoJi extends HTMLElement {
-    constructor() {
-      super()
-      this.attachShadow({ mode: 'open' })
-      this.shadowRoot.innerHTML = `
-    <style>
+import { customElement, property } from 'lit/decorators.js'
+@customElement('emo-ji')
+class EmoJi extends LitElement {
+  @property({ type: String })
+  emoji
+
+  static get styles() {
+    return css`
       :host {
-        display: flex;
+        display: inline-flex;
         /* width: 28px; */
 
         font-size: 24px;
         cursor: pointer;
-        align-items:center;
+        align-items: center;
         justify-content: center;
-        box-sizin: border-box;
+        box-sizing: border-box;
         padding: 4px;
       }
-      ::slotted(*), slot {
+      ::slotted(*),
+      slot {
         pointer-events: none;
       }
 
@@ -26,11 +29,13 @@ customElements.define(
         width: 32px;
         height: 32px;
       }
-    </style>
-    <slot></slot>`
-    }
+    `
   }
-)
+
+  render() {
+    return html` <slot></slot>`
+  }
+}
 
 customElements.define(
   'emoji-selector',
@@ -60,10 +65,22 @@ customElements.define(
       this.shadowRoot.querySelector('custom-tabs').querySelector('[data-route="Smileys & Emotion"]').click()
     }
 
-    _initPage(category) {
+    _initPage(category, itemsLength) {
       const page = document.createElement('span')
+
       page.classList.add('page')
       page.dataset.route = category
+      const height = `${(itemsLength / 8) * 50}px`
+
+      page.innerHTML = `
+      <array-repeat max="48" height="${height}">
+        <template>
+        <emo-ji title="[[item.title]]" emoji="[[item.emoji]]" name="[[item.name]]" slug="[[item.slug]]">
+          [[item.img]]
+        </emo-ji>
+        </template>
+      </array-repeat>
+      `
       this._pages.appendChild(page)
       return page
     }
@@ -73,18 +90,15 @@ customElements.define(
 
       const route = detail.getAttribute('data-route')
       if (!this.shadowRoot.querySelector(`span[data-route="${route}"]`)) {
-        const page = this._initPage(route)
+        const page = this._initPage(route, globalThis.emojis[route].length)
 
         this._pages.select(route)
-        for (const emoji of globalThis.emojis[route]) {
-          const el = document.createElement('emo-ji')
-          page.appendChild(el)
-          el.title = `${emoji.name}\n\n${emoji.slug}`
-          el.name = emoji.name
-          el.slug = emoji.slug
-          el.emoji = emoji.emoji
-          el.innerHTML = uEmojiParser.parse(`:${emoji.slug}:`).replace('<img', '<img loading="lazy"')
-        }
+        globalThis.emojis[route].map((emoji) => {
+          emoji.img = uEmojiParser.parse(`:${emoji.slug}:`).replace('<img', '<img loading="lazy"')
+          return emoji
+        })
+
+        page.querySelector('array-repeat').items = globalThis.emojis[route]
       } else this._pages.select(route)
     }
     render() {
@@ -94,7 +108,7 @@ customElements.define(
         display: flex;
         flex-direction: column;
         height: 360px;
-        width: 430px;
+        width: 416px;
         align-items: center;
         border-radius: 20px;
         box-shadow: 0 3px 4px 0 rgba(0, 0, 0, 0.14), 0 1px 8px 0 rgba(0, 0, 0, 0.12), 0 3px 3px -2px rgba(0, 0, 0, 0.4);
@@ -123,14 +137,9 @@ customElements.define(
       }
       .page {
         display: flex;
-        flex-flow: row wrap;
         justify-content: center;
-        align-content: space-between;
-        overflow-y: auto;
-        padding-bottom: 24px;
+        align-content: center;
         box-sizing: border-box;
-        
-        margin: 12px 0;
       }
       custom-icon {
         pointer-events: none;

@@ -12,12 +12,15 @@ export class ChatView extends LitElement {
   @property({ type: String })
   peerId: string
 
-  #peerChange = async (peer) => {
-    this.peers = await client.peers()
-  }
+  @property({ type: Boolean, reflect: true, attribute: 'is-desktop' })
+  isDesktop: boolean = false
 
   @property({ type: Boolean })
   showAdditions: boolean = false
+
+  #peerChange = async (peer) => {
+    this.peers = await client.peers()
+  }
 
   async connectedCallback() {
     super.connectedCallback()
@@ -25,6 +28,7 @@ export class ChatView extends LitElement {
       const paths = event.composedPath()
 
       console.log(paths[0])
+
       if (paths[0].localName === 'custom-icon') {
         if (paths[0].getAttribute('icon') === 'mood') {
           this.showAdditions = !this.showAdditions
@@ -34,6 +38,8 @@ export class ChatView extends LitElement {
           if (this.showAdditions) this.shadowRoot.querySelector('.additions').setAttribute('open', '')
           else this.shadowRoot.querySelector('.additions').removeAttribute('open')
         }
+      } else if (paths[0].localName === 'emo-ji') {
+        this.textarea.value += paths[0].emoji
       }
     })
 
@@ -58,22 +64,30 @@ export class ChatView extends LitElement {
           height: 100%;
         }
         textarea {
-          padding-top: 12px;
+          padding: 6px 12px;
           width: 100%;
           border: none;
           resize: none;
           outline: none;
           background: transparent;
-          font-size: 20px;
+          font-size: 16px;
           margin-right: 24px;
+          color: var(--md-sys-color-on-surface-container-highest);
+          height: 24px;
+        }
+
+        .input-wrapper {
+          padding: 12px 24px;
+          box-sizing: border-box;
         }
 
         .input-container {
           box-sizing: border-box;
-          border-top: 1px solid #eee;
-          padding: 12px;
+          border-radius: var(--md-sys-shape-corner-extra-large);
+          padding: 6px 12px;
           box-sizing: border-box;
           min-height: 48px;
+          background: var(--md-sys-color-surface-container-highest);
         }
 
         .additions {
@@ -85,9 +99,14 @@ export class ChatView extends LitElement {
         }
 
         emoji-selector {
-          right: 42px;
-          bottom: 24px;
+          right: 12px;
+          bottom: 12px;
           position: absolute;
+        }
+
+        emoji-selector[is-desktop] {
+          right: 24px;
+          bottom: 24px;
         }
       `
     ]
@@ -101,6 +120,8 @@ export class ChatView extends LitElement {
   textarea
 
   #onEmojiSelected = ({ detail }) => {
+    console.log(detail)
+
     this.textarea.value += detail
   }
 
@@ -140,12 +161,14 @@ export class ChatView extends LitElement {
       <flex-column class="additions">
         <emoji-selector data-route="emoji" @emoji-selected=${this.#onEmojiSelected}></emoji-selector>
       </flex-column>
-      <flex-row width="100%" center class="input-container">
-        <textarea class="textarea" placeholder="type here" mode-edit="true"></textarea>
+      <div class="input-wrapper">
+        <flex-row width="100%" center class="input-container">
+          <textarea class="textarea" placeholder="type here" mode-edit="true"></textarea>
 
-        <custom-icon icon="mood" @click=${() => this.onAdditionClick()} style="margin-right: 12px;"></custom-icon>
-        <custom-icon icon="send"> </custom-icon>
-      </flex-row>
+          <custom-icon icon="mood" @click=${() => this.onAdditionClick()} style="margin-right: 12px;"></custom-icon>
+          <custom-icon icon="send"> </custom-icon>
+        </flex-row>
+      </div>
     `
   }
 }
