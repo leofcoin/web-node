@@ -100,5 +100,5 @@ export class ChatView extends LitElement {
         </flex-row>
       </flex-column>
     `
-  }
+  } 
 }
