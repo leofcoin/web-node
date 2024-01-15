@@ -129,6 +129,11 @@ export default customElements.define(
             height: 100%;
           }
 
+          flex-column[hidden]{
+            opacity: 0;
+            transition: 1s;
+          }
+
           span[data-route='touchpay'] {
             display: flex;
             width: 100%;
@@ -147,17 +152,16 @@ export default customElements.define(
         <flex-column class="wrapper">
           <custom-pages attr-for-selected="data-route">
             <flex-column data-route="touchpay" center>
-              <h4>Hold on</h4>
-              <h5>NFC transaction request</h5>
-              <flex-it flex="2"></flex-it>
+              <h3>NFC transaction request</h4>
+              <flex-it></flex-it>
               <flex-row>
-                <h5>to:</h5>
-                <h5 class="adress">${this.address}</h5>
+                <h4>to</h5>
+                <h4 class="adress">: ...${this.address.slice(-15)}</h5>
               </flex-row>
               <flex-it></flex-it>
               <flex-row>
-                <h5>amount:</h5>
-                <h5 class="amount">${this.amount}</h5>
+                <h4>amount</h5>
+                <h4 class="amount">: ${this.amount}</h5>
               </flex-row>
               <flex-it></flex-it>
               <flex-row>
