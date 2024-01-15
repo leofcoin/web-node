@@ -1,9 +1,9 @@
 import { LitElement, PropertyValueMap, css, html } from 'lit'
-import { customElement, property } from 'lit/decorators.js'
+import { customElement, property, query } from 'lit/decorators.js'
 import '../elements/shorten-string.js'
 // import { map } from 'lit/directives/map.js'
-import './../elements/emoji-selector.js'
-
+import '@vandeurenglenn/lit-elements/icon-button.js'
+import uEmojiParser from 'universal-emoji-parser'
 @customElement('chat-view')
 export class ChatView extends LitElement {
   @property({ type: Array })
@@ -12,12 +12,37 @@ export class ChatView extends LitElement {
   @property({ type: String })
   peerId: string
 
+  @property({ type: Boolean, reflect: true, attribute: 'is-desktop' })
+  isDesktop: boolean = false
+
+  @property({ type: Boolean })
+  showAdditions: boolean = false
+
   #peerChange = async (peer) => {
     this.peers = await client.peers()
   }
 
   async connectedCallback() {
     super.connectedCallback()
+    this.shadowRoot.addEventListener('click', (event) => {
+      const paths = event.composedPath()
+
+      console.log(paths[0])
+
+      if (paths[0].localName === 'custom-icon') {
+        if (paths[0].getAttribute('icon') === 'mood') {
+          this.showAdditions = !this.showAdditions
+          if (!customElements.get('emoji-selector')) {
+            import('./../elements/emoji-selector.js')
+          }
+          if (this.showAdditions) this.shadowRoot.querySelector('.additions').setAttribute('open', '')
+          else this.shadowRoot.querySelector('.additions').removeAttribute('open')
+        }
+      } else if (paths[0].localName === 'emo-ji') {
+        this.textarea.value += paths[0].emoji
+      }
+    })
+
     // this.shadowRoot.querySelector('.peerId').value = await client.peerId()
     this.peers = await client.peers()
     this.peerId = await client.peerId()
@@ -39,24 +64,65 @@ export class ChatView extends LitElement {
           height: 100%;
         }
         textarea {
-          padding-top: 12px;
+          padding: 6px 12px;
           width: 100%;
           border: none;
           resize: none;
           outline: none;
           background: transparent;
           font-size: 16px;
+          margin-right: 24px;
+          color: var(--md-sys-color-on-surface-container-highest);
+          height: 24px;
+        }
+
+        .input-wrapper {
+          padding: 12px 24px;
+          box-sizing: border-box;
         }
 
         .input-container {
           box-sizing: border-box;
-          border-top: 1px solid #eee;
-          padding: 12px;
+          border-radius: var(--md-sys-shape-corner-extra-large);
+          padding: 6px 12px;
           box-sizing: border-box;
           min-height: 48px;
+          background: var(--md-sys-color-surface-container-highest);
+        }
+
+        .additions {
+          position: relative;
+          transform: translate(-110%);
+        }
+        .additions[open] {
+          transform: translate(0);
+        }
+
+        emoji-selector {
+          right: 12px;
+          bottom: 12px;
+          position: absolute;
+        }
+
+        emoji-selector[is-desktop] {
+          right: 24px;
+          bottom: 24px;
         }
       `
     ]
+  }
+
+  onAdditionClick = () => {
+    console.log('cli')
+  }
+
+  @query('textarea')
+  textarea
+
+  #onEmojiSelected = ({ detail }) => {
+    console.log(detail)
+
+    this.textarea.value += detail
   }
 
   render() {
@@ -92,13 +158,17 @@ export class ChatView extends LitElement {
         </array-repeat>
       </flex-column>
 
-      <flex-column>
-        <emoji-selector data-route="emoji"></emoji-selector>
+      <flex-column class="additions">
+        <emoji-selector data-route="emoji" @emoji-selected=${this.#onEmojiSelected}></emoji-selector>
+      </flex-column>
+      <div class="input-wrapper">
         <flex-row width="100%" center class="input-container">
-          <textarea placeholder="type here"></textarea>
+          <textarea class="textarea" placeholder="type here" mode-edit="true"></textarea>
+
+          <custom-icon icon="mood" @click=${() => this.onAdditionClick()} style="margin-right: 12px;"></custom-icon>
           <custom-icon icon="send"> </custom-icon>
         </flex-row>
-      </flex-column>
+      </div>
     `
   } 
 }

@@ -1,9 +1,7 @@
 import Pubsub from '@vandeurenglenn/little-pubsub'
 import Storage from '@leofcoin/storage'
-import '@vandeurenglenn/custom-elements/pages.js'
-import 'custom-selector/src/index.js'
-import 'custom-svg-iconset'
-import 'custom-svg-icon'
+import '@vandeurenglenn/lit-elements/pages.js'
+import '@vandeurenglenn/lit-elements/selector.js'
 import './array-repeat.js'
 import './screens/login.js'
 import './screens/export.js'
@@ -14,18 +12,18 @@ import './notification/master.js'
 import './notification/child.js'
 import './elements/account-select.js'
 import defaultTheme from './themes/default.js'
-import { provide } from '@lit-labs/context'
 import { walletContext, Wallet } from './context/wallet.js'
 import { customElement, property, query } from 'lit/decorators.js'
 import { LitElement, css, html } from 'lit'
 import { Block, blockContext } from './context/block.js'
-import { ContextProvider } from '@lit-labs/context'
+import { ContextProvider } from '@lit/context'
 import '@vandeurenglenn/lit-elements/icon-set.js'
 import '@vandeurenglenn/lit-elements/icon.js'
-import '@vandeurenglenn/lit-elements/dropdown.js'
+import '@vandeurenglenn/lit-elements/dropdown-menu.js'
 import '@vandeurenglenn/flex-elements/column.js'
 import '@vandeurenglenn/flex-elements/row.js'
 import '@vandeurenglenn/flex-elements/it.js'
+import '@vandeurenglenn/lit-elements/theme.js'
 import './elements/sync-info.js'
 
 globalThis.pubsub = globalThis.pubsub || new Pubsub(true)
@@ -106,7 +104,7 @@ class AppShell extends LitElement {
       }
     }
 
-    if (selected === 'wallet') await this.#nodeReady
+    // if (selected === 'wallet') await this.#nodeReady
 
     if (object.address) {
       await this.#login()
@@ -159,8 +157,20 @@ class AppShell extends LitElement {
   @query('sync-info')
   syncInfo
 
+  @property({ type: Boolean, reflect: true, attribute: 'is-desktop' })
+  isDesktop: boolean = false
+
+  #matchMedia = ({ matches }) => {
+    this.isDesktop = matches
+    document.dispatchEvent(new CustomEvent('is-desktop', { detail: matches }))
+  }
+
   async connectedCallback() {
     super.connectedCallback()
+
+    var matchMedia = window.matchMedia('(min-width: 640px)')
+    this.#matchMedia(matchMedia)
+    matchMedia.onchange = this.#matchMedia(matchMedia)
 
     this.peersConnected = 0
     pubsub.subscribe('lastBlock', (block) => (this.syncInfo.lastBlockIndex = block.index))
@@ -170,6 +180,8 @@ class AppShell extends LitElement {
       let importee
       importee = await import('@leofcoin/endpoint-clients/ws')
       globalThis.client = await new importee.default('wss://ws-remote.leofcoin.org', 'peach')
+      console.log(client)
+
       // @ts-ignore
       globalThis.client.init && (await globalThis.client.init())
     } catch (error) {
@@ -319,8 +331,12 @@ class AppShell extends LitElement {
           <span name="flags">@symbol-emoji_flags</span>
           <span name="people">@symbol-emoji_people</span>
           <span name="gif">@symbol-gif</span>
+          <span name="list">@symbol-list_alt</span>
+          <span name="call_received">@symbol-call_received</span>
+          <span name="call_made">@symbol-call_made</span>
         </template>
       </custom-icon-set>
+      <custom-theme load-symbols="false"></custom-theme>
       <flex-row class="main">
         <span class="custom-selector-overlay">
           <custom-selector attr-for-selected="data-route">
@@ -365,7 +381,7 @@ class AppShell extends LitElement {
             <validator-view data-route="validator"></validator-view>
             <editor-view data-route="editor"><slot></slot></editor-view>
             <stats-view data-route="stats"></stats-view>
-            <chat-view data-route="chat"></chat-view>
+            <chat-view data-route="chat" ?is-desktop=${this.isDesktop}></chat-view>
           </custom-pages>
         </flex-column>
       </flex-row>
