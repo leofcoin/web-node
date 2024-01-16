@@ -28,28 +28,39 @@ export default customElements.define(
 
     checkChanges(address, amount) {
       const parts = location.hash.split('/')
-      let params = parts[1].split('?')
-      const object = {}
-      if (params.length > 1) {
-        params = params[1].split('&')
-        for (let param of params) {
-          param = param.split('=')
-          object[param[0]] = param[1]
-        }
+    let params = parts[1].split('?')
+    const selected = params[0]
+
+    const object = {}
+    if (params.length > 1) {
+      params = params[1].split('&')
+      for (let param of params) {
+        param = param.split('=')
+        object[param[0]] = param[1]
       }
+    }
       if ((address == object.address, amount == object.amount)) {
         this.address = address
         this.incomingTransactionRequest(amount)
       }
     }
 
-    incomingTransactionRequest(amount) {
-      this.amount = amount
-      this.shown = true
-    }
+    async  incomingTransactionRequest(amount) {
+      await this.updateComplete
+            this.amount = amount
+            this.shown = true
+          }
 
     close() {
       this.shown = false
+    }
+
+    changeclass(type){
+      let box = this.shadowRoot.querySelector('[data-route="touchpay"]')
+      console.log(box)
+      if (type == "load"){
+        box.classList.add("hidden")
+      }
     }
 
     async #send() {
@@ -129,7 +140,7 @@ export default customElements.define(
             height: 100%;
           }
 
-          flex-column[hidden]{
+          .hidden{
             opacity: 0;
             transition: 1s;
           }
