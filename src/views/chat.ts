@@ -87,7 +87,7 @@ export class ChatView extends LitElement {
           padding: 6px 12px;
           box-sizing: border-box;
           min-height: 48px;
-          background: var(--md-sys-color-surface-container-highest);
+          background: #48464940;
         }
 
         .additions {
