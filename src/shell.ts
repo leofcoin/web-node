@@ -25,6 +25,8 @@ import '@vandeurenglenn/flex-elements/row.js'
 import '@vandeurenglenn/flex-elements/it.js'
 import '@vandeurenglenn/lit-elements/theme.js'
 import './elements/sync-info.js'
+import Router from './router.js'
+import type { CustomPages } from '@vandeurenglenn/lit-elements/pages.js'
 
 globalThis.pubsub = globalThis.pubsub || new Pubsub(true)
 
@@ -55,6 +57,8 @@ class AppShell extends LitElement {
     context: walletContext
   })
 
+  router: Router
+
   set block(value: Block) {
     this.#blockContextProvider.setValue(value)
     this.#blockContextProvider.updateObservers()
@@ -63,6 +67,10 @@ class AppShell extends LitElement {
   set wallet(value: Wallet) {
     this.#walletContextProvider.setValue(value)
     this.#walletContextProvider.updateObservers()
+  }
+
+  get nodeReady() {
+    return this.#nodeReady
   }
 
   #nodeReady = new Promise((resolve) => {
@@ -77,8 +85,13 @@ class AppShell extends LitElement {
   }
 
   select(selected) {
-    this.#select(selected)
+    console.log({ selected })
+
+    return this.#select(selected)
   }
+
+  @query('custom-pages')
+  pages: CustomPages
 
   async #select(selected) {
     if (!customElements.get(`${selected}-view`)) await import(`./${selected}.js`)
@@ -87,71 +100,6 @@ class AppShell extends LitElement {
     if (monacoContainer) {
       if (selected === 'editor') monacoContainer.classList.add('custom-selected')
       else monacoContainer.classList.remove('custom-selected')
-    }
-  }
-
-  #onhashchange = async () => {
-    const parts = location.hash.split('/')
-    let params = parts[1].split('?')
-    const selected = params[0]
-
-    const object = {}
-    if (params.length > 1) {
-      params = params[1].split('&')
-      for (let param of params) {
-        param = param.split('=')
-        object[param[0]] = param[1]
-      }
-    }
-
-    // if (selected === 'wallet') await this.#nodeReady
-
-    if (object.address) {
-      document
-        .querySelector('app-shell')
-        .renderRoot.querySelector('touchpay-screen')
-        .checkChanges(object.address, object.amount)
-    }
-
-    console.log(selected, object)
-    selected && (await this.#select(selected))
-
-    const explorerView = this.shadowRoot.querySelector('explorer-view')
-
-    if (selected === 'explorer' && object.block !== undefined) {
-      await this.shadowRoot.querySelector('explorer-view').select('block')
-      await this.#nodeReady
-
-      this.block = await client.getBlock(object.index)
-      console.log(this.block)
-    }
-
-    if (selected === 'explorer' && object.blockTransactions !== undefined) {
-      await this.shadowRoot.querySelector('explorer-view').select('block-transactions')
-      explorerView.renderRoot.querySelector('explorer-block-transactions').updateInfo(object.block, object.index)
-    }
-    if (selected === 'explorer' && object.transaction !== undefined) {
-      await this.shadowRoot.querySelector('explorer-view').select('transaction')
-      explorerView.renderRoot.querySelector('explorer-transaction').updateInfo(object.blockIndex, object.index)
-    }
-    if (selected === 'explorer' && object.selected) {
-      await this.shadowRoot.querySelector('explorer-view').select(object.selected)
-    }
-    if (selected === 'explorer' && Object.keys(object).length === 0) {
-      location.hash = '#!/explorer?selected=dashboard'
-    }
-
-    const identityView = this.shadowRoot.querySelector('identity-view')
-
-    if (selected === 'identity' && object.account !== undefined) {
-      await this.shadowRoot.querySelector('identity-view').select('account')
-      identityView.renderRoot.querySelector('identity-account').updateInfo(object.account)
-    }
-    if (selected === 'identity' && object.selected) {
-      await this.shadowRoot.querySelector('identity-view').select(object.selected)
-    }
-    if (selected === 'identity' && Object.keys(object).length === 0) {
-      location.hash = '#!/identity?selected=dashboard'
     }
   }
 
@@ -168,7 +116,7 @@ class AppShell extends LitElement {
 
   async connectedCallback() {
     super.connectedCallback()
-
+    this.router = new Router(this, 'wallet')
     var matchMedia = window.matchMedia('(min-width: 640px)')
     this.#matchMedia(matchMedia)
     matchMedia.onchange = this.#matchMedia(matchMedia)
@@ -188,10 +136,6 @@ class AppShell extends LitElement {
     } catch (error) {
       console.error(error)
     }
-
-    onhashchange = this.#onhashchange
-    if (location.hash.split('/')[1]) this.#onhashchange()
-    else this.#select('wallet')
 
     await this.#login()
     // await this.init()
@@ -344,10 +288,10 @@ class AppShell extends LitElement {
             <a href="#!/wallet" data-route="wallet">
               <custom-icon icon="wallet"></custom-icon>
             </a>
-            <a href="#!/identity" data-route="identity">
+            <a href="#!/identity/dashboard" data-route="identity">
               <custom-icon icon="account_circle"></custom-icon>
             </a>
-            <a href="#!/explorer" data-route="explorer">
+            <a href="#!/explorer/dashboard" data-route="explorer">
               <custom-icon icon="travel_explore"></custom-icon>
             </a>
             <a href="#!/validator" data-route="validator">
