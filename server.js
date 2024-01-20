@@ -9,10 +9,18 @@ import { platform } from 'os'
 import { exec } from 'child_process'
 import WebSocketServer from 'websocket/lib/WebSocketServer.js'
 import { watch } from 'chokidar'
+import { networkInterfaces } from 'os'
 const osPlatform = platform()
 const port = 9555
 
 const root = 'www'
+
+const ips = []
+const interfaces = networkInterfaces()
+
+const log = (msg) => {
+  console.log('\x1b[34m\x1b[1m%s', `${msg}`, '\x1b[0m')
+}
 
 const httpServer = createServer(async (request, response) => {
   // console.log(`${request.method} ${request.url}`);
@@ -83,7 +91,7 @@ const httpServer = createServer(async (request, response) => {
     response.statusCode = 404
     response.end(`404: ${pathname} not found`)
   }
-}).listen(parseInt(port))
+}).listen(parseInt(port), '0.0.0.0')
 
 const wsServer = new WebSocketServer({
   httpServer,
@@ -117,11 +125,24 @@ watcher.on('change', () => {
   }, 100)
 })
 
-console.log(`Server listening on port ${port}`)
+for (const name in interfaces) {
+  if (name === 'Wi-Fi' || name === 'en0' || name === 'en1' || name === 'eth0' || name === 'eth1') {
+    for (const { family, address, internal } of interfaces[name])
+      if (family === 'IPv4' && !internal) {
+        ips.push(address)
+      }
+  }
+}
+log(`Server listening on port ${port}`)
+log(`Server available on http://localhost:${port}`)
+
+for (const ip of ips) {
+  log(`Server available on http://${ip}:${port}`)
+}
 
 const _url = `http://localhost:${port}`
 
-console.log(`opening ${_url}`)
+log(`opening ${_url}`)
 
 let command
 
@@ -132,6 +153,5 @@ if (osPlatform === 'win32') {
 } else {
   command = `google-chrome --no-sandbox ${_url}`
 }
-console.log(`executing command: ${command}`)
 
 exec(command)
