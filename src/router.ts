@@ -37,7 +37,7 @@ export default class Router {
     const routes = urlPattern.pathname.split('/')
     console.log(routes)
 
-    const route = routes.splice(0, 1)
+    const route = routes.splice(0, 1)[0]
     const subroutes = routes
     const urlSearchParams = new URLSearchParams(urlPattern.search)
     const params: any = {}
@@ -56,19 +56,18 @@ export default class Router {
     if (route) {
       await this.#host.select(route)
       let previousRoute = this.#host.pages.querySelector('.custom-selected')
-
+      if (subroutes.length === 0 && !previousRoute.pages.selected) {
+        // handleDefaults
+        if (route === 'wallet') subroutes.push('send')
+        if (route === 'explorer' || route === 'identity') subroutes.push('dashboard')
+      }
       for (const route of subroutes) {
         await previousRoute.select(route)
 
         previousRoute = previousRoute.pages.querySelector('.custom-selected')
       }
 
-      console.log(params)
-
       for (const param in params) {
-        console.log(param)
-        console.log(previousRoute)
-
         previousRoute[param] = params[param]
       }
     }

@@ -5,7 +5,6 @@ import '@vandeurenglenn/lit-elements/selector.js'
 import './array-repeat.js'
 import './screens/login.js'
 import './screens/export.js'
-import './screens/touchpay.js'
 import './clipboard-copy.js'
 import './screens/login.js'
 import './notification/master.js'
@@ -288,10 +287,10 @@ class AppShell extends LitElement {
             <a href="#!/wallet" data-route="wallet">
               <custom-icon icon="wallet"></custom-icon>
             </a>
-            <a href="#!/identity/dashboard" data-route="identity">
+            <a href="#!/identity" data-route="identity">
               <custom-icon icon="account_circle"></custom-icon>
             </a>
-            <a href="#!/explorer/dashboard" data-route="explorer">
+            <a href="#!/explorer" data-route="explorer">
               <custom-icon icon="travel_explore"></custom-icon>
             </a>
             <a href="#!/validator" data-route="validator">
@@ -333,7 +332,6 @@ class AppShell extends LitElement {
 
       <login-screen></login-screen>
       <export-screen></export-screen>
-      <touchpay-screen></touchpay-screen>
 
       <sync-info></sync-info>
     `
