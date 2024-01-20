@@ -8,7 +8,8 @@ import json from '@rollup/plugin-json'
 import packagesJSON from './package.json' assert { type: 'json' }
 import materialSymbols from 'rollup-plugin-material-symbols'
 import polyfill from 'rollup-plugin-polyfill-node'
-
+import { readFile, writeFile } from 'fs/promises'
+import { env } from 'process'
 const date = new Date()
 
 const BUILD = `${date.getUTCFullYear()}_${date.getDay()}_${date.getMonth()}-${date.getTime()}`
@@ -18,6 +19,48 @@ const views = [
   ...(await readdir('./src/views/explorer')).map((path) => join('./src/views/explorer', path)),
   ...(await readdir('./src/views/identity')).map((path) => join('./src/views/identity', path))
 ]
+
+let index = await readFile('./src/index.html', 'utf-8')
+if (env.NODE_ENV === 'development') {
+  index = index.replace(
+    '<body>',
+    `
+  <body>
+  <script>
+    const ws = new WebSocket(location.protocol === 'https:' ? 'wss://' + location.host : 'ws://' + location.host, 'reload-app')
+    ws.addEventListener('open', () => {
+      ws.addEventListener('message', () => location.reload())
+    })
+    
+  </script>
+  `
+  )
+} else {
+  index = index.replace(
+    '<!-- service-worker-placeholder -->',
+    `<script type="module">
+    if ("serviceWorker" in navigator) {
+      try {
+        const registration = await navigator.serviceWorker.register("/sw.js", {
+          scope: "/",
+        });
+        if (registration.installing) {
+          console.log("Service worker installing");
+        } else if (registration.waiting) {
+          console.log("Service worker installed");
+        } else if (registration.active) {
+          console.log("Service worker active");
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  </script>
+  <link rel="manifest" href="/manifest.json">`
+  )
+}
+
+writeFile('./www/index.html', index)
 
 // const templates = (await readdir('./src/templates')).map(path => join('./src/templates', path))
 // const cleanWWW = async (dir) => {
