@@ -90,12 +90,14 @@ const wsServer = new WebSocketServer({
   autoAcceptConnections: false
 })
 
-let connection
+const connections = []
 
 wsServer.on('request', function (request) {
-  connection = request.accept('reload-app', request.origin)
+  const connection = request.accept('reload-app', request.origin)
   console.log(new Date() + ' Connection accepted.')
+  if (connection) connections.push(connection)
   connection.on('close', function (reasonCode, description) {
+    connections.splice(connection, 1)
     console.log(new Date() + ' Peer ' + connection.remoteAddress + ' disconnected.')
   })
 })
@@ -107,7 +109,10 @@ watcher.on('change', () => {
   if (timeout) clearTimeout(timeout)
   timeout = setTimeout(() => {
     // if (connection && connection.connected) {
-    connection && connection.send('reload')
+    for (const connection of connections) {
+      connection && connection.send('reload')
+    }
+
     // }
   }, 100)
 })
