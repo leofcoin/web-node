@@ -6,7 +6,7 @@
   "scripts": {
     "serve": "node ./server.js",
     "build:monaco": "rollup -c rollup.monaco.config.js",
-    "watch": "cross-env NODE_ENV=development rollup -c -w",
+    "watch": "cross-env NODE_ENV=development rollup -c rollup.dev.config.js -w",
     "build": "cross-env NODE_ENV=production rollup -c",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -20,9 +20,11 @@
     "@rollup/plugin-typescript": "^11.1.5",
     "chokidar": "^3.5.3",
     "cross-env": "^7.0.3",
+    "esbuild": "^0.19.11",
     "fs-extra": "^11.1.0",
     "postcss-url": "^10.1.3",
     "rollup": "^4.0.2",
+    "rollup-plugin-esbuild": "^6.1.0",
     "rollup-plugin-material-symbols": "^2.1.4",
     "rollup-plugin-modify": "^3.0.0",
     "rollup-plugin-polyfill-node": "^0.13.0",
@@ -40,6 +42,7 @@
     "@leofcoin/messages": "^1.3.3",
     "@leofcoin/multi-wallet": "^3.0.3",
     "@leofcoin/storage": "^3.3.2",
+    "@leofcoin/utils": "^1.1.13",
     "@leofcoin/workers": "^1.4.0",
     "@lit/context": "^1.1.0",
     "@material/web": "^1.0.0-pre.7",
