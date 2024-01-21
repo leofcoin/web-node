@@ -9,6 +9,7 @@ import { walletContext, Address, Accounts, Wallet } from '../context/wallet.js'
 import { CustomPages } from '@vandeurenglenn/lit-elements/pages.js'
 import '@vandeurenglenn/lit-elements/tabs.js'
 import '@vandeurenglenn/lit-elements/tab.js'
+import { WalletPay } from './wallet/wallet-pay.js'
 @customElement('wallet-view')
 export class WalletView extends LitElement {
   @property({ type: Array })
@@ -43,8 +44,12 @@ export class WalletView extends LitElement {
 
   async select(selected) {
     if (selected === 'pay') {
-      document.querySelector('app-shell').shadowRoot.querySelector('custom-pages').style.position = 'fixed'
-      this.pages.querySelector('[data-route="pay"]').style.position = 'fixed'
+      const appShell = document.querySelector('app-shell')
+      const appPages = appShell.shadowRoot.querySelector('custom-pages') as CustomPages
+      appPages.style.position = 'fixed'
+
+      const payEl = this.pages.querySelector('[data-route="pay"]') as WalletPay
+      payEl.style.position = 'fixed'
     }
 
     if (!customElements.get(`wallet-${selected}`)) await import(`./wallet-${selected}.js`)
@@ -111,6 +116,9 @@ export class WalletView extends LitElement {
         .main {
           width: 100%;
           align-items: center;
+        }
+        custom-tab {
+          pointer-events: auto;
         }
       </style>
       <flex-column class="main" @click=${this.#handleClick}>

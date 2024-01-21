@@ -117,6 +117,7 @@ export default [
       json(),
       resolve({ browser: true, mainFields: ['browser', 'module', 'main'] }),
       commonjs({
+        exclude: ['node_modules', 'src'],
         include: ['node_modules/bn.js/lib/bn.js']
       }),
       polyfill(),

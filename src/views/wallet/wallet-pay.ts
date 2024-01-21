@@ -6,7 +6,7 @@ import { signTransaction } from '@leofcoin/lib'
 import { customElement, property } from 'lit/decorators.js'
 
 @customElement('wallet-pay')
-export class WalletPaymentRequest extends LitElement {
+export class WalletPay extends LitElement {
   @consume({ context: walletContext, subscribe: true })
   wallet: Wallet
   @property()
@@ -71,11 +71,11 @@ export class WalletPaymentRequest extends LitElement {
         width: 100%;
         color: var(--font-color);
         border: 1px solid var(--border-color);
-        margin-left: 48px;
       }
 
       input,
       button {
+        pointer-events: auto;
         border-color: white;
         padding: 10px;
         border-radius: 12px;
@@ -126,7 +126,7 @@ export class WalletPaymentRequest extends LitElement {
   ]
   render() {
     return html`
-      <flex-column data-route="touchpay" center>
+      <flex-column class="wrapper" center>
         <h4>Hold on</h4>
         <h5>NFC transaction request</h5>
         <flex-it flex="2"></flex-it>

@@ -9,6 +9,7 @@ import base58 from '@vandeurenglenn/base58'
 import type Client from '@leofcoin/endpoint-clients/direct'
 import { customElement, property, state } from 'lit/decorators.js'
 import type Chain from '@leofcoin/chain/chain'
+import Router from '../router.js'
 
 declare global {
   var client: Client
@@ -124,9 +125,9 @@ export class LoginScreen extends LitElement {
     this.removeEventListener('keydown', this._keydown)
 
     if (!this.hasWallet) {
-      document.querySelector('app-shell').select('identity')
+      location.hash = Router.bang('identity/dashboard')
     }
-
+    document.querySelector('app-shell').navRailShown = true
     pubsub.publish('identity-change', {
       accounts: wallet.accounts,
       selectedAccount: wallet.selectedAccount,
@@ -299,6 +300,7 @@ export class LoginScreen extends LitElement {
       opacity: 0;
       background: #1116;
       transition: 0.25s;
+      z-index: -1;
     }
 
     :host([shown]) {
@@ -319,7 +321,6 @@ export class LoginScreen extends LitElement {
       width: 100%;
       color: var(--font-color);
       border: 1px solid var(--border-color);
-      margin-left: 48px;
     }
 
     input,
@@ -328,6 +329,7 @@ export class LoginScreen extends LitElement {
       padding: 10px;
       border-radius: 12px;
       box-sizing: border-box;
+      pointer-events: auto;
     }
 
     input {
@@ -347,14 +349,6 @@ export class LoginScreen extends LitElement {
       transition: 0.25s;
     }
 
-    h5 {
-      margin: 0;
-    }
-
-    h5 {
-      margin: 0;
-    }
-
     custom-pages {
       width: 100%;
       height: 100%;
@@ -366,13 +360,6 @@ export class LoginScreen extends LitElement {
       height: 100%;
       align-items: center;
       justify-content: center;
-    }
-    .word {
-      display: inline-flex;
-      padding: 6px;
-      border-radius: 3px;
-      background: #fff;
-      color: #333;
     }
   `
 

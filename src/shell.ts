@@ -51,6 +51,9 @@ class AppShell extends LitElement {
   @property({ type: Number })
   totalLoaded = 0
 
+  @property({ type: Boolean, reflect: true })
+  navRailShown = false
+
   #blockContextProvider = new ContextProvider(this, { context: blockContext })
   #walletContextProvider = new ContextProvider(this, {
     context: walletContext
@@ -180,8 +183,15 @@ class AppShell extends LitElement {
         line-height: 1.5;
       }
 
-      .main {
+      .container {
         height: 100%;
+      }
+
+      .main {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
       }
 
       custom-selector {
@@ -196,6 +206,21 @@ class AppShell extends LitElement {
         background: #333750;
         --svg-icon-color: #ffffffb5;
         border-right: 1px solid #383941;
+        position: absolute;
+        opacity: 0;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        transform: translateX(-110%);
+      }
+
+      :host([navRailShown]) .custom-selector-overlay {
+        opacity: 1;
+        transform: translateX(0);
+      }
+
+      :host([navRailShown]) .main {
+        left: 48px;
       }
 
       a {
@@ -281,7 +306,7 @@ class AppShell extends LitElement {
         </template>
       </custom-icon-set>
       <custom-theme load-symbols="false"></custom-theme>
-      <flex-row class="main">
+      <flex-row class="container">
         <span class="custom-selector-overlay">
           <custom-selector attr-for-selected="data-route">
             <a href="#!/wallet" data-route="wallet">
@@ -311,7 +336,7 @@ class AppShell extends LitElement {
           </custom-selector>
         </span>
 
-        <flex-column>
+        <flex-column class="main">
           <header>
             <flex-it></flex-it>
             <account-select style="margin-right: 48px;"></account-select>
