@@ -32,13 +32,11 @@ export default class IdentityController {
 
       // }
     } catch (error) {
-      document
-        .querySelector('app-shell')
-        .notificationMaster.createNotification({
-          title: 'Identity Error',
-          message: `couldn't decrypt wallet using given password.`,
-          type: 'alert'
-        })
+      document.querySelector('app-shell').notificationMaster.createNotification({
+        title: 'Identity Error',
+        message: `couldn't decrypt wallet using given password.`,
+        type: 'alert'
+      })
       throw error
     }
   }

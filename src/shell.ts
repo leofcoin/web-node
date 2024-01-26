@@ -221,6 +221,7 @@ class AppShell extends LitElement {
 
       :host([navRailShown]) .main {
         left: 48px;
+        width: calc(100% - 48px);
       }
 
       a {

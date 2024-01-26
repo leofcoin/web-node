@@ -25,7 +25,7 @@ export class SyncInfo extends LitElement {
       if (this.timeout) clearTimeout(this.timeout)
       this.timeout = setTimeout(() => {
         this.animating = false
-      }, 500)
+      }, 1000)
     }
   }
   static styles = [
@@ -34,6 +34,7 @@ export class SyncInfo extends LitElement {
         position: absolute;
         top: 12px;
         right: 48px;
+
         cursor: pointer;
         pointer-events: auto;
         z-index: 10001;

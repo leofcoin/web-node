@@ -1,5 +1,12 @@
 import type AppShell from './shell.js'
 
+// minimal needed interface to support routing & subrouting
+export interface Selectable extends HTMLElement {
+  pages: Selectable
+  select: Function
+  selected: string | HTMLElement | number
+}
+
 export default class Router {
   #host: AppShell
 
@@ -29,6 +36,7 @@ export default class Router {
   }
 
   #parseUrl = async (hash) => {
+    // @ts-expect-error
     if (!globalThis.URLPattern) {
       await import('urlpattern-polyfill')
     }
@@ -55,7 +63,7 @@ export default class Router {
 
     if (route) {
       await this.#host.select(route)
-      let previousRoute = this.#host.pages.querySelector('.custom-selected')
+      let previousRoute = this.#host.pages.querySelector('.custom-selected') as Selectable
       if (subroutes.length === 0 && !previousRoute.pages.selected) {
         // handleDefaults
         if (route === 'wallet') subroutes.push('send')
@@ -70,46 +78,6 @@ export default class Router {
       for (const param in params) {
         previousRoute[param] = params[param]
       }
-    }
-    return
-
-    route && (await this.host.select(route, subroutes, params))
-
-    const explorerView = this.host.shadowRoot.querySelector('explorer-view')
-
-    if (selected === 'explorer' && object.block !== undefined) {
-      await this.host.shadowRoot.querySelector('explorer-view').select('block')
-      await this.#host.nodeReady
-
-      this.host.block = await client.getBlock(object.index)
-    }
-
-    if (selected === 'explorer' && object.blockTransactions !== undefined) {
-      await this.host.shadowRoot.querySelector('explorer-view').select('block-transactions')
-      explorerView.shadowRoot.querySelector('explorer-block-transactions').updateInfo(object.block, object.index)
-    }
-    if (selected === 'explorer' && object.transaction !== undefined) {
-      await this.host.shadowRoot.querySelector('explorer-view').select('transaction')
-      explorerView.shadowRoot.querySelector('explorer-transaction').updateInfo(object.blockIndex, object.index)
-    }
-    if (selected === 'explorer' && object.selected) {
-      await this.host.shadowRoot.querySelector('explorer-view').select(object.selected)
-    }
-    if (selected === 'explorer' && Object.keys(object).length === 0) {
-      location.hash = '#!/explorer?selected=dashboard'
-    }
-
-    const identityView = this.host.shadowRoot.querySelector('identity-view')
-
-    if (selected === 'identity' && object.account !== undefined) {
-      await this.host.shadowRoot.querySelector('identity-view').select('account')
-      identityView.shadowRoot.querySelector('identity-account').updateInfo(object.account)
-    }
-    if (selected === 'identity' && object.selected) {
-      await this.host.shadowRoot.querySelector('identity-view').select(object.selected)
-    }
-    if (selected === 'identity' && Object.keys(object).length === 0) {
-      location.hash = '#!/identity?selected=dashboard'
     }
   }
 }

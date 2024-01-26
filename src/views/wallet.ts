@@ -10,6 +10,7 @@ import { CustomPages } from '@vandeurenglenn/lit-elements/pages.js'
 import '@vandeurenglenn/lit-elements/tabs.js'
 import '@vandeurenglenn/lit-elements/tab.js'
 import { WalletPay } from './wallet/wallet-pay.js'
+import Router from '../router.js'
 @customElement('wallet-view')
 export class WalletView extends LitElement {
   @property({ type: Array })
@@ -86,8 +87,12 @@ export class WalletView extends LitElement {
     const transactionEvent = await client.sendTransaction(transaction)
 
     console.log(transactionEvent)
-    document.querySelector('app-shell').renderRoot.querySelector('touchpay-screen').close()
     this._cancel
+  }
+
+  connectedCallback(): void {
+    super.connectedCallback()
+    if (Router.debang(location.hash).split('/').length === 1) location.hash = Router.bang(`wallet/send`)
   }
 
   #handleClick = (event) => {
@@ -124,13 +129,15 @@ export class WalletView extends LitElement {
       <flex-column class="main" @click=${this.#handleClick}>
         <custom-pages attr-for-selected="data-route">
           <wallet-send data-route="send"></wallet-send>
+          <wallet-receive data-route="receive"></wallet-receive>
           <wallet-pay data-route="pay"></wallet-pay>
+          <wallet-transactions data-route="transactions"></wallet-transactions>
         </custom-pages>
         <custom-tabs
           round
           class="wallet-nav"
           attr-for-selected="data-route"
-          @selected=${(event) => this.pages.select(event.detail)}
+          @selected=${(event: CustomEvent) => (location.hash = Router.bang(`wallet/${event.detail}`))}
         >
           <custom-tab title="send" data-route="send">
             <custom-icon icon="call_made"></custom-icon>

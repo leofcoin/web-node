@@ -4,16 +4,26 @@ import { consume } from '@lit/context'
 import { parseUnits } from '@leofcoin/utils'
 import { signTransaction } from '@leofcoin/lib'
 import { customElement, property } from 'lit/decorators.js'
+import './../../elements/hero.js'
+import '@vandeurenglenn/lit-elements/typography.js'
 
 @customElement('wallet-pay')
 export class WalletPay extends LitElement {
   @consume({ context: walletContext, subscribe: true })
   wallet: Wallet
+
   @property()
   amount: string
 
   @property()
   to: string
+
+  @property()
+  description: string
+
+  @property()
+  protocol: string
+
   #accept = async () => {
     let from = this.wallet.selectedAccount
     console.log({ from })
@@ -43,34 +53,11 @@ export class WalletPay extends LitElement {
       :host {
         display: flex;
         flex-direction: column;
-        inset: 0;
         position: absolute;
         align-items: center;
         justify-content: center;
         pointer-events: none;
-        opacity: 0;
         background: #1116;
-        transition: 0.25s;
-      }
-
-      :host([shown='true']) {
-        opacity: 1;
-        pointer-events: auto;
-        z-index: 1002;
-        transition: 0.25s;
-      }
-
-      .wrapper {
-        background: var(--active-background);
-        border-radius: 12px;
-        box-sizing: border-box;
-        padding: 12px 24px;
-        height: 100%;
-        max-height: 240px;
-        max-width: 320px;
-        width: 100%;
-        color: var(--font-color);
-        border: 1px solid var(--border-color);
       }
 
       input,
@@ -102,50 +89,50 @@ export class WalletPay extends LitElement {
       h5 {
         margin: 0;
       }
-
-      custom-pages {
-        width: 100%;
+      flex-column {
         height: 100%;
       }
 
-      span[data-route='touchpay'] {
-        display: flex;
+      flex-row {
         width: 100%;
-        height: 100%;
-        align-items: center;
-        justify-content: center;
       }
-      .word {
-        display: inline-flex;
-        padding: 6px;
-        border-radius: 3px;
-        background: #fff;
-        color: #333;
+
+      .protocol {
+        padding: 12px 24px;
+        display: block;
+        border: 1px solid var(--border-color);
+        border-radius: 24px;
+        position: absolute;
+        bottom: 24px;
+        background-color: var(--active-background);
       }
     `
   ]
   render() {
     return html`
-      <flex-column class="wrapper" center>
-        <h4>Hold on</h4>
-        <h5>NFC transaction request</h5>
-        <flex-it flex="2"></flex-it>
-        <flex-row>
-          <h5>to:</h5>
-          <h5 class="adress">${this.to}</h5>
-        </flex-row>
-        <flex-it></flex-it>
-        <flex-row>
-          <h5>amount:</h5>
-          <h5 class="amount">${this.amount}</h5>
-        </flex-row>
-        <flex-it></flex-it>
-        <flex-row>
-          <button @click=${this.#close}>reject</button>
+      <custom-typography class="protocol" type="body" size="small"
+        ><span>protocol: ${this.protocol}</span></custom-typography
+      >
+      <hero-element headline="Incoming Payment Request" .subline=${this.description}>
+        <flex-column>
+          <flex-it flex="3"></flex-it>
+          <flex-row center>
+            <custom-typography type="body" size="medium">to: </custom-typography>
+            <custom-typography type="body" size="small">${this.to}</custom-typography>
+          </flex-row>
           <flex-it></flex-it>
-          <button @click=${this.#accept}>accept</button>
-        </flex-row>
-      </flex-column>
+          <flex-row center>
+            <custom-typography type="body" size="medium">amount: </custom-typography>
+            <custom-typography type="body" size="small">${this.amount}</custom-typography>
+          </flex-row>
+          <flex-it flex="2"></flex-it>
+          <flex-row>
+            <button @click=${this.#close}>reject</button>
+            <flex-it></flex-it>
+            <button @click=${this.#accept}>accept</button>
+          </flex-row>
+        </flex-column>
+      </hero-element>
     `
   }
 }
