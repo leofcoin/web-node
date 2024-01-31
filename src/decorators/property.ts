@@ -65,57 +65,44 @@ export const property = (options?: PropertyOptions) => {
     const attributeName = attribute || propertyKey
 
     const isBoolean = type === Boolean
+    // let timeoutChange
+
+    function get() {
+      return reflect
+        ? isBoolean
+          ? this.hasAttribute(attributeName)
+          : stringToType(this.getAttribute(attributeName), type)
+        : target[`_${propertyKey}`]
+    }
+
+    async function set(value) {
+      // if (timeoutChange) clearTimeout(timeoutChange)
+      // timeoutChange = setTimeout(async () => {
+      if (this.willChange) value = await this.willChange(propertyKey, value)
+
+      if (target[`_${propertyKey}`] !== value) {
+        if (reflect)
+          if (isBoolean)
+            if (value) this.setAttribute(attributeName, '')
+            else this.removeAttribute(attributeName)
+          else if (value) this.setAttribute(attributeName, typeToString(type, value))
+          else this.removeAttribute(attributeName)
+        // only store data ourselves when really needed
+        else target[`_${propertyKey}`] = value
+      }
+      if (this.onChange) await this.onChange(propertyKey, value)
+      if (this.requestRender && renders) this.requestRender()
+      // }, 25)
+    }
+
     if (!descriptor) {
       Object.defineProperty(target, propertyKey, {
-        get: function () {
-          return reflect
-            ? isBoolean
-              ? this.hasAttribute(attributeName)
-              : stringToType(this.getAttribute(attributeName), type)
-            : target[`_${propertyKey}`]
-        },
-        set: async function (value) {
-          if (onchange) await onchange(value)
-          if (willchange) value = await willchange(value)
-
-          if (target[`_${propertyKey}`] !== value) {
-            if (reflect)
-              if (isBoolean)
-                if (value) this.setAttribute(attributeName, '')
-                else this.removeAttribute(attributeName)
-              else if (value) this.setAttribute(attributeName, typeToString(type, value))
-              else this.removeAttribute(attributeName)
-            // only store data ourselves when really needed
-            else target[`_${propertyKey}`] = value
-          }
-          if (this.requestRender && renders) this.requestRender()
-        }
+        get,
+        set
       })
     } else {
-      descriptor.get = function () {
-        return reflect
-          ? isBoolean
-            ? this.hasAttribute(attributeName)
-            : stringToType(this.getAttribute(attributeName), type)
-          : target[`_${propertyKey}`]
-      }
-
-      descriptor.set = async function (value) {
-        if (onchange) await onchange(value)
-        if (willchange) value = await willchange(value)
-
-        if (target[`_${propertyKey}`] !== value) {
-          if (reflect)
-            if (isBoolean)
-              if (value) this.setAttribute(attributeName, '')
-              else this.removeAttribute(attributeName)
-            else if (value) this.setAttribute(attributeName, typeToString(type, value))
-            else this.removeAttribute(attributeName)
-          // only store data ourselves when really needed
-          else target[`_${propertyKey}`] = value
-        }
-        if (this.requestRender && renders) this.requestRender()
-      }
+      descriptor.get = get
+      descriptor.set = set
     }
   }
 }

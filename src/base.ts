@@ -25,5 +25,19 @@ class BaseElement extends HTMLElement {
   requestRender() {
     render(this.render(), this.shadowRoot)
   }
+
+  /**
+   * onChange happens after new value is set and before render
+   */
+  onChange(propertyKey, value) {
+    return value
+  }
+
+  /**
+   * willChange happens before new value is set, makes it possible to mutate the value before render
+   */
+  willchange(propertyKey, value) {
+    return value
+  }
 }
 export { html, BaseElement, css }
