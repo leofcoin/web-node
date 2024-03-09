@@ -1,7 +1,7 @@
 import { decrypt, encrypt } from '@leofcoin/identity-utils'
 import base58 from '@vandeurenglenn/base58'
 import MultiWallet from '@leofcoin/multi-wallet'
-import qrcode from 'qrcode'
+import * as qrcode from 'qrcode'
 import QrScanner from 'qr-scanner'
 
 export default class IdentityController {

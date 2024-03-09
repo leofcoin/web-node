@@ -6,10 +6,10 @@ import { customElement, property } from 'lit/decorators.js'
 @customElement('navigation-bar')
 export default class NavigationBar extends LitElement {
   @property({ type: Array, reflect: true })
-  items
+  accessor items
 
   @property({ attribute: 'default-selected' })
-  defaultSelected
+  accessor defaultSelected
 
   static styles = css`
     :host {

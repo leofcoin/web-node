@@ -10,19 +10,19 @@ import '@vandeurenglenn/lit-elements/typography.js'
 @customElement('wallet-pay')
 export class WalletPay extends LitElement {
   @consume({ context: walletContext, subscribe: true })
-  wallet: Wallet
+  accessor wallet: Wallet
 
   @property()
-  amount: string
+  accessor amount: string
 
   @property()
-  to: string
+  accessor to: string
 
   @property()
-  description: string
+  accessor description: string
 
   @property()
-  protocol: string
+  accessor protocol: string
 
   #accept = async () => {
     let from = this.wallet.selectedAccount

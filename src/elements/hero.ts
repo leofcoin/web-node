@@ -4,10 +4,10 @@ import '@vandeurenglenn/lit-elements/typography.js'
 @customElement('hero-element')
 export class HeroElement extends LitElement {
   @property()
-  headline
+  accessor headline
 
   @property()
-  subline
+  accessor subline
   static styles?: CSSResultGroup = [
     css`
       :host {
@@ -33,8 +33,8 @@ export class HeroElement extends LitElement {
   ]
   protected render() {
     return html`
-      <h4>${this.headline}</h4>
-      ${this.subline ? html`<h5>${this.subline}</h5>` : ''}
+      <custom-typography type="headline" size="small"><span>${this.headline}</span></custom-typography>
+      ${this.subline ? html`<custom-typography type="subline" size="medium">${this.subline}</custom-typography>` : ''}
       <custom-typography type="body" size="medium"><slot></slot></custom-typography>
     `
   }

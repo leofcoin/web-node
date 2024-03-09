@@ -1,17 +1,16 @@
 import { LitElement, PropertyValueMap, css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import '../elements/shorten-string.js'
-import { map } from 'lit/directives/map.js';
-import type P2PTPeer from '@netpeer/p2pt-swarm/peer';
-
+import { map } from 'lit/directives/map.js'
+import type P2PTPeer from '@netpeer/p2pt-swarm/peer'
 
 @customElement('stats-view')
 export class StatsView extends LitElement {
   @property({ type: Array })
-  peers: [string, P2PTPeer][] = []
+  accessor peers: [string, P2PTPeer][] = []
 
   @property({ type: String })
-  peerId: base58String
+  accessor peerId: base58String
 
   #peerChange = async (peer) => {
     this.peers = await client.peers()
@@ -74,34 +73,32 @@ export class StatsView extends LitElement {
 
   render() {
     return html`
-    <flex-column class="container">
-      <flex-row class="id">
-        <strong>id</strong>
-        <flex-it></flex-it>
-        ${this.peerId ? html`<shorten-string .value=${this.peerId}></shorten-string>` : 'loading'}
-      </flex-row>
-      <flex-row class="version">
-        <strong>version</strong>
-        <flex-it></flex-it>
-        <span class="version">@version</span>
-      </flex-row>
-      <flex-row class="version">
-        <strong>build</strong>
-        <flex-it></flex-it>
-        <span class="version">@build</span>
-      </flex-row>
-      <flex-row>
-        <strong>peers</strong>
-        <flex-it></flex-it>
-        <span>${this.peers.length}</span>
-      </flex-row>
+      <flex-column class="container">
+        <flex-row class="id">
+          <strong>id</strong>
+          <flex-it></flex-it>
+          ${this.peerId ? html`<shorten-string .value=${this.peerId}></shorten-string>` : 'loading'}
+        </flex-row>
+        <flex-row class="version">
+          <strong>version</strong>
+          <flex-it></flex-it>
+          <span class="version">@version</span>
+        </flex-row>
+        <flex-row class="version">
+          <strong>build</strong>
+          <flex-it></flex-it>
+          <span class="version">@build</span>
+        </flex-row>
+        <flex-row>
+          <strong>peers</strong>
+          <flex-it></flex-it>
+          <span>${this.peers.length}</span>
+        </flex-row>
 
-      <flex-column class="peers-container">
-        ${this.peers ? map(this.peers, ([id, peer]) => html`
-        <shorten-string .value=${id}></shorten-string>
-        `): ''}
+        <flex-column class="peers-container">
+          ${this.peers ? map(this.peers, ([id, peer]) => html` <shorten-string .value=${id}></shorten-string> `) : ''}
+        </flex-column>
       </flex-column>
-    </flex-column>
     `
   }
 }

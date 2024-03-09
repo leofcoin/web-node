@@ -19,17 +19,17 @@ declare global {
 @customElement('login-screen')
 export class LoginScreen extends LitElement {
   @property({ type: Boolean, reflect: true })
-  shown: boolean
+  accessor shown: boolean
   @state()
-  mnemonic: string
+  accessor mnemonic: string
   @property({ type: Boolean })
-  hasWallet: boolean
+  accessor hasWallet: boolean
   @state()
-  importing: boolean
+  accessor importing: boolean
   @property()
-  headline
+  accessor headline
   @property()
-  subline
+  accessor subline
 
   async getIdentity() {
     if (!globalThis.walletStore) {
@@ -48,11 +48,11 @@ export class LoginScreen extends LitElement {
   }
 
   get #pages() {
-    return this.renderRoot.querySelector('custom-pages')
+    return this.shadowRoot.querySelector('custom-pages')
   }
 
   _keydown({ key, code, keyCode, ctrlKey, altKey, shiftKey }) {
-    if (key === 'Enter') this.renderRoot.querySelector('[data-route-action="login"]').click()
+    if (key === 'Enter') this.shadowRoot.querySelector('[data-route-action="login"]').click()
   }
 
   async requestLogin(hasWallet) {
@@ -67,11 +67,11 @@ export class LoginScreen extends LitElement {
         this.headline = 'Welcome!'
         this.subline = 'Create a wallet or import one to continue'
       }
-      this.renderRoot.querySelector('input').focus()
+      this.shadowRoot.querySelector('input').focus()
       this.addEventListener('click', async (event) => {
         const target = event.composedPath()[0]
         const routeAction = target.dataset.routeAction
-        const password = this.renderRoot.querySelector('input').value
+        const password = this.shadowRoot.querySelector('input').value
         try {
           if (routeAction) {
             console.log(routeAction)
@@ -90,11 +90,11 @@ export class LoginScreen extends LitElement {
     return new Promise(async (resolve, reject) => {
       this.addEventListener('keydown', this._keydown)
       this.shown = true
-      this.renderRoot.querySelector('input').focus()
+      this.shadowRoot.querySelector('input').focus()
       this.addEventListener('click', async (event) => {
         const target = event.composedPath()[0]
         const routeAction = target.dataset.routeAction
-        const password = this.renderRoot.querySelector('input').value
+        const password = this.shadowRoot.querySelector('input').value
         try {
           if (routeAction) {
             resolve(password)
@@ -107,7 +107,7 @@ export class LoginScreen extends LitElement {
   async #handleBeforeLogin(password) {
     console.log('handle')
 
-    this.renderRoot.querySelector('input').value = null
+    this.shadowRoot.querySelector('input').value = null
     let wallet
     this.hasWallet = await this._hasWallet()
     if (!this.hasWallet && !this.importing) {
@@ -136,7 +136,7 @@ export class LoginScreen extends LitElement {
     document.querySelector('app-shell').wallet = wallet
 
     if (!customElements.get('identity-view')) await import('../views/identity.js')
-    const identityView = document.querySelector('app-shell').renderRoot.querySelector('identity-view')
+    const identityView = document.querySelector('app-shell').shadowRoot.querySelector('identity-view')
     identityView.identity = wallet.identity
     identityView.accounts = wallet.accounts
     identityView.selectedAccount = wallet.selectedAccount
@@ -180,7 +180,7 @@ export class LoginScreen extends LitElement {
 
   #waitForKey = () =>
     new Promise((resolve, reject) => {
-      const importSection = this.renderRoot.querySelector('[data-route="import"]')
+      const importSection = this.shadowRoot.querySelector('[data-route="import"]')
 
       const _onImport = (result) => {
         resolve(importSection.querySelector('input').value)
@@ -188,7 +188,7 @@ export class LoginScreen extends LitElement {
         importSection.querySelector('md-elevated-button').removeEventListener('click', _onImport)
       }
       importSection.querySelector('md-elevated-button').addEventListener('click', _onImport)
-      new QrScanner(this.renderRoot.querySelector('video'), (decoded) => {
+      new QrScanner(this.shadowRoot.querySelector('video'), (decoded) => {
         importSection.querySelector('input').value = decoded
       })
     })
@@ -228,6 +228,7 @@ export class LoginScreen extends LitElement {
   }
 
   async #spawnChain(password) {
+    console.time('loading chain')
     let importee
     importee = await import('../../node_modules/@leofcoin/chain/exports/browser/node-browser.js')
     await new importee.default(
@@ -247,7 +248,7 @@ export class LoginScreen extends LitElement {
     importee = await import('./../../node_modules/@leofcoin/chain/exports/browser/chain.js')
     globalThis.chain = await new importee.default({ resolveTimeout: 30_000 })
     console.log(chain)
-
+    console.timeEnd('loading chain')
     this.#spawnEndpoint()
     // await globalThis.client.init()
   }
@@ -267,7 +268,6 @@ export class LoginScreen extends LitElement {
 
   async loadChain(password, direct = true) {
     if (globalThis.chain) return
-    let importee
     try {
       if (direct) await this.#spawnChain(password)
       else await this.#spawnEndpoint(false)

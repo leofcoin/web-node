@@ -1,12 +1,9 @@
 {
   "compilerOptions": {
     "module": "NodeNext",
-    "target": "ES2022",
+    "target": "es2022",
     "outDir": "./www",
     "moduleResolution": "NodeNext",
-    "allowJs": true,
-    "experimentalDecorators": true,
-    "useDefineForClassFields": false,
     "resolveJsonModule": true,
     "types": ["lit", "@leofcoin/peernet"]
   },

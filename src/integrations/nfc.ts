@@ -28,9 +28,7 @@ if (NFC_SUPPORT) {
     if (ignoreRead) {
       return // write pending, ignore read.
     }
-    const externalRecord = event.message.records.find(
-      (record) => record.type === 'https://leofcoin.org:smart-poster'
-    )
+    const externalRecord = event.message.records.find((record) => record.type === 'https://leofcoin.org:smart-poster')
 
     let action, text
 

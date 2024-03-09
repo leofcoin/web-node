@@ -16,13 +16,13 @@ import { Block, blockContext } from '../../context/block.js'
 export class ExplorerBlock extends LitElement {
   @property({ type: Object })
   @consume({ context: blockContext, subscribe: true })
-  block: Block
+  accessor block: Block
 
   @state()
-  size: number
+  accessor size: number
 
   @state()
-  transactionHashes: []
+  accessor transactionHashes: []
 
   #goBack() {
     location.hash = `#!/explorer?selected=blocks`

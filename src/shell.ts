@@ -12,8 +12,6 @@ import './notification/child.js'
 import './elements/account-select.js'
 import defaultTheme from './themes/default.js'
 import { walletContext, Wallet } from './context/wallet.js'
-import { customElement, property, query } from 'lit/decorators.js'
-import { LitElement, css, html } from 'lit'
 import { Block, blockContext } from './context/block.js'
 import { ContextProvider } from '@lit/context'
 import '@vandeurenglenn/lit-elements/icon-set.js'
@@ -27,6 +25,8 @@ import './elements/sync-info.js'
 import Router from './router.js'
 import type { CustomPages } from '@vandeurenglenn/lit-elements/pages.js'
 
+import { LiteElement, property, query, css, html, customElement } from '@vandeurenglenn/lite'
+
 globalThis.pubsub = globalThis.pubsub || new Pubsub(true)
 
 const setTheme = (theme) => {
@@ -38,21 +38,21 @@ const setTheme = (theme) => {
 setTheme(defaultTheme)
 
 @customElement('app-shell')
-class AppShell extends LitElement {
+class AppShell extends LiteElement {
   @property({ type: Boolean })
-  openSync: boolean = false
+  accessor openSync: boolean = false
 
   @property({ type: Number })
-  lastBlockIndex = 0
+  accessor lastBlockIndex = 0
 
   @property({ type: Number })
-  totalResolved = 0
+  accessor totalResolved = 0
 
   @property({ type: Number })
-  totalLoaded = 0
+  accessor totalLoaded = 0
 
   @property({ type: Boolean, reflect: true })
-  navRailShown = false
+  accessor navRailShown = false
 
   #blockContextProvider = new ContextProvider(this, { context: blockContext })
   #walletContextProvider = new ContextProvider(this, {
@@ -80,7 +80,7 @@ class AppShell extends LitElement {
   })
 
   get notificationMaster() {
-    return this.renderRoot.querySelector('notification-master')
+    return this.shadowRoot.querySelector('notification-master')
   }
   get #pages() {
     return this.shadowRoot.querySelector('custom-pages')
@@ -93,7 +93,7 @@ class AppShell extends LitElement {
   }
 
   @query('custom-pages')
-  pages: CustomPages
+  accessor pages: CustomPages
 
   async #select(selected) {
     if (!customElements.get(`${selected}-view`)) await import(`./${selected}.js`)
@@ -106,10 +106,10 @@ class AppShell extends LitElement {
   }
 
   @query('sync-info')
-  syncInfo
+  accessor syncInfo
 
   @property({ type: Boolean, reflect: true, attribute: 'is-desktop' })
-  isDesktop: boolean = false
+  accessor isDesktop: boolean = false
 
   #matchMedia = ({ matches }) => {
     this.isDesktop = matches
@@ -117,7 +117,6 @@ class AppShell extends LitElement {
   }
 
   async connectedCallback() {
-    super.connectedCallback()
     this.router = new Router(this, 'wallet')
     var matchMedia = window.matchMedia('(min-width: 640px)')
     this.#matchMedia(matchMedia)
@@ -135,11 +134,13 @@ class AppShell extends LitElement {
 
       // @ts-ignore
       globalThis.client.init && (await globalThis.client.init())
+      console.log('client init')
     } catch (error) {
       console.error(error)
     }
 
-    await this.#login()
+    this.#login()
+    import('./integrations/nfc.js')
     // await this.init()
     // globalThis.walletStorage = new Storage('wallet')
     // await globalThis.walletStorage.init()
@@ -155,6 +156,9 @@ class AppShell extends LitElement {
       await walletStore.init()
     }
 
+    console.log('wallet')
+    console.log(walletStore)
+
     const hasWallet = await walletStore.has('identity')
     console.log(hasWallet)
 
@@ -163,8 +167,6 @@ class AppShell extends LitElement {
 
   static styles = [
     css`
-      @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100;0,300;0,400;0,600;0,700;0,800;1,300;1,400&display=swap');
-
       :host {
         position: absolute;
         top: 0;
@@ -304,6 +306,7 @@ class AppShell extends LitElement {
           <span name="list">@symbol-list_alt</span>
           <span name="call_received">@symbol-call_received</span>
           <span name="call_made">@symbol-call_made</span>
+          <span name="share">@symbol-share</span>
         </template>
       </custom-icon-set>
       <custom-theme load-symbols="false"></custom-theme>

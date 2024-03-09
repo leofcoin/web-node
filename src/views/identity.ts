@@ -12,10 +12,10 @@ import type { CustomPages } from '@vandeurenglenn/lit-elements/pages.js'
 export class IdentityView extends LitElement {
   @property({ type: Object })
   @consume({ context: walletContext, subscribe: true })
-  wallet: Wallet
+  accessor wallet: Wallet
 
   @property({ type: Array })
-  accounts: Accounts
+  accessor accounts: Accounts
 
   get pages(): CustomPages {
     return this.shadowRoot.querySelector('custom-pages')

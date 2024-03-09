@@ -4,10 +4,10 @@ import { customElement, property } from 'lit/decorators.js'
 @customElement('wallet-send')
 export class WalletSend extends LitElement {
   @property()
-  amount: string
+  accessor amount: string
 
   @property()
-  to: string
+  accessor to: string
 
   static styles?: CSSResultGroup = [
     css`

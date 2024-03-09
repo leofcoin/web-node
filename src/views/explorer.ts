@@ -4,7 +4,8 @@ import '../elements/latest.js'
 import '../elements/explorer/info-container.js'
 import { formatBytes } from '@leofcoin/utils'
 import '../elements/navigation-bar.js'
-import { customElement, query } from 'lit/decorators.js'
+import { query } from 'lit/decorators.js'
+import { customElement } from '@vandeurenglenn/lite'
 
 @customElement('explorer-view')
 export class ExplorerView extends LitElement {
@@ -29,7 +30,7 @@ export class ExplorerView extends LitElement {
   }
 
   @query('custom-pages')
-  pages
+  accessor pages
 
   async select(selected) {
     console.log(selected)

@@ -118,18 +118,11 @@ export default [
       './storage.js'
     ],
     plugins: [
-      esbuild({
-        target: 'esnext',
-        optimizeDeps: {
-          include: ['qrcode', 'secp256k1', 'universal-emoji-parser']
-        }
-      }),
+      typescript(),
       json(),
       resolve({ browser: true, mainFields: ['browser', 'module', 'main'] }),
-      commonjs({
-        exclude: ['node_modules', 'src'],
-        include: ['node_modules/bn.js/lib/bn.js']
-      }),
+      polyfill(),
+      commonjs(),
       materialSymbols({
         placeholderPrefix: 'symbol'
       }),

@@ -14,14 +14,14 @@ import Router from '../router.js'
 @customElement('wallet-view')
 export class WalletView extends LitElement {
   @property({ type: Array })
-  accounts: Accounts
+  accessor accounts: Accounts
 
   @property({ type: String })
-  selectedAccount: Address
+  accessor selectedAccount: Address
 
   @property({ type: Object })
   @consume({ context: walletContext, subscribe: true })
-  wallet: Wallet
+  accessor wallet: Wallet
 
   get #amount() {
     return this.renderRoot.querySelector('.amount') as HTMLInputElement
