@@ -4,19 +4,19 @@ import { customElement, property, state } from 'lit/decorators.js'
 @customElement('sync-info')
 export class SyncInfo extends LitElement {
   @property({ type: Boolean })
-  open: boolean = false
+  accessor open: boolean = false
 
   @property({ type: Number })
-  lastBlockIndex = 0
+  accessor lastBlockIndex = 0
 
   @property({ type: Number })
-  totalResolved = 0
+  accessor totalResolved = 0
 
   @property({ type: Number })
-  totalLoaded = 0
+  accessor totalLoaded = 0
 
   @property({ type: Boolean, reflect: true })
-  animating
+  accessor animating
 
   protected willUpdate(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
     if (_changedProperties.has('totalResolved') || _changedProperties.has('totalLoaded')) {
@@ -25,7 +25,7 @@ export class SyncInfo extends LitElement {
       if (this.timeout) clearTimeout(this.timeout)
       this.timeout = setTimeout(() => {
         this.animating = false
-      }, 500)
+      }, 1000)
     }
   }
   static styles = [
@@ -34,6 +34,7 @@ export class SyncInfo extends LitElement {
         position: absolute;
         top: 12px;
         right: 48px;
+
         cursor: pointer;
         pointer-events: auto;
         z-index: 10001;

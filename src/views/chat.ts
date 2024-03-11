@@ -3,20 +3,19 @@ import { customElement, property, query } from 'lit/decorators.js'
 import '../elements/shorten-string.js'
 // import { map } from 'lit/directives/map.js'
 import '@vandeurenglenn/lit-elements/icon-button.js'
-import uEmojiParser from 'universal-emoji-parser'
 @customElement('chat-view')
 export class ChatView extends LitElement {
   @property({ type: Array })
-  peers: [string, {}][] = []
+  accessor peers: [string, {}][] = []
 
   @property({ type: String })
-  peerId: string
+  accessor peerId: string
 
   @property({ type: Boolean, reflect: true, attribute: 'is-desktop' })
-  isDesktop: boolean = false
+  accessor isDesktop: boolean = false
 
   @property({ type: Boolean })
-  showAdditions: boolean = false
+  accessor showAdditions: boolean = false
 
   #peerChange = async (peer) => {
     this.peers = await client.peers()
@@ -87,7 +86,7 @@ export class ChatView extends LitElement {
           padding: 6px 12px;
           box-sizing: border-box;
           min-height: 48px;
-          background: var(--md-sys-color-surface-container-highest);
+          background: #48464940;
         }
 
         .additions {
@@ -117,7 +116,7 @@ export class ChatView extends LitElement {
   }
 
   @query('textarea')
-  textarea
+  accessor textarea
 
   #onEmojiSelected = ({ detail }) => {
     console.log(detail)

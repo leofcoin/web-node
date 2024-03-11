@@ -10,12 +10,15 @@ import materialSymbols from 'rollup-plugin-material-symbols'
 import polyfill from 'rollup-plugin-polyfill-node'
 import { readFile, writeFile } from 'fs/promises'
 import { env } from 'process'
+import esbuild from 'rollup-plugin-esbuild'
 const date = new Date()
 
 const BUILD = `${date.getUTCFullYear()}_${date.getDay()}_${date.getMonth()}-${date.getTime()}`
 
 const views = [
-  ...(await readdir('./src/views')).map((path) => join('./src/views', path)).filter((path) => path.endsWith('.ts')),
+  ...(await readdir('./src/views', { recursive: true }))
+    .map((path) => join('./src/views', path))
+    .filter((path) => path.endsWith('.ts')),
   ...(await readdir('./src/views/explorer')).map((path) => join('./src/views/explorer', path)),
   ...(await readdir('./src/views/identity')).map((path) => join('./src/views/identity', path))
 ]
@@ -93,24 +96,33 @@ try {
 } catch (error) {}
 
 await cp('node_modules/@leofcoin/chain/exports/browser/node-browser.js', 'www/node-browser.js')
+await cp('node_modules/@leofcoin/storage/exports', 'www', { recursive: true })
+
 await cp('node_modules/@vandeurenglenn/lit-elements/exports/themes/default', 'www/themes/default', {
   recursive: true
 })
 
 export default [
   {
-    input: ['./src/shell.ts', ...views, './node_modules/@leofcoin/storage/exports/browser-store.js'],
+    input: ['./src/shell.ts', ...views],
     output: {
       dir: './www',
       format: 'es'
     },
-    external: ['./identity.js', './../../monaco/monaco-loader.js', '@monaco-import', './node-browser.js'],
+    external: [
+      './identity.js',
+      './../../monaco/monaco-loader.js',
+      '@monaco-import',
+      './node-browser.js',
+      '@leofcoin/storage',
+      './storage.js'
+    ],
     plugins: [
       typescript(),
       json(),
       resolve({ browser: true, mainFields: ['browser', 'module', 'main'] }),
-      commonjs(),
       polyfill(),
+      commonjs(),
       materialSymbols({
         placeholderPrefix: 'symbol'
       }),
@@ -118,6 +130,7 @@ export default [
         '@build': BUILD,
         '@version': packagesJSON.version,
         '@monaco-import': './../../monaco/monaco-loader.js',
+        '@leofcoin/storage': './storage.js',
         './exports/browser/workers/machine-worker.js': 'workers/machine-worker.js'
       })
     ]

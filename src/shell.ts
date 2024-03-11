@@ -5,7 +5,6 @@ import '@vandeurenglenn/lit-elements/selector.js'
 import './array-repeat.js'
 import './screens/login.js'
 import './screens/export.js'
-import './screens/touchpay.js'
 import './clipboard-copy.js'
 import './screens/login.js'
 import './notification/master.js'
@@ -13,8 +12,6 @@ import './notification/child.js'
 import './elements/account-select.js'
 import defaultTheme from './themes/default.js'
 import { walletContext, Wallet } from './context/wallet.js'
-import { customElement, property, query } from 'lit/decorators.js'
-import { LitElement, css, html } from 'lit'
 import { Block, blockContext } from './context/block.js'
 import { ContextProvider } from '@lit/context'
 import '@vandeurenglenn/lit-elements/icon-set.js'
@@ -25,6 +22,10 @@ import '@vandeurenglenn/flex-elements/row.js'
 import '@vandeurenglenn/flex-elements/it.js'
 import '@vandeurenglenn/lit-elements/theme.js'
 import './elements/sync-info.js'
+import Router from './router.js'
+import type { CustomPages } from '@vandeurenglenn/lit-elements/pages.js'
+
+import { LiteElement, property, query, css, html, customElement } from '@vandeurenglenn/lite'
 
 globalThis.pubsub = globalThis.pubsub || new Pubsub(true)
 
@@ -37,23 +38,28 @@ const setTheme = (theme) => {
 setTheme(defaultTheme)
 
 @customElement('app-shell')
-class AppShell extends LitElement {
+class AppShell extends LiteElement {
   @property({ type: Boolean })
-  openSync: boolean = false
+  accessor openSync: boolean = false
 
   @property({ type: Number })
-  lastBlockIndex = 0
+  accessor lastBlockIndex = 0
 
   @property({ type: Number })
-  totalResolved = 0
+  accessor totalResolved = 0
 
   @property({ type: Number })
-  totalLoaded = 0
+  accessor totalLoaded = 0
+
+  @property({ type: Boolean, reflect: true })
+  accessor navRailShown = false
 
   #blockContextProvider = new ContextProvider(this, { context: blockContext })
   #walletContextProvider = new ContextProvider(this, {
     context: walletContext
   })
+
+  router: Router
 
   set block(value: Block) {
     this.#blockContextProvider.setValue(value)
@@ -65,20 +71,29 @@ class AppShell extends LitElement {
     this.#walletContextProvider.updateObservers()
   }
 
+  get nodeReady() {
+    return this.#nodeReady
+  }
+
   #nodeReady = new Promise((resolve) => {
     pubsub.subscribe('node:ready', () => resolve(true))
   })
 
   get notificationMaster() {
-    return this.renderRoot.querySelector('notification-master')
+    return this.shadowRoot.querySelector('notification-master')
   }
   get #pages() {
     return this.shadowRoot.querySelector('custom-pages')
   }
 
   select(selected) {
-    this.#select(selected)
+    console.log({ selected })
+
+    return this.#select(selected)
   }
+
+  @query('custom-pages')
+  accessor pages: CustomPages
 
   async #select(selected) {
     if (!customElements.get(`${selected}-view`)) await import(`./${selected}.js`)
@@ -90,74 +105,11 @@ class AppShell extends LitElement {
     }
   }
 
-  #onhashchange = async () => {
-    const parts = location.hash.split('/')
-    let params = parts[1].split('?')
-    const selected = params[0]
-
-    const object = {}
-    if (params.length > 1) {
-      params = params[1].split('&')
-      for (let param of params) {
-        param = param.split('=')
-        object[param[0]] = param[1]
-      }
-    }
-
-    if (selected === 'wallet') await this.#nodeReady
-
-    if (object.address) {
-      await this.#nodeReady
-      document.querySelector('app-shell').renderRoot.querySelector('touchpay-screen').checkChanges(object.address, object.amount)
-    }
-
-    console.log(selected, object)
-    selected && (await this.#select(selected))
-
-    const explorerView = this.shadowRoot.querySelector('explorer-view')
-
-    if (selected === 'explorer' && object.block !== undefined) {
-      await this.shadowRoot.querySelector('explorer-view').select('block')
-      await this.#nodeReady
-
-      this.block = await client.getBlock(object.index)
-      console.log(this.block)
-    }
-
-    if (selected === 'explorer' && object.blockTransactions !== undefined) {
-      await this.shadowRoot.querySelector('explorer-view').select('block-transactions')
-      explorerView.renderRoot.querySelector('explorer-block-transactions').updateInfo(object.block, object.index)
-    }
-    if (selected === 'explorer' && object.transaction !== undefined) {
-      await this.shadowRoot.querySelector('explorer-view').select('transaction')
-      explorerView.renderRoot.querySelector('explorer-transaction').updateInfo(object.blockIndex, object.index)
-    }
-    if (selected === 'explorer' && object.selected) {
-      await this.shadowRoot.querySelector('explorer-view').select(object.selected)
-    }
-    if (selected === 'explorer' && Object.keys(object).length === 0) {
-      location.hash = '#!/explorer?selected=dashboard'
-    }
-
-    const identityView = this.shadowRoot.querySelector('identity-view')
-
-    if (selected === 'identity' && object.account !== undefined) {
-      await this.shadowRoot.querySelector('identity-view').select('account')
-      identityView.renderRoot.querySelector('identity-account').updateInfo(object.account)
-    }
-    if (selected === 'identity' && object.selected) {
-      await this.shadowRoot.querySelector('identity-view').select(object.selected)
-    }
-    if (selected === 'identity' && Object.keys(object).length === 0) {
-      location.hash = '#!/identity?selected=dashboard'
-    }
-  }
-
   @query('sync-info')
-  syncInfo
+  accessor syncInfo
 
   @property({ type: Boolean, reflect: true, attribute: 'is-desktop' })
-  isDesktop: boolean = false
+  accessor isDesktop: boolean = false
 
   #matchMedia = ({ matches }) => {
     this.isDesktop = matches
@@ -165,8 +117,7 @@ class AppShell extends LitElement {
   }
 
   async connectedCallback() {
-    super.connectedCallback()
-
+    this.router = new Router(this, 'wallet')
     var matchMedia = window.matchMedia('(min-width: 640px)')
     this.#matchMedia(matchMedia)
     matchMedia.onchange = this.#matchMedia(matchMedia)
@@ -183,15 +134,13 @@ class AppShell extends LitElement {
 
       // @ts-ignore
       globalThis.client.init && (await globalThis.client.init())
+      console.log('client init')
     } catch (error) {
       console.error(error)
     }
 
-    onhashchange = this.#onhashchange
-    if (location.hash.split('/')[1]) this.#onhashchange()
-    else this.#select('wallet')
-
-    await this.#login()
+    this.#login()
+    import('./integrations/nfc.js')
     // await this.init()
     // globalThis.walletStorage = new Storage('wallet')
     // await globalThis.walletStorage.init()
@@ -207,6 +156,9 @@ class AppShell extends LitElement {
       await walletStore.init()
     }
 
+    console.log('wallet')
+    console.log(walletStore)
+
     const hasWallet = await walletStore.has('identity')
     console.log(hasWallet)
 
@@ -215,8 +167,6 @@ class AppShell extends LitElement {
 
   static styles = [
     css`
-      @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100;0,300;0,400;0,600;0,700;0,800;1,300;1,400&display=swap');
-
       :host {
         position: absolute;
         top: 0;
@@ -235,8 +185,15 @@ class AppShell extends LitElement {
         line-height: 1.5;
       }
 
-      .main {
+      .container {
         height: 100%;
+      }
+
+      .main {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
       }
 
       custom-selector {
@@ -251,6 +208,22 @@ class AppShell extends LitElement {
         background: #333750;
         --svg-icon-color: #ffffffb5;
         border-right: 1px solid #383941;
+        position: absolute;
+        opacity: 0;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        transform: translateX(-110%);
+      }
+
+      :host([navRailShown]) .custom-selector-overlay {
+        opacity: 1;
+        transform: translateX(0);
+      }
+
+      :host([navRailShown]) .main {
+        left: 48px;
+        width: calc(100% - 48px);
       }
 
       a {
@@ -333,10 +306,11 @@ class AppShell extends LitElement {
           <span name="list">@symbol-list_alt</span>
           <span name="call_received">@symbol-call_received</span>
           <span name="call_made">@symbol-call_made</span>
+          <span name="share">@symbol-share</span>
         </template>
       </custom-icon-set>
       <custom-theme load-symbols="false"></custom-theme>
-      <flex-row class="main">
+      <flex-row class="container">
         <span class="custom-selector-overlay">
           <custom-selector attr-for-selected="data-route">
             <a href="#!/wallet" data-route="wallet">
@@ -366,7 +340,7 @@ class AppShell extends LitElement {
           </custom-selector>
         </span>
 
-        <flex-column>
+        <flex-column class="main">
           <header>
             <flex-it></flex-it>
             <account-select style="margin-right: 48px;"></account-select>
@@ -387,7 +361,6 @@ class AppShell extends LitElement {
 
       <login-screen></login-screen>
       <export-screen></export-screen>
-      <touchpay-screen></touchpay-screen>
 
       <sync-info></sync-info>
     `

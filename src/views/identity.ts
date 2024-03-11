@@ -6,26 +6,30 @@ import '../elements/navigation-bar.js'
 import { Accounts, Wallet, walletContext } from '../context/wallet.js'
 import { customElement, property } from 'lit/decorators.js'
 import { consume } from '@lit/context'
+import type { CustomPages } from '@vandeurenglenn/lit-elements/pages.js'
 
 @customElement('identity-view')
 export class IdentityView extends LitElement {
   @property({ type: Object })
   @consume({ context: walletContext, subscribe: true })
-  wallet: Wallet
+  accessor wallet: Wallet
 
   @property({ type: Array })
-  accounts: Accounts
+  accessor accounts: Accounts
 
-  get #pages() {
+  get pages(): CustomPages {
     return this.shadowRoot.querySelector('custom-pages')
   }
 
+  get navigation(): CustomPages {
+    return this.shadowRoot.querySelector('navigation-bar')
+  }
+
   async select(selected) {
-    console.log(selected)
     if (!customElements.get(`identity-${selected}`)) await import(`./identity-${selected}.js`)
 
-    this.shadowRoot.querySelector('custom-pages').select(selected)
-    this.renderRoot.querySelector('navigation-bar').select(selected)
+    this.pages.select(selected)
+    this.navigation.select(selected)
   }
 
   protected willUpdate(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
@@ -36,7 +40,7 @@ export class IdentityView extends LitElement {
   }
 
   #customSelect({ detail }) {
-    location.hash = `#!/identity?selected=${detail}`
+    location.hash = `#!/identity/${detail}`
   }
 
   render() {
@@ -107,9 +111,13 @@ export class IdentityView extends LitElement {
       <custom-svg-icon icon="account-circle"></custom-svg-icon>
       <h2>Identity</h2>
 
-      <navigation-bar items='["dashboard", "accounts", "actions"]' @selected="${this.#customSelect}"></navigation-bar>
+      <navigation-bar
+        items='["dashboard", "accounts", "actions"]'
+        @selected="${this.#customSelect}"
+        default-selected="dashboard"
+      ></navigation-bar>
 
-      <custom-pages attr-for-selected="data-route">
+      <custom-pages attr-for-selected="data-route" selected="dashboard">
         <identity-dashboard data-route="dashboard" .accounts=${this.accounts}></identity-dashboard>
         <identity-accounts data-route="accounts" .accounts=${this.accounts}></identity-accounts>
         <identity-account data-route="account" .accounts=${this.accounts}></identity-account>

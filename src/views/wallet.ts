@@ -3,24 +3,25 @@ import '../elements/account.js'
 import { parseUnits } from '@leofcoin/utils'
 import { signTransaction } from '@leofcoin/lib'
 import { LitElement, PropertyValueMap, html } from 'lit'
-import { map } from 'lit/directives/map.js'
 import { customElement, property } from 'lit/decorators.js'
-import { consume, ContextConsumer } from '@lit/context'
+import { consume } from '@lit/context'
 import { walletContext, Address, Accounts, Wallet } from '../context/wallet.js'
 import { CustomPages } from '@vandeurenglenn/lit-elements/pages.js'
 import '@vandeurenglenn/lit-elements/tabs.js'
 import '@vandeurenglenn/lit-elements/tab.js'
+import { WalletPay } from './wallet/wallet-pay.js'
+import Router from '../router.js'
 @customElement('wallet-view')
 export class WalletView extends LitElement {
   @property({ type: Array })
-  accounts: Accounts
+  accessor accounts: Accounts
 
   @property({ type: String })
-  selectedAccount: Address
+  accessor selectedAccount: Address
 
   @property({ type: Object })
   @consume({ context: walletContext, subscribe: true })
-  wallet: Wallet
+  accessor wallet: Wallet
 
   get #amount() {
     return this.renderRoot.querySelector('.amount') as HTMLInputElement
@@ -30,7 +31,7 @@ export class WalletView extends LitElement {
     return this.renderRoot.querySelector('.to') as HTMLInputElement
   }
 
-  get #pages(): CustomPages {
+  get pages(): CustomPages {
     return this.renderRoot.querySelector('custom-pages') as unknown as CustomPages
   }
 
@@ -42,8 +43,18 @@ export class WalletView extends LitElement {
     }
   }
 
-  #select(selected) {
-    this.#pages.select(selected)
+  async select(selected) {
+    if (selected === 'pay') {
+      const appShell = document.querySelector('app-shell')
+      const appPages = appShell.shadowRoot.querySelector('custom-pages') as CustomPages
+      appPages.style.position = 'fixed'
+
+      const payEl = this.pages.querySelector('[data-route="pay"]') as WalletPay
+      payEl.style.position = 'fixed'
+    }
+
+    if (!customElements.get(`wallet-${selected}`)) await import(`./wallet-${selected}.js`)
+    this.pages.select(selected)
   }
 
   _cancel() {
@@ -76,8 +87,12 @@ export class WalletView extends LitElement {
     const transactionEvent = await client.sendTransaction(transaction)
 
     console.log(transactionEvent)
-    document.querySelector('app-shell').renderRoot.querySelector('touchpay-screen').changeclass("success")
     this._cancel
+  }
+
+  connectedCallback(): void {
+    super.connectedCallback()
+    if (Router.debang(location.hash).split('/').length === 1) location.hash = Router.bang(`wallet/send`)
   }
 
   #handleClick = (event) => {
@@ -92,9 +107,6 @@ export class WalletView extends LitElement {
         * {
           pointer-events: none;
         }
-        .container flex-row {
-          width: 100%;
-        }
         :host {
           display: flex;
           flex-direction: row;
@@ -106,55 +118,6 @@ export class WalletView extends LitElement {
           width: 100%;
           height: 100%;
         }
-        [data-route='send'] {
-          width: 100%;
-          height: 100%;
-          align-items: center;
-          justify-content: center;
-        }
-        .peer-id {
-          border: 1px solid white;
-          border-radius: 12px;
-          color: var(--font-color);
-          position: absolute;
-          /* top: 50%; */
-          left: 50%;
-          transform: translateX(-50%);
-          top: 12px;
-        }
-        /* .wallet-nav-container {
-    padding: 12px;
-    box-sizing: border-box;
-    height: 72px;
-  } */
-        a {
-          padding: 0 12px;
-          cursor: pointer;
-        }
-        .container {
-          border-radius: 24px;
-          padding: 24px;
-          box-sizing: border-box;
-          background: var(--secondary-background);
-          color: var(--font-color);
-          border: 1px solid var(--border-color);
-          font-size: 18px;
-          width: 100%;
-          max-width: 320px;
-        }
-        input {
-          margin-top: 12px;
-          margin-bottom: 24px;
-          box-sizing: border-box;
-          width: 100%;
-        }
-        .nfcb[active] {
-          background: var(--barcolor);
-          transition: 0.25s;
-        }
-        :host[hidden] {
-          opacity: 0.1;
-        }
         .main {
           width: 100%;
           align-items: center;
@@ -162,53 +125,19 @@ export class WalletView extends LitElement {
         custom-tab {
           pointer-events: auto;
         }
-        select,
-        input,
-        button {
-          pointer-events: auto;
-          background: transparent;
-          border: 1px solid var(--border-color);
-          font-size: 14px;
-          color: var(--font-color);
-          border-radius: 24px;
-          padding: 6px 12px;
-        }
-        select,
-        button {
-          cursor: pointer;
-        }
       </style>
       <flex-column class="main" @click=${this.#handleClick}>
         <custom-pages attr-for-selected="data-route">
-          <flex-column data-route="send">
-            <flex-column class="container">
-              <flex-row>
-                <label for=".amount">send</label>
-                <flex-it></flex-it>
-                <select>
-                  <option>LFC</option>
-                </select>
-              </flex-row>
-              <input class="amount" placeholder="1" />
-              <label for=".to">to</label>
-              <input class="to" placeholder="address" />
-              <flex-it></flex-it>
-              <flex-row>
-                <button data-action="cancel">cancel</button>
-                <flex-it></flex-it>
-                <button data-action="RequestSend">send</button>
-              </flex-row>
-            </flex-column>
-            <flex-column data-route="receive">
-              <clipboard-copy class="address peer-id" value=${this.selectedAccount}> </clipboard-copy>
-            </flex-column>
-          </flex-column>
+          <wallet-send data-route="send"></wallet-send>
+          <wallet-receive data-route="receive"></wallet-receive>
+          <wallet-pay data-route="pay"></wallet-pay>
+          <wallet-transactions data-route="transactions"></wallet-transactions>
         </custom-pages>
         <custom-tabs
           round
           class="wallet-nav"
           attr-for-selected="data-route"
-          @selected=${(event) => this.#pages.select(event.detail)}
+          @selected=${(event: CustomEvent) => (location.hash = Router.bang(`wallet/${event.detail}`))}
         >
           <custom-tab title="send" data-route="send">
             <custom-icon icon="call_made"></custom-icon>

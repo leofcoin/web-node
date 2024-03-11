@@ -1,11 +1,11 @@
 import { LitElement, css, html } from 'lit'
 import './../array-repeat.js'
-import uEmojiParser from 'universal-emoji-parser'
+import * as uEmojiParser from 'universal-emoji-parser'
 import { customElement, property } from 'lit/decorators.js'
 @customElement('emo-ji')
 class EmoJi extends LitElement {
   @property({ type: String })
-  emoji
+  accessor emoji
 
   static get styles() {
     return css`

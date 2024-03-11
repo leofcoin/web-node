@@ -32,7 +32,6 @@ export default customElements.define(
 
     async connectedCallback() {
       super.connectedCallback && super.connectedCallback()
-
       // this.accounts = await identityController.accounts()
 
       pubsub.subscribe('identity-change', this.#identityChange.bind(this))

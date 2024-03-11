@@ -8,6 +8,16 @@ export default class ArrayRepeat extends HTMLElement {
   static get observedAttributes() {
     return ['items', 'name-space', 'max', 'disable-select', 'height']
   }
+
+  height
+  _items
+  _max
+  previousNameSpace
+  _itemTemplate
+  _queriedCollection
+  _disableSelect
+  lastSelected
+
   /**
    * constructor
    */
@@ -83,31 +93,6 @@ export default class ArrayRepeat extends HTMLElement {
     this._max = this._validateMax(value)
   }
   /**
-   * @param {array} value
-   */
-  set tasks(value) {
-    this._tasks = value
-  }
-  /**
-   * @return {array} tasks
-   */
-  get tasks() {
-    return this._tasks || []
-  }
-
-  /**
-   * @param {array} value
-   */
-  set calls(value) {
-    this._calls = value
-  }
-  /**
-   * @return {array} tasks
-   */
-  get calls() {
-    return this._calls || 0
-  }
-  /**
    * @return {Array} [{}]
    */
   get items() {
@@ -136,19 +121,6 @@ export default class ArrayRepeat extends HTMLElement {
    */
   get itemTemplate() {
     return this._itemTemplate || this.__itemTemplate
-  }
-  /**
-   * @param {array} value style's defined in template
-   * @private
-   */
-  set templateStyles(value) {
-    this._templateStyles = value
-  }
-  /**
-   * @return {array} style's defined in template
-   */
-  get templateStyles() {
-    return this._templateStyles || this.querySelectorAll('style')
   }
   /**
    * @return {boolean} wether or not the item-class-name attribute is present
@@ -229,7 +201,7 @@ export default class ArrayRepeat extends HTMLElement {
    */
   _validateMax(max) {
     max = Number(max)
-    if (typeof max === 'NaN') {
+    if (isNaN(max)) {
       console.error('max is not a typeof number')
       return undefined
     }

@@ -9,6 +9,8 @@ import base58 from '@vandeurenglenn/base58'
 import type Client from '@leofcoin/endpoint-clients/direct'
 import { customElement, property, state } from 'lit/decorators.js'
 import type Chain from '@leofcoin/chain/chain'
+import Router from '../router.js'
+import './../elements/hero.js'
 
 declare global {
   var client: Client
@@ -17,25 +19,40 @@ declare global {
 @customElement('login-screen')
 export class LoginScreen extends LitElement {
   @property({ type: Boolean, reflect: true })
-  shown: boolean
+  accessor shown: boolean
   @state()
-  mnemonic: string
+  accessor mnemonic: string
   @property({ type: Boolean })
-  hasWallet: boolean
+  accessor hasWallet: boolean
   @state()
-  importing: boolean
+  accessor importing: boolean
+  @property()
+  accessor headline
+  @property()
+  accessor subline
 
+  async getIdentity() {
+    if (!globalThis.walletStore) {
+      if (!globalThis.LeofcoinStorage) {
+        const storage = (await import('@leofcoin/storage')).default
+        globalThis.LeofcoinStorage = globalThis.LeofcoinStorage || storage
+      }
+      globalThis.walletStore = new LeofcoinStorage('wallet')
+    }
+  }
   async _hasWallet() {
     const has = await globalThis.walletStore?.has('identity')
-    return has
+    console.log(has)
+
+    return has as boolean
   }
 
   get #pages() {
-    return this.renderRoot.querySelector('custom-pages')
+    return this.shadowRoot.querySelector('custom-pages')
   }
 
   _keydown({ key, code, keyCode, ctrlKey, altKey, shiftKey }) {
-    if (key === 'Enter') this.renderRoot.querySelector('[data-route-action="login"]').click()
+    if (key === 'Enter') this.shadowRoot.querySelector('[data-route-action="login"]').click()
   }
 
   async requestLogin(hasWallet) {
@@ -43,11 +60,18 @@ export class LoginScreen extends LitElement {
       this.addEventListener('keydown', this._keydown)
       this.shown = true
       this.hasWallet = await this._hasWallet()
-      this.renderRoot.querySelector('input').focus()
+      if (this.hasWallet) {
+        this.headline = 'Welcome back!'
+        this.subline = 'Enter password to unlock wallet'
+      } else {
+        this.headline = 'Welcome!'
+        this.subline = 'Create a wallet or import one to continue'
+      }
+      this.shadowRoot.querySelector('input').focus()
       this.addEventListener('click', async (event) => {
         const target = event.composedPath()[0]
         const routeAction = target.dataset.routeAction
-        const password = this.renderRoot.querySelector('input').value
+        const password = this.shadowRoot.querySelector('input').value
         try {
           if (routeAction) {
             console.log(routeAction)
@@ -66,11 +90,11 @@ export class LoginScreen extends LitElement {
     return new Promise(async (resolve, reject) => {
       this.addEventListener('keydown', this._keydown)
       this.shown = true
-      this.renderRoot.querySelector('input').focus()
+      this.shadowRoot.querySelector('input').focus()
       this.addEventListener('click', async (event) => {
         const target = event.composedPath()[0]
         const routeAction = target.dataset.routeAction
-        const password = this.renderRoot.querySelector('input').value
+        const password = this.shadowRoot.querySelector('input').value
         try {
           if (routeAction) {
             resolve(password)
@@ -83,7 +107,7 @@ export class LoginScreen extends LitElement {
   async #handleBeforeLogin(password) {
     console.log('handle')
 
-    this.renderRoot.querySelector('input').value = null
+    this.shadowRoot.querySelector('input').value = null
     let wallet
     this.hasWallet = await this._hasWallet()
     if (!this.hasWallet && !this.importing) {
@@ -112,7 +136,7 @@ export class LoginScreen extends LitElement {
     document.querySelector('app-shell').wallet = wallet
 
     if (!customElements.get('identity-view')) await import('../views/identity.js')
-    const identityView = document.querySelector('app-shell').renderRoot.querySelector('identity-view')
+    const identityView = document.querySelector('app-shell').shadowRoot.querySelector('identity-view')
     identityView.identity = wallet.identity
     identityView.accounts = wallet.accounts
     identityView.selectedAccount = wallet.selectedAccount
@@ -124,9 +148,9 @@ export class LoginScreen extends LitElement {
     this.removeEventListener('keydown', this._keydown)
 
     if (!this.hasWallet) {
-      document.querySelector('app-shell').select('identity')
+      location.hash = Router.bang('identity/dashboard')
     }
-
+    document.querySelector('app-shell').navRailShown = true
     pubsub.publish('identity-change', {
       accounts: wallet.accounts,
       selectedAccount: wallet.selectedAccount,
@@ -140,6 +164,8 @@ export class LoginScreen extends LitElement {
 
   async #handleCreate(password) {
     const wallet = await this.#handleBeforeLogin(password)
+    this.headline = 'Created Wallet!'
+    this.subline = 'Make sure to backup your password and mnemonic'
     this.#pages.select('create')
     try {
       await globalThis.identityController.unlock(password)
@@ -154,7 +180,7 @@ export class LoginScreen extends LitElement {
 
   #waitForKey = () =>
     new Promise((resolve, reject) => {
-      const importSection = this.renderRoot.querySelector('[data-route="import"]')
+      const importSection = this.shadowRoot.querySelector('[data-route="import"]')
 
       const _onImport = (result) => {
         resolve(importSection.querySelector('input').value)
@@ -162,7 +188,7 @@ export class LoginScreen extends LitElement {
         importSection.querySelector('md-elevated-button').removeEventListener('click', _onImport)
       }
       importSection.querySelector('md-elevated-button').addEventListener('click', _onImport)
-      new QrScanner(this.renderRoot.querySelector('video'), (decoded) => {
+      new QrScanner(this.shadowRoot.querySelector('video'), (decoded) => {
         importSection.querySelector('input').value = decoded
       })
     })
@@ -170,6 +196,8 @@ export class LoginScreen extends LitElement {
   async #handleImport(password) {
     this.importing = true
     this.#pages.select('import')
+    this.headline = 'Import Wallet!'
+    this.subline = 'Scan qr code or putin multiWIF'
     const encrypted = await this.#waitForKey()
     try {
       const identityController = new IdentityController('leofcoin:peach')
@@ -200,6 +228,7 @@ export class LoginScreen extends LitElement {
   }
 
   async #spawnChain(password) {
+    console.time('loading chain')
     let importee
     importee = await import('../../node_modules/@leofcoin/chain/exports/browser/node-browser.js')
     await new importee.default(
@@ -219,7 +248,7 @@ export class LoginScreen extends LitElement {
     importee = await import('./../../node_modules/@leofcoin/chain/exports/browser/chain.js')
     globalThis.chain = await new importee.default({ resolveTimeout: 30_000 })
     console.log(chain)
-
+    console.timeEnd('loading chain')
     this.#spawnEndpoint()
     // await globalThis.client.init()
   }
@@ -239,7 +268,6 @@ export class LoginScreen extends LitElement {
 
   async loadChain(password, direct = true) {
     if (globalThis.chain) return
-    let importee
     try {
       if (direct) await this.#spawnChain(password)
       else await this.#spawnEndpoint(false)
@@ -264,23 +292,19 @@ export class LoginScreen extends LitElement {
     }
   }
   get #defaultTemplate() {
-    return html` <h4>Login</h4>
-      <h5>Create a wallet or import one to continue</h5>
-      <flex-it flex="2"></flex-it>
+    return html`
       <input type="password" placeholder="password" tabindex="0" autofocus autocomplete="new-password" />
       <flex-it></flex-it>
       <flex-row>
         <button data-route-action="import">import</button>
         <flex-it></flex-it>
         <button data-route-action="create">create</button>
-      </flex-row>`
+      </flex-row>
+    `
   }
 
   get #hasWalletTemplate() {
     return html`
-      <h4>Welcome back!</h4>
-      <h5>Enter password to unlock wallet</h5>
-      <flex-it flex="2"></flex-it>
       <input type="password" placeholder="password" tabindex="0" autofocus autocomplete="current-password" />
       <flex-it></flex-it>
       <button data-route-action="login" style="width: 100%; max-width: 190px; margin-bottom: 12px;">login</button>
@@ -299,6 +323,7 @@ export class LoginScreen extends LitElement {
       opacity: 0;
       background: #1116;
       transition: 0.25s;
+      z-index: -1;
     }
 
     :host([shown]) {
@@ -308,26 +333,13 @@ export class LoginScreen extends LitElement {
       transition: 0.25s;
     }
 
-    .wrapper {
-      background: var(--active-background);
-      border-radius: 12px;
-      box-sizing: border-box;
-      padding: 12px 24px;
-      height: 100%;
-      max-height: 240px;
-      max-width: 320px;
-      width: 100%;
-      color: var(--font-color);
-      border: 1px solid var(--border-color);
-      margin-left: 48px;
-    }
-
     input,
     button {
       border-color: white;
       padding: 10px;
       border-radius: 12px;
       box-sizing: border-box;
+      pointer-events: auto;
     }
 
     input {
@@ -347,14 +359,6 @@ export class LoginScreen extends LitElement {
       transition: 0.25s;
     }
 
-    h5 {
-      margin: 0;
-    }
-
-    h5 {
-      margin: 0;
-    }
-
     custom-pages {
       width: 100%;
       height: 100%;
@@ -367,25 +371,19 @@ export class LoginScreen extends LitElement {
       align-items: center;
       justify-content: center;
     }
-    .word {
-      display: inline-flex;
-      padding: 6px;
-      border-radius: 3px;
-      background: #fff;
-      color: #333;
-    }
   `
 
   render() {
     return html`
-      <flex-column class="wrapper">
+      <hero-element .headline=${this.headline} .subline=${this.subline}>
         <custom-pages attr-for-selected="data-route">
           <flex-column data-route="login" center>
+            <flex-it flex="2"></flex-it>
             ${this.hasWallet ? this.#hasWalletTemplate : this.#defaultTemplate}
           </flex-column>
 
           <flex-column data-route="create">
-            <h4>Make sure to backup your password and mnemonic</h4>
+            <flex-it flex="2"></flex-it>
             ${this.mnemonic}
 
             <md-elevated-button @click=${this.#iUnderstand}>I Understand</md-elevated-button>
@@ -401,7 +399,7 @@ export class LoginScreen extends LitElement {
             <md-elevated-button>import</md-elevated-button>
           </flex-column>
         </custom-pages>
-      </flex-column>
+      </hero-element>
     `
   }
 }
